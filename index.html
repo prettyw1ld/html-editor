@@ -4,54 +4,92 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Правка HTML</title>
+<link rel="icon" id="appIcon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23FFD200'/%3E%3Cpath d='M9 23l2-6 9-9 4 4-9 9z' fill='%23111'/%3E%3C/svg%3E">
 <style>
   :root{
-    --bg:#f4f4f2; --surface:#ffffff; --surface-2:#f7f7f5; --ink:#18181a; --muted:#6c6c70;
+    --bg:#f4f4f2; --surface:#ffffff; --surface-2:#f7f7f5; --surface-3:#ececea; --ink:#18181a; --muted:#6c6c70;
     --line:#e3e3df; --accent:#FFD200; --accent-ink:#111; --focus:#1a73e8; --danger:#c5221f;
-    --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
+    --add:#1e8e3e; --mod:#b06a00;
   }
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]){
-      --bg:#161617; --surface:#1f1f21; --surface-2:#262628; --ink:#ededee; --muted:#9a9aa0;
-      --line:#333336; --accent:#FFD200; --accent-ink:#111; --focus:#6aa5ff; --danger:#ff6b61;
-      --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.3);
+      --bg:#161617; --surface:#1f1f21; --surface-2:#262628; --surface-3:#2e2e31; --ink:#ededee; --muted:#9a9aa0;
+      --line:#333336; --focus:#6aa5ff; --danger:#ff6b61; --add:#5bd17f; --mod:#ffbf47;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#161617; --surface:#1f1f21; --surface-2:#262628; --ink:#ededee; --muted:#9a9aa0;
-    --line:#333336; --accent:#FFD200; --accent-ink:#111; --focus:#6aa5ff; --danger:#ff6b61;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.3);
+    --bg:#161617; --surface:#1f1f21; --surface-2:#262628; --surface-3:#2e2e31; --ink:#ededee; --muted:#9a9aa0;
+    --line:#333336; --focus:#6aa5ff; --danger:#ff6b61; --add:#5bd17f; --mod:#ffbf47;
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
   body{background:var(--bg);color:var(--ink);font:14px/1.45 "Inter","Segoe UI",Roboto,Arial,sans-serif;
     display:flex;flex-direction:column}
   button,input{font:inherit;color:inherit}
+  [hidden]{display:none!important}
 
-  /* верхняя панель */
-  .bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--surface);
+  /* ── верхняя панель ── */
+  .bar{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--surface);
     border-bottom:1px solid var(--line);flex-wrap:wrap}
   .logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:-.3px;margin-right:8px}
   .logo i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:grid;place-items:center;
     font-style:normal;color:var(--accent-ink);font-size:13px}
   .file{display:flex;flex-direction:column;min-width:0;margin-right:auto}
-  .file b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
+  .file b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30vw}
   .file span{font-size:12px;color:var(--muted)}
-  .file span.dirty{color:#b06a00}
+  .file span.dirty{color:var(--mod)}
+  .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
   .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);
-    padding:7px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
+    padding:7px 11px;border-radius:9px;cursor:pointer;white-space:nowrap}
   .btn:hover:not(:disabled){background:var(--surface-2)}
   .btn:disabled{opacity:.4;cursor:default}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
   .btn.primary:hover:not(:disabled){filter:brightness(.96);background:var(--accent)}
+  .btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .btn.on:hover:not(:disabled){background:var(--ink);opacity:.9}
   .btn.danger{color:var(--danger)}
   .btn svg{width:16px;height:16px;flex:none}
   .kbd{font-size:11px;color:var(--muted)}
 
-  /* рабочая область */
+  /* ── рабочая область ── */
   main{flex:1;display:flex;min-height:0}
-  #stage{flex:1;position:relative;min-width:0}
-  #frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}
+  #stage{flex:1;display:flex;flex-direction:column;min-width:0}
+
+  /* полоска-вкладка */
+  .tabbar{display:flex;align-items:flex-end;gap:12px;padding:8px 12px 0;background:var(--surface-3);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{position:relative;display:flex;align-items:center;gap:8px;background:#fff;color:#18181a;
+    border-radius:10px 10px 0 0;padding:7px 10px 8px;width:min(380px,100%);margin-bottom:-1px;
+    border:1px solid var(--line);border-bottom-color:#fff}
+  .fav{position:relative;width:20px;height:20px;flex:none;border:0;padding:0;background:none;cursor:pointer;border-radius:4px;display:grid;place-items:center}
+  .fav:hover{outline:2px solid var(--accent);outline-offset:1px}
+  .fav img{width:16px;height:16px;object-fit:contain}
+  .fav svg{width:16px;height:16px;color:#6c6c70}
+  .fav-x{position:absolute;left:22px;top:2px;width:14px;height:14px;border-radius:50%;border:0;padding:0;font-size:10px;line-height:14px;
+    background:#18181a;color:#fff;cursor:pointer;display:none}
+  .tab:hover .fav-x.has{display:block}
+  .tab input{flex:1;min-width:0;border:1px solid transparent;background:transparent;border-radius:6px;padding:2px 6px;
+    font-size:13px;color:#18181a;text-overflow:ellipsis}
+  .tab input:hover{border-color:#e3e3df}
+  .tab input:focus{outline:none;border-color:#1a73e8;background:#fff}
+  .tab .pen{width:13px;height:13px;color:#9a9aa0;flex:none}
+  .tab-cap{font-size:11px;color:var(--muted);align-self:center;padding-bottom:8px}
+  .zoom{margin-left:auto;display:flex;align-items:center;gap:2px;padding-bottom:6px}
+  .zoom .btn{padding:4px 9px;border-radius:7px;font-size:13px}
+  #zVal{min-width:58px;justify-content:center;font-variant-numeric:tabular-nums}
+
+  /* поиск */
+  .findbar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .findbar input[type=text]{width:200px;max-width:100%;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2)}
+  .findbar input:focus{outline:2px solid var(--focus);outline-offset:-1px}
+  .findbar .btn{padding:5px 9px;font-size:13px}
+  #fCount{font-size:12px;color:var(--muted);min-width:64px;font-variant-numeric:tabular-nums}
+  #fCount.none{color:var(--danger)}
+  .findbar .x{margin-left:auto}
+
+  .view{position:relative;flex:1;overflow:hidden;background:var(--bg)}
+  #frame{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#fff;display:none;transform-origin:0 0}
   #stage.loaded #frame{display:block}
   #stage.loaded #empty{display:none}
   #empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
@@ -65,8 +103,8 @@
   .draft.show{display:flex}
   .draft div{flex:1;min-width:200px;font-size:13px}
 
-  /* боковая панель */
-  aside{width:320px;flex:none;background:var(--surface);border-left:1px solid var(--line);
+  /* ── боковая панель ── */
+  aside{width:330px;flex:none;background:var(--surface);border-left:1px solid var(--line);
     overflow-y:auto;display:flex;flex-direction:column}
   .sec{padding:16px;border-bottom:1px solid var(--line)}
   .sec h2{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:700}
@@ -74,8 +112,7 @@
   .hint ol{margin:6px 0 0;padding-left:18px}
   .hint li{margin:4px 0}
   .crumbs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
-  .crumb{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:3px 10px;
-    font-size:12px;cursor:pointer}
+  .crumb{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
   .crumb.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
   .crumb-sep{color:var(--muted);font-size:12px;align-self:center}
   .preview{font-size:12.5px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:8px 10px;
@@ -85,11 +122,20 @@
   .actions .wide{grid-column:span 2}
   .field{margin-top:14px}
   .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-  .field input[type=text],.field input[type=url]{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
-    background:var(--surface-2)}
+  .field input[type=text],.field input[type=url]{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2)}
   .field input:focus{outline:2px solid var(--focus);outline-offset:-1px}
   .row{display:flex;gap:6px;margin-top:6px}
   .thumb{display:block;max-width:100%;max-height:90px;border-radius:8px;background:repeating-conic-gradient(#ddd 0 25%,#fff 0 50%) 0 0/12px 12px;margin-bottom:8px}
+
+  .diffsum{display:flex;gap:10px;font-size:12.5px;margin-bottom:8px;flex-wrap:wrap}
+  .diffsum b{font-variant-numeric:tabular-nums}
+  .tag-mod{color:var(--mod)} .tag-add{color:var(--add)} .tag-del{color:var(--danger)}
+  .difflist{list-style:none;margin:0;padding:0;font-size:12.5px;max-height:260px;overflow-y:auto}
+  .difflist li{padding:6px 8px;border-radius:8px;word-break:break-word;display:flex;gap:6px}
+  .difflist li[data-i]{cursor:pointer}
+  .difflist li[data-i]:hover{background:var(--surface-2)}
+  .difflist .m{flex:none;font-weight:700;width:12px}
+  .difflist s{color:var(--muted)}
 
   .hist{list-style:none;margin:0;padding:0;font-size:13px}
   .hist li{display:flex;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;align-items:flex-start}
@@ -104,12 +150,14 @@
     padding:9px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:10;max-width:90vw}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  @media (max-width:1150px){ .bar .btn .t{display:none} .bar .btn.primary .t{display:inline} }
   @media (max-width:820px){
     main{flex-direction:column}
-    #stage{min-height:60vh}
+    #stage{min-height:65vh}
     aside{width:auto;border-left:0;border-top:1px solid var(--line)}
-    .kbd{display:none}
+    .kbd,.tab-cap{display:none}
     .file b{max-width:60vw}
+    .zoom{margin-left:0}
   }
 </style>
 </head>
@@ -119,54 +167,92 @@
   <div class="logo"><i>✎</i>Правка HTML</div>
   <div class="file"><b id="fname">Файл не открыт</b><span id="fstate">Откройте .html, чтобы начать</span></div>
   <button class="btn" id="bOpen" title="Открыть файл">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Открыть</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="t">Открыть</span></button>
+  <span class="sep"></span>
   <button class="btn" id="bUndo" disabled title="Отменить (Ctrl+Z)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Отменить</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg><span class="t">Отменить</span></button>
   <button class="btn" id="bRedo" disabled title="Повторить (Ctrl+Y)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg>Повторить</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg><span class="t">Повторить</span></button>
+  <span class="sep"></span>
+  <button class="btn" id="bFind" disabled title="Найти и заменить (Ctrl+F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="t">Найти</span></button>
+  <button class="btn" id="bDiff" disabled title="Подсветить всё, что изменилось относительно исходника">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="M5 8h4M7 6v4"/><path d="M15 16h4"/></svg><span class="t">Изменения</span></button>
+  <button class="btn" id="bPdf" disabled title="Сохранить как PDF / печать (Ctrl+P)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg><span class="t">PDF</span></button>
   <button class="btn primary" id="bSave" disabled title="Скачать исправленный файл (Ctrl+S)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Сохранить</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span class="t">Сохранить</span></button>
 </header>
 
 <main>
   <div id="stage">
-    <div id="empty">
-      <div class="drop" id="drop">
-        <h1>Перетащите сюда HTML-файл</h1>
-        <p>или выберите его на компьютере. Исходный файл не изменится — исправленная версия скачается отдельно.</p>
-        <button class="btn primary" id="bOpen2">Выбрать файл</button>
-        <div class="draft" id="draft">
-          <div id="draftText"></div>
-          <button class="btn" id="bDraftOpen">Восстановить</button>
-          <button class="btn" id="bDraftDrop">Удалить</button>
-        </div>
+    <div class="tabbar" id="tabbar" hidden>
+      <span class="tab-cap">Вкладка браузера:</span>
+      <div class="tab">
+        <button class="fav" id="favBtn" title="Иконка вкладки — нажмите, чтобы заменить">
+          <img id="favImg" alt="" hidden>
+          <svg id="favDef" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        </button>
+        <button class="fav-x" id="favDel" title="Убрать иконку">×</button>
+        <input type="text" id="docTitle" placeholder="Без названия" title="Название вкладки — нажмите, чтобы изменить" spellcheck="true">
+        <svg class="pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l1.5-5L16 4.5l3.5 3.5L9 18.5z"/></svg>
+      </div>
+      <div class="zoom">
+        <button class="btn" id="zOut" title="Уменьшить">−</button>
+        <button class="btn" id="zVal" title="Вернуть 100%">100%</button>
+        <button class="btn" id="zIn" title="Увеличить">+</button>
+        <button class="btn" id="zFit" title="Вписать страницу по ширине окна">По ширине</button>
       </div>
     </div>
-    <iframe id="frame" sandbox="allow-same-origin allow-modals" title="Документ"></iframe>
+
+    <div class="findbar" id="findbar" hidden>
+      <input type="text" id="fQ" placeholder="Найти…" spellcheck="false">
+      <span id="fCount"></span>
+      <button class="btn" id="fPrev" title="Предыдущее (Shift+Enter)">↑</button>
+      <button class="btn" id="fNext" title="Следующее (Enter)">↓</button>
+      <button class="btn" id="fCase" title="Учитывать регистр">Aa</button>
+      <input type="text" id="fR" placeholder="Заменить на…" spellcheck="true">
+      <button class="btn" id="fOne">Заменить</button>
+      <button class="btn" id="fAll">Заменить все</button>
+      <button class="btn x" id="fClose" title="Закрыть (Esc)">✕</button>
+    </div>
+
+    <div class="view" id="view">
+      <div id="empty">
+        <div class="drop" id="drop">
+          <h1>Перетащите сюда HTML-файл</h1>
+          <p>или выберите его на компьютере. Исходный файл не изменится — исправленная версия скачается отдельно.</p>
+          <button class="btn primary" id="bOpen2">Выбрать файл</button>
+          <div class="draft" id="draft">
+            <div id="draftText"></div>
+            <button class="btn" id="bDraftOpen">Восстановить</button>
+            <button class="btn" id="bDraftDrop">Удалить</button>
+          </div>
+        </div>
+      </div>
+      <iframe id="frame" sandbox="allow-same-origin allow-modals" title="Документ"></iframe>
+    </div>
   </div>
 
   <aside>
-    <section class="sec" id="selSec">
+    <section class="sec">
       <h2>Выбрано</h2>
       <div id="selBody">
         <div class="hint">
           Как пользоваться:
           <ol>
-            <li>Кликните по тексту и печатайте.</li>
+            <li>Кликните по тексту и печатайте. Ошибки подчёркиваются красным — правый клик покажет варианты.</li>
             <li><b>Enter</b> — готово, <b>Shift+Enter</b> — перенос строки.</li>
             <li>Чтобы скопировать, удалить или передвинуть строку или блок, кликните внутрь и выберите нужный уровень здесь.</li>
-            <li>Кликните по картинке или ссылке, чтобы заменить её.</li>
+            <li>Название и иконка вкладки меняются в полоске над документом.</li>
           </ol>
         </div>
       </div>
     </section>
 
-    <section class="sec" id="titleSec" hidden>
-      <h2>Документ</h2>
-      <div class="field" style="margin-top:0">
-        <label for="docTitle">Название вкладки</label>
-        <input type="text" id="docTitle">
-      </div>
+    <section class="sec" id="diffSec" hidden>
+      <h2>Изменения относительно исходника</h2>
+      <div id="diffBody"></div>
     </section>
 
     <section class="sec grow">
@@ -182,22 +268,26 @@
 
 <input type="file" id="fileIn" accept=".html,.htm,text/html" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
+<input type="file" id="favIn" accept="image/*" hidden>
 <div id="toast" role="status"></div>
 
 <script>
 (() => {
   'use strict';
   const $ = s => document.querySelector(s);
-  const frame = $('#frame'), stage = $('#stage');
-  const MAX_HIST = 150, DRAFT_KEY = 'html-editor-draft';
+  const frame = $('#frame'), stage = $('#stage'), view = $('#view');
+  const MAX_HIST = 150, DRAFT_KEY = 'html-editor-draft', ZOOM_KEY = 'html-editor-zoom';
+  const APP_TITLE = 'Правка HTML', APP_ICON = $('#appIcon').href;
+  const ZOOMS = [0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
 
   let doc = null, fileName = 'document.html';
   let hist = [], hi = -1, savedAt = 0;
-  let editing = null, editBefore = '', editBeforeText = '';
+  let editing = null, editBefore = '', editBeforeText = '', pending = false;
   let selected = null, hovered = null;
-  let draftTimer = null;
-  let origHtml = '';      // исходник файла — хранится отдельно от истории
-  let pending = false;    // в редактируемом блоке есть ещё не зафиксированные правки
+  let draftTimer = null, origHtml = '';
+  let zoom = 1, zoomFit = false;
+  let find = { open: false, q: '', cs: false, list: [], cur: -1 };
+  let diffOn = false, diffItems = [];
 
   const NAMES = {
     TR:'Строка', TD:'Ячейка', TH:'Ячейка', LI:'Пункт', TABLE:'Таблица', THEAD:'Шапка таблицы',
@@ -210,6 +300,7 @@
   };
   const nameOf = el => NAMES[el.tagName] || 'Элемент';
   const LEAFY = new Set(['TD','TH','LI','P','H1','H2','H3','H4','H5','H6','SPAN','A','CODE','B','STRONG','EM','I','LABEL','DT','DD','SMALL','FIGCAPTION','BUTTON']);
+  const MARK_SEL = '[data-hed-sel],[data-hed-hover],[data-hed-edit],[data-hed-diff],[data-hed-sp]';
 
   /* ───────── утилиты ───────── */
   const toast = (msg) => {
@@ -217,7 +308,9 @@
     clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
   };
   const short = (s, n = 40) => { s = (s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
-  const clean = html => html.replace(/\s?data-hed-(?:sel|hover|edit)(?:="[^"]*")?/g, '').replace(/\s?contenteditable="true"/g, '');
+  const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const attr = s => esc(s).replace(/"/g, '&quot;');
+  const clean = html => html.replace(/\s?data-hed-[a-z]+(?:="[^"]*")?/g, '');
   const hasText = el => {
     for (const n of el.childNodes) if (n.nodeType === 3 && n.nodeValue.trim()) return true;
     return LEAFY.has(el.tagName) && !el.children.length;
@@ -225,10 +318,13 @@
   const isBlockable = el => el && el !== doc.body && el !== doc.documentElement && el.parentElement;
 
   function stripMarks(root) {
-    root.querySelectorAll('[data-hed-edit]').forEach(e => e.removeAttribute('contenteditable'));
-    root.querySelectorAll('[data-hed-sel],[data-hed-hover],[data-hed-edit]').forEach(e => {
-      e.removeAttribute('data-hed-sel'); e.removeAttribute('data-hed-hover'); e.removeAttribute('data-hed-edit');
-    });
+    const all = [...root.querySelectorAll(MARK_SEL)];
+    if (root.matches && root.matches(MARK_SEL)) all.push(root);
+    for (const e of all) {
+      if (e.hasAttribute('data-hed-edit')) e.removeAttribute('contenteditable');
+      if (e.hasAttribute('data-hed-sp')) e.removeAttribute('spellcheck');
+      for (const a of [...e.attributes]) if (a.name.startsWith('data-hed-')) e.removeAttribute(a.name);
+    }
     return root;
   }
   const cleanBody = () => stripMarks(doc.body.cloneNode(true)).innerHTML;
@@ -248,6 +344,32 @@
     return out.join('\n');
   }
 
+  /* ───────── head: название и иконка ───────── */
+  const iconLinks = d => [...d.querySelectorAll('link[rel~="icon" i]')];
+  const getIcon = (d = doc) => { const l = iconLinks(d)[0]; return l ? l.getAttribute('href') : null; };
+  function setIcon(href) {
+    const links = iconLinks(doc);
+    if (!href) { links.forEach(l => l.remove()); }
+    else if (links.length) { links[0].setAttribute('href', href); links[0].removeAttribute('type'); links[0].removeAttribute('sizes'); links.slice(1).forEach(l => l.remove()); }
+    else {
+      const l = doc.createElement('link'); l.rel = 'icon'; l.href = href;
+      const st = doc.getElementById('hed-style');
+      (doc.head || doc.documentElement).insertBefore(l, st || null);
+    }
+    renderHead();
+  }
+  function renderHead() {
+    const on = !!doc;
+    const title = on ? doc.title : '';
+    if (document.activeElement !== $('#docTitle')) $('#docTitle').value = title;
+    document.title = on ? `${title || 'Без названия'} — ${APP_TITLE}` : APP_TITLE;
+    const ic = on ? getIcon() : null;
+    $('#favImg').toggleAttribute('hidden', !ic); $('#favDef').toggleAttribute('hidden', !!ic);  // у SVG нет свойства .hidden
+    if (ic) $('#favImg').src = ic;
+    $('#favDel').classList.toggle('has', !!ic);
+    $('#appIcon').href = ic || APP_ICON;
+  }
+
   /* ───────── загрузка ───────── */
   function readFile(file) {
     if (!file) return;
@@ -261,7 +383,7 @@
     if (doc && isDirty() && !confirm('Есть несохранённые изменения. Открыть другой файл?')) return;
     fileName = name || 'document.html';
     origHtml = orig || html;
-    pending = false;
+    pending = false; diffOn = false; closeFind();
     frame.onload = () => {
       doc = frame.contentDocument;
       if (!doc || !doc.body) { toast('Не удалось открыть файл'); return; }
@@ -269,10 +391,8 @@
       hist = []; hi = -1;
       push(restoreDraft ? 'Восстановлен черновик' : 'Исходный файл', true);
       savedAt = restoreDraft ? -1 : 0;
-      stage.classList.add('loaded');
-      $('#titleSec').hidden = false;
-      $('#docTitle').value = doc.title;
-      select(null); ui();
+      stage.classList.add('loaded'); $('#tabbar').hidden = false;
+      select(null); renderHead(); ui(); applyZoom();
     };
     frame.srcdoc = html;
   }
@@ -284,7 +404,10 @@
       [data-hed-hover]{outline:2px dashed rgba(240,170,0,.9)!important;outline-offset:2px}
       [data-hed-sel]{outline:2px solid #f0aa00!important;outline-offset:2px}
       [data-hed-edit]{outline:2px solid #1a73e8!important;outline-offset:2px;background-color:rgba(26,115,232,.07)!important;cursor:text}
-      [data-hed-edit]:focus{outline:2px solid #1a73e8!important}
+      [data-hed-diff="mod"]{background-color:rgba(255,200,0,.35)!important;box-shadow:0 0 0 2px rgba(240,160,0,.75)!important}
+      [data-hed-diff="add"]{background-color:rgba(52,168,83,.2)!important;box-shadow:0 0 0 2px rgba(52,168,83,.75)!important}
+      ::highlight(hed-find){background-color:#ffe066;color:inherit}
+      ::highlight(hed-cur){background-color:#ff9632;color:#000}
       img{cursor:pointer}
       a{cursor:text}`;
     (doc.head || doc.documentElement).appendChild(st);
@@ -298,6 +421,7 @@
     doc.addEventListener('mouseleave', () => { if (hovered) hovered.removeAttribute('data-hed-hover'); hovered = null; });
 
     doc.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;              // правый клик — меню орфографии, не трогаем
       const t = e.target;
       if (t === doc.documentElement || t === doc.body) { commitEdit(); select(null); return; }
       if (editing && editing.contains(t)) { select(t); return; }
@@ -316,11 +440,11 @@
       const text = (e.clipboardData || window.clipboardData).getData('text/plain');
       doc.execCommand('insertText', false, text.replace(/\r\n?/g, '\n'));
     });
-
     doc.addEventListener('input', () => { if (editing && !pending) { pending = true; ui(); } });
 
     doc.addEventListener('keydown', e => {
       if (shortcuts(e)) return;
+      if (e.key === 'Escape' && find.open && !editing) { closeFind(); return; }
       if (!editing) return;
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -338,6 +462,7 @@
     editing = el;
     el.setAttribute('data-hed-edit', '');
     el.setAttribute('contenteditable', 'true');
+    if (!el.hasAttribute('spellcheck')) { el.setAttribute('spellcheck', 'true'); el.setAttribute('data-hed-sp', ''); }
     editBefore = clean(el.innerHTML);
     editBeforeText = el.textContent;
   }
@@ -347,48 +472,29 @@
     const wasPending = pending; pending = false;
     const after = clean(el.innerHTML);
     el.removeAttribute('contenteditable'); el.removeAttribute('data-hed-edit');
+    if (el.hasAttribute('data-hed-sp')) { el.removeAttribute('spellcheck'); el.removeAttribute('data-hed-sp'); }
     if (after !== editBefore) {
       const a = short(editBeforeText, 22), b = short(el.textContent, 22);
       push(a ? `«${a}» → «${b || '(пусто)'}»` : `Добавлен текст «${b}»`);
     } else if (wasPending) ui();
   }
 
-  /* ───────── возврат к исходнику: новая запись в истории, Ctrl+Z возвращает обратно ───────── */
-  function resetToOriginal() {
-    if (!doc) return;
-    commitEdit();
-    const o = new DOMParser().parseFromString(origHtml, 'text/html');
-    if (o.body.innerHTML === cleanBody() && o.title === doc.title) { toast('Документ уже в исходном виде'); return; }
-    if (!confirm('Вернуть документ к исходному виду?\nЭто можно отменить через «Отменить» или Ctrl+Z.')) return;
-    editing = null; hovered = null;
-    doc.body.innerHTML = o.body.innerHTML;
-    doc.title = o.title; $('#docTitle').value = doc.title;
-    select(null);
-    push('↺ Возврат к исходнику');
-    toast('Документ возвращён к исходному виду');
-  }
-
   /* ───────── выделение и панель ───────── */
   function select(el) {
     if (selected && selected !== el) selected.removeAttribute('data-hed-sel');
-    selected = el && isBlockable(el) ? el : null;
+    selected = el && doc && isBlockable(el) ? el : null;
     if (selected) selected.setAttribute('data-hed-sel', '');
     renderPanel();
   }
 
   function renderPanel() {
     const box = $('#selBody');
-    if (!selected) {
-      box.innerHTML = doc
-        ? '<p class="hint">Кликните по любому тексту, строке таблицы или картинке в документе.</p>'
-        : box.innerHTML;
-      return;
-    }
+    if (!doc) return;
+    if (!selected) { box.innerHTML = '<p class="hint">Кликните по любому тексту, строке таблицы или картинке в документе.</p>'; return; }
     const chain = [];
     for (let e = selected; e && e !== doc.body; e = e.parentElement) chain.unshift(e);
     const shown = chain.slice(-5);
-    const h = [];
-    h.push('<div class="crumbs">');
+    const h = ['<div class="crumbs">'];
     if (chain.length > shown.length) h.push('<span class="crumb-sep">…</span>');
     shown.forEach((e, i) => {
       if (i) h.push('<span class="crumb-sep">›</span>');
@@ -427,8 +533,6 @@
     const alt = $('#fAlt'); if (alt) alt.onchange = () => { img.setAttribute('alt', alt.value); push('Описание картинки'); };
     const href = $('#fHref'); if (href) href.onchange = () => { link.setAttribute('href', href.value.trim()); push(`Ссылка → ${short(href.value, 30)}`); };
   }
-  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  const attr = s => esc(s).replace(/"/g, '&quot;');
 
   /* ───────── действия над блоками ───────── */
   function act(a) {
@@ -458,8 +562,8 @@
       const l = el.closest('a'); if (l && l.getAttribute('href')) window.open(l.href, '_blank', 'noopener');
     } else if (a === 'unlink') {
       const l = el.closest('a'); if (!l) return;
-      const span = doc.createDocumentFragment(); while (l.firstChild) span.appendChild(l.firstChild);
-      const parent = l.parentElement; l.replaceWith(span); select(parent); push('Ссылка убрана');
+      const frag = doc.createDocumentFragment(); while (l.firstChild) frag.appendChild(l.firstChild);
+      const parent = l.parentElement; l.replaceWith(frag); select(parent); push('Ссылка убрана');
     }
   }
 
@@ -471,34 +575,76 @@
     r.readAsDataURL(f);
   };
 
+  /* ───────── favicon: картинка ужимается до 64×64 и встраивается в файл ───────── */
+  $('#favBtn').onclick = () => { if (!doc) return; $('#favIn').value = ''; $('#favIn').click(); };
+  $('#favDel').onclick = () => { if (!doc || !getIcon()) return; setIcon(null); push('Иконка вкладки убрана'); };
+  $('#favIn').onchange = e => {
+    const f = e.target.files[0]; if (!f || !doc) return;
+    const r = new FileReader();
+    r.onload = () => {
+      if (/svg/.test(f.type) || f.type === 'image/x-icon' || f.type === 'image/vnd.microsoft.icon') { setIcon(r.result); push('Иконка вкладки заменена'); return; }
+      const im = new Image();
+      im.onload = () => {
+        const S = 64, c = document.createElement('canvas'); c.width = c.height = S;
+        const k = Math.min(S / im.width, S / im.height), w = im.width * k, h = im.height * k;
+        c.getContext('2d').drawImage(im, (S - w) / 2, (S - h) / 2, w, h);
+        setIcon(c.toDataURL('image/png')); push('Иконка вкладки заменена');
+      };
+      im.onerror = () => toast('Не удалось прочитать картинку');
+      im.src = r.result;
+    };
+    r.readAsDataURL(f);
+  };
+  const titleIn = $('#docTitle');
+  titleIn.oninput = () => { if (doc) { doc.title = titleIn.value; document.title = `${titleIn.value || 'Без названия'} — ${APP_TITLE}`; } };
+  titleIn.onchange = () => { if (doc && doc.title !== hist[hi].title) push(`Название вкладки → «${short(titleIn.value, 30)}»`); };
+  titleIn.onkeydown = e => { if (e.key === 'Enter') titleIn.blur(); if (e.key === 'Escape') { titleIn.value = hist[hi].title; doc.title = hist[hi].title; titleIn.blur(); renderHead(); } };
+
   /* ───────── история ───────── */
   function push(label, initial) {
     hist = hist.slice(0, hi + 1);
-    hist.push({ body: cleanBody(), title: doc.title, label, t: new Date() });
+    hist.push({ body: cleanBody(), title: doc.title, icon: getIcon(), label, t: new Date() });
     if (hist.length > MAX_HIST) { hist.splice(1, 1); savedAt--; }
     hi = hist.length - 1;
-    ui();
+    afterChange();
     if (!initial) scheduleDraft();
   }
   function restore(i) {
     if (i < 0 || i >= hist.length) return;
-    editing = null; hovered = null;
+    editing = null; hovered = null; pending = false;
     hi = i;
     doc.body.innerHTML = hist[i].body;
-    doc.title = hist[i].title; $('#docTitle').value = doc.title;
-    select(null); ui(); scheduleDraft();
+    doc.title = hist[i].title;
+    if (getIcon() !== hist[i].icon) setIcon(hist[i].icon);
+    select(null); afterChange(); scheduleDraft();
   }
+  function afterChange() { renderHead(); ui(); if (find.open) runFind(true); if (diffOn) runDiff(); }
   const undo = () => { commitEdit(); if (hi > 0) { restore(hi - 1); toast('Отменено'); } };
   const redo = () => { commitEdit(); if (hi < hist.length - 1) { restore(hi + 1); toast('Повторено'); } };
   const isDirty = () => !!doc && (hi !== savedAt || pending);
+
+  function resetToOriginal() {
+    if (!doc) return;
+    commitEdit();
+    const o = new DOMParser().parseFromString(origHtml, 'text/html');
+    if (o.body.innerHTML === cleanBody() && o.title === doc.title && getIcon(o) === getIcon()) { toast('Документ уже в исходном виде'); return; }
+    if (!confirm('Вернуть документ к исходному виду?\nЭто можно отменить через «Отменить» или Ctrl+Z.')) return;
+    editing = null; hovered = null;
+    doc.body.innerHTML = o.body.innerHTML;
+    doc.title = o.title;
+    setIcon(getIcon(o));
+    select(null);
+    push('↺ Возврат к исходнику');
+    toast('Документ возвращён к исходному виду');
+  }
 
   function ui() {
     const on = !!doc;
     $('#bUndo').disabled = !on || (hi <= 0 && !pending);
     $('#bRedo').disabled = !on || pending || hi >= hist.length - 1;
-    $('#bSave').disabled = !on;
-    $('#bReset').disabled = !on;
-    $('#bClose').disabled = !on;
+    ['#bSave', '#bReset', '#bClose', '#bFind', '#bDiff', '#bPdf'].forEach(s => $(s).disabled = !on);
+    $('#bDiff').classList.toggle('on', diffOn);
+    $('#bFind').classList.toggle('on', find.open);
     $('#fname').textContent = on ? fileName : 'Файл не открыт';
     const st = $('#fstate');
     if (!on) { st.textContent = 'Откройте .html, чтобы начать'; st.className = ''; }
@@ -511,6 +657,224 @@
       <time>${h.t.toTimeString().slice(0, 5)}</time><span>${esc(h.label)}</span></li>`).reverse().join('');
     ul.querySelectorAll('li').forEach(li => li.onclick = () => { commitEdit(); restore(+li.dataset.i); });
   }
+
+  /* ───────── найти и заменить ───────── */
+  const W = () => frame.contentWindow;
+  const hlApi = () => { const w = W(); return w && w.CSS && w.CSS.highlights && w.Highlight ? w : null; };
+
+  function openFind(withReplace) {
+    if (!doc) return;
+    commitEdit();
+    find.open = true; $('#findbar').hidden = false;
+    const sel = doc.getSelection && String(doc.getSelection() || '').trim();
+    if (sel && sel.length < 80 && !sel.includes('\n')) $('#fQ').value = sel;
+    (withReplace && $('#fQ').value ? $('#fR') : $('#fQ')).focus();
+    $('#fQ').select && !withReplace && $('#fQ').select();
+    runFind(); ui(); applyZoom();
+  }
+  function closeFind() {
+    find.open = false; find.list = []; find.cur = -1;
+    $('#findbar').hidden = true;
+    const w = hlApi(); if (w) w.CSS.highlights.clear();
+    ui(); if (doc) applyZoom();
+  }
+  function runFind(keepPos) {
+    const q = $('#fQ').value; find.q = q;
+    const prevCur = find.cur;
+    find.list = [];
+    if (doc && q) {
+      const needle = find.cs ? q : q.toLowerCase();
+      const tw = doc.createTreeWalker(doc.body, 4, { acceptNode: n => n.parentElement && n.parentElement.closest('script,style,template') ? 2 : 1 });
+      for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+        const hay = find.cs ? n.data : n.data.toLowerCase();
+        let i = hay.indexOf(needle);
+        while (i !== -1) { find.list.push({ node: n, start: i, len: q.length }); i = hay.indexOf(needle, i + Math.max(1, needle.length)); }
+      }
+    }
+    find.cur = find.list.length ? (keepPos ? Math.min(Math.max(prevCur, 0), find.list.length - 1) : 0) : -1;
+    paintFind(!keepPos);
+  }
+  function rangeOf(m) { const r = doc.createRange(); r.setStart(m.node, m.start); r.setEnd(m.node, m.start + m.len); return r; }
+  function paintFind(scroll) {
+    const c = $('#fCount'), n = find.list.length;
+    c.textContent = !find.q ? '' : n ? `${find.cur + 1} из ${n}` : 'Нет совпадений';
+    c.classList.toggle('none', !!find.q && !n);
+    ['#fPrev', '#fNext', '#fOne', '#fAll'].forEach(s => $(s).disabled = !n);
+    $('#fCase').classList.toggle('on', find.cs);
+    const w = hlApi();
+    if (w) {
+      w.CSS.highlights.clear();
+      if (n) {
+        const all = new w.Highlight(); find.list.forEach((m, i) => { if (i !== find.cur) all.add(rangeOf(m)); });
+        w.CSS.highlights.set('hed-find', all);
+        w.CSS.highlights.set('hed-cur', new w.Highlight(rangeOf(find.list[find.cur])));
+      }
+    }
+    if (scroll && n) scrollToRange(rangeOf(find.list[find.cur]));
+  }
+  function scrollToRange(r) {
+    const rect = r.getBoundingClientRect(), w = W();
+    if (rect.top < 60 || rect.bottom > w.innerHeight - 60) w.scrollTo({ top: w.scrollY + rect.top - w.innerHeight / 3, behavior: 'smooth' });
+  }
+  function stepFind(d) { if (!find.list.length) return; find.cur = (find.cur + d + find.list.length) % find.list.length; paintFind(true); }
+  function replaceOne() {
+    const m = find.list[find.cur]; if (!m) return;
+    const rep = $('#fR').value, old = m.node.data.substr(m.start, m.len);
+    m.node.data = m.node.data.slice(0, m.start) + rep + m.node.data.slice(m.start + m.len);
+    push(`Замена «${short(old, 18)}» → «${short(rep, 18) || '(пусто)'}»`);
+    if (find.list.length) paintFind(true);
+  }
+  function replaceAll() {
+    const n = find.list.length; if (!n) return;
+    const rep = $('#fR').value, q = find.q;
+    const byNode = new Map();
+    find.list.forEach(m => { if (!byNode.has(m.node)) byNode.set(m.node, []); byNode.get(m.node).push(m); });
+    for (const [node, ms] of byNode) {
+      let s = node.data;
+      for (const m of ms.reverse()) s = s.slice(0, m.start) + rep + s.slice(m.start + m.len);
+      node.data = s;
+    }
+    push(`Заменено ${n}: «${short(q, 16)}» → «${short(rep, 16) || '(пусто)'}»`);
+    toast(`Заменено совпадений: ${n}`);
+  }
+  $('#bFind').onclick = () => find.open ? closeFind() : openFind();
+  $('#fClose').onclick = closeFind;
+  $('#fQ').oninput = () => runFind();
+  $('#fNext').onclick = () => stepFind(1);
+  $('#fPrev').onclick = () => stepFind(-1);
+  $('#fCase').onclick = () => { find.cs = !find.cs; runFind(); };
+  $('#fOne').onclick = replaceOne;
+  $('#fAll').onclick = replaceAll;
+  $('#fQ').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); stepFind(e.shiftKey ? -1 : 1); } if (e.key === 'Escape') closeFind(); };
+  $('#fR').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); replaceOne(); } if (e.key === 'Escape') closeFind(); };
+
+  /* ───────── режим сравнения с исходником ───────── */
+  function blockList(root) {
+    const out = [];
+    for (const el of root.querySelectorAll('*')) {
+      if (/^(SCRIPT|STYLE|TEMPLATE|NOSCRIPT)$/.test(el.tagName)) continue;
+      if (el.tagName === 'IMG') { const s = el.getAttribute('src') || ''; out.push({ el, key: 'IMG|' + s.length + s.slice(0, 40) + s.slice(-80), text: 'картинка', img: true }); continue; }
+      let t = ''; for (const n of el.childNodes) if (n.nodeType === 3) t += n.nodeValue;
+      t = t.replace(/\s+/g, ' ').trim();
+      if (t) out.push({ el, key: el.tagName + '|' + t, text: t });
+    }
+    return out;
+  }
+  function matchPairs(a, b) {
+    // общий префикс/суффикс, потом LCS на середине
+    let s = 0; while (s < a.length && s < b.length && a[s].key === b[s].key) s++;
+    let ea = a.length, eb = b.length; while (ea > s && eb > s && a[ea - 1].key === b[eb - 1].key) { ea--; eb--; }
+    const pairs = []; for (let i = 0; i < s; i++) pairs.push([i, i]);
+    const n = ea - s, m = eb - s;
+    if (n && m && n * m <= 4e6) {
+      const Wd = m + 1, dp = new Uint32Array((n + 1) * Wd);
+      for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+        dp[i * Wd + j] = a[s + i].key === b[s + j].key ? dp[(i + 1) * Wd + j + 1] + 1 : Math.max(dp[(i + 1) * Wd + j], dp[i * Wd + j + 1]);
+      let i = 0, j = 0;
+      while (i < n && j < m) {
+        if (a[s + i].key === b[s + j].key) { pairs.push([s + i, s + j]); i++; j++; }
+        else if (dp[(i + 1) * Wd + j] >= dp[i * Wd + j + 1]) i++; else j++;
+      }
+    }
+    for (let k = 0; k < a.length - ea; k++) pairs.push([ea + k, eb + k]);
+    return pairs;
+  }
+  function runDiff() {
+    doc.querySelectorAll('[data-hed-diff]').forEach(e => e.removeAttribute('data-hed-diff'));
+    const o = new DOMParser().parseFromString(origHtml, 'text/html');
+    const A = blockList(o.body), B = blockList(doc.body);
+    const items = [];
+    if (o.title !== doc.title) items.push({ type: 'mod', old: 'Вкладка: ' + (o.title || '—'), neu: 'Вкладка: ' + (doc.title || '—') });
+    if (getIcon(o) !== getIcon()) items.push({ type: 'mod', old: 'Иконка вкладки', neu: 'заменена' });
+    let pi = 0, pj = 0;
+    for (const [i, j] of [...matchPairs(A, B), [A.length, B.length]]) {
+      const rem = A.slice(pi, i), add = B.slice(pj, j), k = Math.min(rem.length, add.length);
+      for (let x = 0; x < k; x++) items.push({ type: 'mod', el: add[x].el, old: rem[x].text, neu: add[x].text });
+      for (let x = k; x < add.length; x++) items.push({ type: 'add', el: add[x].el, neu: add[x].text });
+      for (let x = k; x < rem.length; x++) items.push({ type: 'del', old: rem[x].text });
+      pi = i + 1; pj = j + 1;
+    }
+    items.forEach(it => it.el && it.el.setAttribute('data-hed-diff', it.type));
+    diffItems = items;
+    renderDiff();
+  }
+  function renderDiff() {
+    const c = { mod: 0, add: 0, del: 0 }; diffItems.forEach(i => c[i.type]++);
+    const box = $('#diffBody');
+    if (!diffItems.length) { box.innerHTML = '<p class="hint">Отличий от исходника нет.</p>'; return; }
+    box.innerHTML = `<div class="diffsum"><span class="tag-mod">Изменено <b>${c.mod}</b></span><span class="tag-add">Добавлено <b>${c.add}</b></span><span class="tag-del">Удалено <b>${c.del}</b></span></div>
+      <ul class="difflist">${diffItems.map((it, i) => {
+        const at = it.el ? ` data-i="${i}"` : '';
+        if (it.type === 'mod') return `<li${at}><span class="m tag-mod">~</span><span><s>${esc(short(it.old, 60))}</s> → ${esc(short(it.neu, 60))}</span></li>`;
+        if (it.type === 'add') return `<li${at}><span class="m tag-add">+</span><span>${esc(short(it.neu, 80))}</span></li>`;
+        return `<li><span class="m tag-del">−</span><span><s>${esc(short(it.old, 80))}</s></span></li>`;
+      }).join('')}</ul>`;
+    box.querySelectorAll('li[data-i]').forEach(li => li.onclick = () => {
+      const el = diffItems[+li.dataset.i].el; if (!el || !el.isConnected) return;
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' }); commitEdit(); select(el);
+    });
+  }
+  function toggleDiff() {
+    if (!doc) return;
+    commitEdit();
+    diffOn = !diffOn;
+    $('#diffSec').hidden = !diffOn;
+    if (diffOn) runDiff(); else { doc.querySelectorAll('[data-hed-diff]').forEach(e => e.removeAttribute('data-hed-diff')); diffItems = []; }
+    ui();
+  }
+  $('#bDiff').onclick = toggleDiff;
+
+  /* ───────── масштаб ───────── */
+  try { const z = JSON.parse(localStorage.getItem(ZOOM_KEY) || 'null'); if (z) { zoom = z.zoom || 1; zoomFit = !!z.fit; } } catch (_) {}
+  function fitScale() {
+    // ширина содержимого при масштабе 100%: самый широкий прямой потомок body + поля
+    const vw = view.clientWidth;
+    frame.style.transform = ''; frame.style.width = vw + 'px';
+    let l = Infinity, r = 0;
+    for (const c of doc.body.children) { const b = c.getBoundingClientRect(); if (b.width) { l = Math.min(l, b.left); r = Math.max(r, b.right); } }
+    const content = r > l ? (r - l) + 48 : vw;
+    return Math.max(0.25, Math.min(2, vw / content));
+  }
+  function applyZoom() {
+    if (!doc) return;
+    const s = zoomFit ? fitScale() : zoom;
+    frame.style.transform = s === 1 ? '' : `scale(${s})`;
+    frame.style.width = (view.clientWidth / s) + 'px';
+    frame.style.height = (view.clientHeight / s) + 'px';
+    $('#zVal').textContent = Math.round(s * 100) + '%';
+    $('#zFit').classList.toggle('on', zoomFit);
+    try { localStorage.setItem(ZOOM_KEY, JSON.stringify({ zoom, fit: zoomFit })); } catch (_) {}
+  }
+  function stepZoom(d) {
+    const cur = zoomFit ? fitScale() : zoom; zoomFit = false;
+    if (d > 0) zoom = ZOOMS.find(z => z > cur + 0.001) || ZOOMS[ZOOMS.length - 1];
+    else zoom = [...ZOOMS].reverse().find(z => z < cur - 0.001) || ZOOMS[0];
+    applyZoom();
+  }
+  $('#zIn').onclick = () => stepZoom(1);
+  $('#zOut').onclick = () => stepZoom(-1);
+  $('#zVal').onclick = () => { zoomFit = false; zoom = 1; applyZoom(); };
+  $('#zFit').onclick = () => { zoomFit = !zoomFit; applyZoom(); };
+  window.addEventListener('resize', () => applyZoom());
+
+  /* ───────── PDF / печать ───────── */
+  function printDoc() {
+    if (!doc) return;
+    commitEdit(); select(null);
+    if (hovered) { hovered.removeAttribute('data-hed-hover'); hovered = null; }
+    const st = doc.getElementById('hed-style'), w = hlApi();
+    if (st) st.disabled = true;
+    if (w) w.CSS.highlights.clear();
+    try { W().focus(); W().print(); }
+    catch (_) {
+      const pw = window.open(URL.createObjectURL(new Blob([serialize()], { type: 'text/html' })));
+      if (pw) pw.addEventListener('load', () => pw.print()); else toast('Браузер не дал открыть печать');
+    } finally {
+      if (st) st.disabled = false;
+      if (find.open) paintFind(false);
+    }
+  }
+  $('#bPdf').onclick = printDoc;
 
   /* ───────── сохранение ───────── */
   function save() {
@@ -526,7 +890,7 @@
     toast('Файл скачан: ' + fileName);
   }
 
-  /* ───────── черновик (на случай закрытой вкладки) ───────── */
+  /* ───────── черновик ───────── */
   function scheduleDraft() {
     clearTimeout(draftTimer);
     draftTimer = setTimeout(() => {
@@ -547,27 +911,37 @@
   function closeFile() {
     if (isDirty() && !confirm('Есть несохранённые изменения. Закрыть без сохранения?')) return;
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
-    doc = null; hist = []; hi = -1; selected = null; editing = null;
-    frame.srcdoc = ''; stage.classList.remove('loaded'); $('#titleSec').hidden = true;
+    closeFind();
+    doc = null; hist = []; hi = -1; selected = null; editing = null; diffOn = false; diffItems = [];
+    frame.srcdoc = ''; stage.classList.remove('loaded');
+    $('#tabbar').hidden = true; $('#diffSec').hidden = true;
     $('#selBody').innerHTML = '<p class="hint">Откройте файл, чтобы начать.</p>';
-    ui(); checkDraft();
+    renderHead(); ui(); checkDraft();
   }
 
   /* ───────── горячие клавиши ───────── */
   function shortcuts(e) {
     const mod = e.ctrlKey || e.metaKey; if (!mod || !doc) return false;
-    const k = e.key.toLowerCase(), code = e.code;
-    if ((k === 'z' || code === 'KeyZ') && !e.shiftKey) { e.preventDefault(); undo(); return true; }
-    if (k === 'y' || code === 'KeyY' || ((k === 'z' || code === 'KeyZ') && e.shiftKey)) { e.preventDefault(); redo(); return true; }
-    if (k === 's' || code === 'KeyS') { e.preventDefault(); save(); return true; }
-    if (['b','i','u'].includes(k) || ['KeyB','KeyI','KeyU'].includes(code)) { e.preventDefault(); return true; }
+    const k = e.key.toLowerCase(), c = e.code;
+    const is = (ch, code) => k === ch || c === code;
+    if (is('z', 'KeyZ') && !e.shiftKey) { e.preventDefault(); undo(); return true; }
+    if (is('y', 'KeyY') || (is('z', 'KeyZ') && e.shiftKey)) { e.preventDefault(); redo(); return true; }
+    if (is('s', 'KeyS')) { e.preventDefault(); save(); return true; }
+    if (is('f', 'KeyF')) { e.preventDefault(); openFind(false); return true; }
+    if (is('h', 'KeyH')) { e.preventDefault(); openFind(true); return true; }
+    if (is('p', 'KeyP')) { e.preventDefault(); printDoc(); return true; }
+    if (is('b', 'KeyB') || is('i', 'KeyI') || is('u', 'KeyU')) { e.preventDefault(); return true; }
     return false;
   }
   document.addEventListener('keydown', e => {
     if (e.target.matches && e.target.matches('input')) {
-      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 's' || e.code === 'KeyS')) { e.preventDefault(); e.target.blur(); save(); }
+      const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase(), c = e.code;
+      if (mod && (k === 's' || c === 'KeyS')) { e.preventDefault(); e.target.blur(); save(); }
+      else if (mod && (k === 'f' || c === 'KeyF')) { e.preventDefault(); openFind(false); }
+      else if (mod && (k === 'p' || c === 'KeyP')) { e.preventDefault(); e.target.blur(); printDoc(); }
       return;
     }
+    if (e.key === 'Escape' && find.open) { closeFind(); return; }
     shortcuts(e);
   });
 
@@ -578,7 +952,6 @@
   $('#bUndo').onclick = undo; $('#bRedo').onclick = redo; $('#bSave').onclick = save;
   $('#bReset').onclick = resetToOriginal;
   $('#bClose').onclick = closeFile;
-  $('#docTitle').onchange = e => { doc.title = e.target.value; push('Название вкладки'); };
 
   const drop = $('#drop');
   ['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -588,7 +961,7 @@
   window.addEventListener('beforeunload', e => { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
 
   checkDraft();
-  window.__hed = { load, act, undo, redo, serialize, get doc(){ return doc; }, get hist(){ return hist; } };
+  window.__hed = { load, act, undo, redo, serialize, openFind, toggleDiff, printDoc, get doc(){ return doc; }, get hist(){ return hist; }, get diff(){ return diffItems; }, get find(){ return find; } };
 })();
 </script>
 </body>

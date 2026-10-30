@@ -32,7 +32,7 @@
   /* ── шапка ── */
   .bar{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
   .logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:-.3px;margin-right:6px}
-  .logo i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:grid;place-items:center;font-style:normal;color:var(--accent-ink);font-size:13px}
+  .logo img{width:24px;height:24px;display:block}
   .file{display:flex;flex-direction:column;min-width:0;margin-right:auto}
   .file b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28vw}
   .file span{font-size:12px;color:var(--muted)}
@@ -136,7 +136,8 @@
   /* ── боковая панель ── */
   aside{width:340px;flex:none;background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
   .stabs{display:flex;align-items:center;gap:2px;padding:8px 8px 0;border-bottom:1px solid var(--line)}
-  .stab{border:0;background:none;padding:8px 12px 9px;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .stab{border:0;background:none;padding:8px 9px 9px;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;align-items:center;white-space:nowrap;flex:none}
+  .stabs{overflow-x:auto;scrollbar-width:none}
   .stab.on{color:var(--ink);border-bottom-color:var(--accent)}
   .stab .cnt{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--surface-3);font-size:11px;margin-left:4px;color:var(--ink)}
   .stabs .hide{margin-left:auto;border:0;background:none;cursor:pointer;color:var(--muted);padding:6px 8px;border-radius:8px}
@@ -179,6 +180,59 @@
   #toast button{border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;border-radius:7px;padding:5px 10px;cursor:pointer}
   #toast:not(.act){padding-right:16px}
 
+  /* ── модальное окно ── */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:grid;place-items:center;padding:16px}
+  .modal{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);width:min(680px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:22px 24px}
+  .modal h3{margin:0 0 4px;font-size:19px;letter-spacing:-.3px}
+  .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 6px}
+  .opt{position:relative;border:1.5px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;display:flex;gap:12px;align-items:center;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--muted)}
+  .opt.on{border-color:var(--accent);background:var(--accent-soft)}
+  .opt input{position:absolute;opacity:0;pointer-events:none}
+  .opt .ill{width:92px;height:62px;flex:none;border-radius:7px;background:#fff;border:1px solid var(--line)}
+  .opt b{display:block;font-size:13.5px;margin-bottom:2px}
+  .opt span{font-size:12px;color:var(--muted);line-height:1.35}
+  .opt .chk{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--accent-ink)}
+  .opt.on .chk{background:var(--accent);border-color:var(--accent)}
+  .mrow{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .mlabel{width:180px;font-size:13px;color:var(--muted);flex:none}
+  .mrow .inp{flex:1;min-width:180px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-size:13px}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on{background:var(--accent-soft);font-weight:600}
+  .swatch.on{outline:2px solid var(--ink);outline-offset:2px}
+  .sec-list{font-size:12.5px;color:var(--ink);margin:0;padding-left:20px;max-height:132px;overflow:auto;flex:1;min-width:200px}
+  .sec-list li.sub{margin-left:14px;color:var(--muted)}
+  .modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;align-items:center;flex-wrap:wrap}
+  .modal-foot .left{margin-right:auto}
+
+  /* ── предпросмотр ── */
+  #stage{position:relative}
+  .preview{position:absolute;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
+  .pv-bar{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;background:var(--ink);color:var(--bg);font-size:13px}
+  .pv-bar .btn{margin-left:auto;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+  #pvFrame{flex:1;border:0;background:#fff;width:100%}
+
+  /* ── перетаскивание ── */
+  .draghandle{position:absolute;left:0;top:0;z-index:7;width:22px;height:30px;border:1px solid var(--line);background:var(--surface);border-radius:7px;cursor:grab;color:var(--muted);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.12);padding:0;touch-action:none}
+  .draghandle:hover{color:var(--ink);background:var(--surface-2)}
+  .draghandle svg{width:12px;height:18px}
+  .view.dragging,.view.dragging *{cursor:grabbing!important}
+  .dropline{position:absolute;z-index:7;background:var(--focus);border-radius:2px;pointer-events:none;box-shadow:0 0 0 3px rgba(26,115,232,.2)}
+
+  /* ── проверка ── */
+  .cnt.bad{background:var(--danger)!important;color:#fff!important}
+  .chk-group{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:16px 0 4px;font-weight:700}
+  .chk-group:first-child{margin-top:0}
+  .chklist{list-style:none;margin:0;padding:0;font-size:13px}
+  .chklist li{display:flex;gap:8px;align-items:flex-start;padding:7px 8px;border-radius:8px;word-break:break-word}
+  .chklist li[data-i]{cursor:pointer}
+  .chklist li[data-i]:hover{background:var(--surface-2)}
+  .chklist .dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:6px;background:var(--mod)}
+  .chklist .err .dot{background:var(--danger)}
+  .chklist .fix{margin-left:auto;flex:none;font-size:12px;padding:3px 9px;border-radius:7px}
+
   @media (max-width:1150px){ .bar .btn .t{display:none} .bar .btn.primary .t,.bar #bFile .t{display:inline} .switch .t{display:none} }
   @media (max-width:820px){
     main{flex-direction:column}
@@ -193,7 +247,7 @@
 <body>
 
 <header class="bar">
-  <div class="logo"><i>✎</i>Правка HTML</div>
+  <div class="logo"><img src="data:image/png;base64,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" alt="">Правка HTML</div>
   <div class="file"><b id="fname">Файл не открыт</b><span id="fstate">Откройте .html, чтобы начать</span></div>
   <button class="btn" id="bFile" title="Открыть, PDF, вернуть исходник, закрыть">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span class="t">Файл</span>
@@ -205,6 +259,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg><span class="t">Повторить</span></button>
   <button class="btn" id="bFind" disabled title="Найти и заменить (Ctrl+F)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="t">Найти</span></button>
+  <button class="btn" id="bNav" disabled title="Добавить навигацию по странице: меню, оглавление, прогресс">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></svg><span class="t">Навигация</span></button>
+  <button class="btn" id="bPreview" disabled title="Посмотреть, как увидит читатель — с анимациями">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="t">Предпросмотр</span></button>
   <span class="sep"></span>
   <label class="switch" title="Показать стили элемента, HTML блока и CSS документа"><input type="checkbox" id="devMode"><span class="sw"></span><span class="t">Для разработчика</span></label>
   <button class="btn primary" id="bSave" disabled title="Скачать исправленный файл (Ctrl+S)">
@@ -214,7 +272,8 @@
 <div class="menu" id="fileMenu" hidden>
   <button class="mi" data-f="open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Открыть другой файл…</button>
   <div class="mdiv"></div>
-  <button class="mi" data-f="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Скачать HTML<kbd>Ctrl+S</kbd></button>
+  <button class="mi" data-f="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span id="miSaveT">Скачать HTML</span><kbd>Ctrl+S</kbd></button>
+  <button class="mi" data-f="copy" id="miCopy" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Скачать копию</button>
   <button class="mi" data-f="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>Сохранить как PDF<kbd>Ctrl+P</kbd></button>
   <div class="mdiv"></div>
   <button class="mi" data-f="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Вернуть исходник</button>
@@ -298,10 +357,24 @@
           <button class="tb txt" data-pop="alt" title="Описание картинки (alt)">Описание</button>
           <span class="vsep"></span>
         </div>
+        <div class="grp" id="gNav">
+          <button class="tb txt" data-act="navcfg" title="Настроить навигацию"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Настроить</button>
+          <button class="tb txt" data-act="preview" title="Посмотреть анимацию"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Предпросмотр</button>
+          <span class="vsep"></span>
+        </div>
         <button class="tb txt blockbtn" data-pop="block" id="blockBtn" title="Выбрать блок и действия с ним">Блок
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="m6 9 6 6 6-6"/></svg></button>
       </div>
       <div class="pop" id="pop" hidden></div>
+      <button class="draghandle" id="dragH" hidden title="Потяните, чтобы переместить блок">
+        <svg viewBox="0 0 12 18" fill="currentColor"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></svg></button>
+      <div class="dropline" id="dropLine" hidden></div>
+    </div>
+
+    <div class="preview" id="preview" hidden>
+      <div class="pv-bar"><span><b>Предпросмотр</b> — так страницу увидит читатель: с навигацией и анимациями. Править здесь нельзя.</span>
+        <button class="btn" id="pvClose">Вернуться к правке <span style="opacity:.6;font-weight:400">Esc</span></button></div>
+      <iframe id="pvFrame" sandbox="allow-scripts" title="Предпросмотр"></iframe>
     </div>
   </div>
 
@@ -309,12 +382,14 @@
     <div class="stabs">
       <button class="stab on" data-tab="hist">История</button>
       <button class="stab" data-tab="diff">Сравнение<span class="cnt" id="diffCnt" hidden></span></button>
+      <button class="stab" data-tab="check">Проверка<span class="cnt" id="chkCnt" hidden></span></button>
       <button class="stab" data-tab="code" id="tabCode" hidden>Код</button>
       <button class="hide" id="sideHide" title="Скрыть панель">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
     <div class="pane" id="paneHist"><ul class="hist" id="hist"><li style="cursor:default"><span class="hint">Пока пусто. Здесь появится каждая правка — кликните по любой, чтобы вернуться к ней.</span></li></ul></div>
     <div class="pane" id="paneDiff" hidden><div id="diffBody"><p class="hint">Откройте файл — здесь будет видно всё, что изменилось относительно исходника.</p></div></div>
+    <div class="pane" id="paneCheck" hidden><div id="chkBody"><p class="hint">Откройте файл — здесь появятся незаполненные поля, битые ссылки, картинки без описания и другие проблемы.</p></div></div>
     <div class="pane" id="paneCode" hidden></div>
   </aside>
 </main>
@@ -323,6 +398,7 @@
 <input type="file" id="imgIn" accept="image/*" hidden>
 <input type="file" id="favIn" accept="image/*" hidden>
 <div id="toast" role="status"></div>
+<div class="modal-bg" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" id="modalBody"></div></div>
 
 <script>
 (() => {
@@ -347,6 +423,7 @@
   let find = { open: false, q: '', cs: false, list: [], cur: -1 };
   let tab = 'hist', diffItems = [], dev = !!store.get('dev', false);
   let popType = null, popAnchor = null, savedRange = null;
+  let fileHandle = null, overwriteOk = false, chkItems = [], drag = null;
 
   /* имена: [именительный, родительный, винительный, род] */
   const N = {
@@ -366,12 +443,12 @@
     DL:['Список','списка','список','m'], DT:['Термин','термина','термин','m'], DD:['Описание','описания','описание','n'],
     SMALL:['Мелкий текст','мелкого текста','мелкий текст','m'], HR:['Разделитель','разделителя','разделитель','m']
   };
-  const nm = el => N[el.tagName] || ['Элемент','элемента','элемент','m'];
+  const nm = el => el.id === 'hed-nav' ? ['Навигация','навигации','навигацию','f'] : (N[el.tagName] || ['Элемент','элемента','элемент','m']);
   const gend = (el, f, m, n) => ({ f, m, n })[nm(el)[3]];
   const LEAFY = new Set(['TD','TH','LI','P','H1','H2','H3','H4','H5','H6','SPAN','A','CODE','B','STRONG','EM','I','LABEL','DT','DD','SMALL','FIGCAPTION','BUTTON']);
   const INLINE = new Set(['SPAN','CODE','B','STRONG','EM','I','U','S','A','SMALL','MARK','SUB','SUP','FONT','BR']);
   const FLOW_OK = new Set(['TD','TH','DIV','DD','BLOCKQUOTE','SECTION','ARTICLE','ASIDE','MAIN','HEADER','FOOTER','FIGCAPTION']);
-  const MARK_SEL = '[data-hed-sel],[data-hed-hover],[data-hed-edit],[data-hed-diff],[data-hed-sp]';
+  const MARK_SEL = '[data-hed-sel],[data-hed-hover],[data-hed-edit],[data-hed-diff],[data-hed-sp],[data-hed-drag]';
 
   /* ───────── утилиты ───────── */
   function toast(msg, opt = {}) {
@@ -450,17 +527,19 @@
   }
 
   /* ───────── загрузка ───────── */
-  function readFile(file) {
+  function readFile(file, handle) {
     if (!file) return;
     if (!/\.html?$/i.test(file.name) && file.type !== 'text/html') { toast('Нужен файл .html'); return; }
     const r = new FileReader();
-    r.onload = () => load(r.result, file.name);
+    r.onload = () => load(r.result, file.name, false, null, handle);
     r.readAsText(file, 'utf-8');
   }
 
-  function load(html, name, restoreDraft, orig) {
+  function load(html, name, restoreDraft, orig, handle) {
     if (doc && isDirty() && !confirm('Есть несохранённые изменения. Открыть другой файл?')) return;
     fileName = name || 'document.html';
+    fileHandle = handle || null; overwriteOk = false;
+    closePreview();
     origHtml = orig || html;
     pending = false; editing = null; selected = null; closeFind(); closePop();
     frame.onload = () => {
@@ -506,6 +585,8 @@
       closePop(); closeFileMenu();
       const t = e.target;
       if (t === doc.documentElement || t === doc.body) { commitEdit(); select(null); return; }
+      const nav = t.closest('#hed-nav');                // навигация — единый блок, текст в ней не правится
+      if (nav) { e.preventDefault(); commitEdit(); clickEl = nav; select(nav); return; }
       if (editing && editing.contains(t)) return;       // клик внутри редактируемого текста — остаёмся
       commitEdit();
       clickEl = t;
@@ -516,12 +597,7 @@
     doc.addEventListener('submit', e => e.preventDefault(), true);
     doc.addEventListener('dragstart', e => e.preventDefault());
     doc.addEventListener('drop', e => e.preventDefault());
-    doc.addEventListener('paste', e => {
-      if (!editing) return;
-      e.preventDefault();
-      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-      doc.execCommand('insertText', false, text.replace(/\r\n?/g, '\n'));
-    });
+    doc.addEventListener('paste', handlePaste);
     doc.addEventListener('input', () => { if (editing) { if (!pending) { pending = true; ui(); } placeTb(); } });
     doc.addEventListener('selectionchange', () => { if (editing) fmtState(); });
     doc.addEventListener('keydown', e => {
@@ -579,7 +655,9 @@
     if (el.hasAttribute('data-hed-sp')) { el.removeAttribute('spellcheck'); el.removeAttribute('data-hed-sp'); }
     if (after !== editBefore) {
       const a = short(editBeforeText, 22), b = short(el.textContent, 22);
-      if (editBeforeText === el.textContent) push(`Оформление: «${b}»`);
+      const imgs = (editBefore.match(/<img/g) || []).length, imgsNow = el.querySelectorAll('img').length;
+      if (imgsNow > imgs) push(`Вставлена картинка в «${b}»`);
+      else if (editBeforeText === el.textContent) push(`Оформление: «${b}»`);
       else push(a ? `«${a}» → «${b || '(пусто)'}»` : `Добавлен текст «${b}»`);
     } else if (wasPending) ui();
     placeTb();
@@ -598,9 +676,11 @@
   function placeTb() {
     requestAnimationFrame(() => {
       const anchor = (editing && editing.isConnected && editing) || (selected && selected.isConnected && selected);
-      if (!doc || !anchor) { ftb.hidden = true; closePop(); return; }
+      placeHandle();
+      if (drag || !doc || !anchor || !$('#preview').hidden) { ftb.hidden = true; closePop(); return; }
       $('#gFmt').hidden = !editing;
       $('#gImg').hidden = !(selected && selected.tagName === 'IMG');
+      $('#gNav').hidden = !(selected && selected.id === 'hed-nav');
       const bb = $('#blockBtn'); bb.hidden = !selected;
       if (selected) bb.firstChild.nodeValue = nm(selected)[0] + ' ';
       const listOk = editing && FLOW_OK.has(editing.tagName);
@@ -634,6 +714,8 @@
     if (b.dataset.cmd) { closePop(); fmt(b.dataset.cmd); }
     else if (b.dataset.pop) { popType === b.dataset.pop ? closePop() : openPop(b.dataset.pop, b); }
     else if (b.dataset.act === 'img') { closePop(); $('#imgIn').value = ''; $('#imgIn').click(); }
+    else if (b.dataset.act === 'navcfg') { closePop(); openNavModal(); }
+    else if (b.dataset.act === 'preview') { closePop(); openPreview(); }
   });
 
   function keepRange() {
@@ -705,7 +787,13 @@
 
   function renderPop() {
     const t = popType;
-    if (t === 'block') {
+    if (t === 'block' && selected && selected.id === 'hed-nav') {
+      pop.innerHTML = `<button class="mi" data-b="navcfg">${ICON.plus.replace('M12 5v14M5 12h14', 'M4 6h16M4 12h10M4 18h7')}Настроить навигацию</button>
+        <button class="mi" data-b="preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Посмотреть в предпросмотре</button>
+        <div class="mdiv"></div>
+        <button class="mi danger" data-b="del">${ICON.del}Удалить навигацию</button>`;
+      pop.querySelectorAll('[data-b]').forEach(b => b.onclick = () => blockAct(b.dataset.b));
+    } else if (t === 'block') {
       const chain = [];
       for (let e = clickEl && clickEl.isConnected ? clickEl : selected; e && e !== doc.body; e = e.parentElement) if (isBlockable(e)) chain.push(e);
       if (selected && !chain.includes(selected)) chain.unshift(selected);
@@ -830,10 +918,14 @@
     const el = selected; if (!el) return;
     commitEdit();
     const [nom, gen] = nm(el);
+    // у копий убираем id: дубли id ломают якоря навигации
+    const noIds = c => { [c, ...c.querySelectorAll('[id]')].forEach(x => x.removeAttribute('id')); return c; };
+    if (a === 'navcfg') { closePop(); openNavModal(); return; }
+    if (a === 'preview') { closePop(); openPreview(); return; }
     if (a === 'dup') {
-      const c = stripMarks(el.cloneNode(true)); el.after(c); clickEl = c; select(c); push(`Копия ${gen}`); closePop();
+      const c = noIds(stripMarks(el.cloneNode(true))); el.after(c); clickEl = c; select(c); push(`Копия ${gen}`); closePop();
     } else if (a === 'new') {
-      const c = stripMarks(el.cloneNode(true));
+      const c = noIds(stripMarks(el.cloneNode(true)));
       [c, ...c.querySelectorAll('*')].forEach(x => {
         let first = true;
         for (const n of [...x.childNodes]) if (n.nodeType === 3 && n.nodeValue.trim()) { n.nodeValue = first ? 'Новый текст' : ''; first = false; }
@@ -941,13 +1033,15 @@
     const on = !!doc;
     $('#bUndo').disabled = !on || (hi <= 0 && !pending);
     $('#bRedo').disabled = !on || pending || hi >= hist.length - 1;
-    $('#bSave').disabled = !on; $('#bFind').disabled = !on;
+    ['#bSave', '#bFind', '#bNav', '#bPreview'].forEach(s => $(s).disabled = !on);
     $('#bFind').classList.toggle('on', find.open);
+    $('#bPreview').classList.toggle('on', !$('#preview').hidden);
+    $('#bSave').title = fileHandle ? 'Сохранить в исходный файл (Ctrl+S)' : 'Скачать исправленный файл (Ctrl+S)';
     $('#fname').textContent = on ? fileName : 'Файл не открыт';
     const st = $('#fstate');
     if (!on) { st.textContent = 'Откройте .html, чтобы начать'; st.className = ''; }
     else if (isDirty()) { st.textContent = 'Есть несохранённые изменения'; st.className = 'dirty'; }
-    else { st.textContent = hi === 0 ? 'Без изменений' : 'Сохранено'; st.className = ''; }
+    else { st.textContent = hi === 0 ? 'Без изменений' : (fileHandle ? 'Сохранено в файл' : 'Сохранено'); st.className = ''; }
   }
 
   /* ───────── боковая панель: История / Сравнение / Код ───────── */
@@ -956,7 +1050,7 @@
     if (tab === 'diff' && t !== 'diff' && doc) doc.querySelectorAll('[data-hed-diff]').forEach(e => e.removeAttribute('data-hed-diff'));
     tab = t;
     document.querySelectorAll('.stab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-    $('#paneHist').hidden = t !== 'hist'; $('#paneDiff').hidden = t !== 'diff'; $('#paneCode').hidden = t !== 'code';
+    $('#paneHist').hidden = t !== 'hist'; $('#paneDiff').hidden = t !== 'diff'; $('#paneCode').hidden = t !== 'code'; $('#paneCheck').hidden = t !== 'check';
     renderSide();
   }
   document.querySelectorAll('.stab').forEach(b => b.onclick = () => { commitEdit(); setTab(b.dataset.tab); });
@@ -964,6 +1058,7 @@
     renderHist();
     if (!doc) return;
     runDiff();                       // считаем всегда — для счётчика на вкладке
+    renderChecks(runChecks());
     if (tab === 'code') renderCode();
   }
   function renderHist() {
@@ -982,7 +1077,7 @@
   function blockList(root) {
     const out = [];
     for (const el of root.querySelectorAll('*')) {
-      if (/^(SCRIPT|STYLE|TEMPLATE|NOSCRIPT)$/.test(el.tagName)) continue;
+      if (/^(SCRIPT|STYLE|TEMPLATE|NOSCRIPT)$/.test(el.tagName) || el.closest('#hed-nav')) continue;
       const deco = (el.getAttribute('style') || '') + '|' + (el.getAttribute('class') || '');
       if (el.tagName === 'IMG') { const s = el.getAttribute('src') || ''; out.push({ el, key: 'IMG|' + s.length + s.slice(0, 40) + s.slice(-80) + deco, text: 'картинка' }); continue; }
       let t = ''; for (const n of el.childNodes) if (n.nodeType === 3) t += n.nodeValue;
@@ -1017,6 +1112,13 @@
     if (o.title !== doc.title) items.push({ type: 'mod', old: 'Вкладка: ' + (o.title || '—'), neu: 'Вкладка: ' + (doc.title || '—') });
     if (getIcon(o) !== getIcon()) items.push({ type: 'mod', old: 'Иконка вкладки', neu: 'заменена' });
     if (getCss(o).join() !== getCss().join()) items.push({ type: 'mod', old: 'CSS документа', neu: 'изменён' });
+    const navO = o.getElementById('hed-nav'), navN = navRoot();
+    if (navO || navN) {
+      const a = navO ? navO.outerHTML : '', b = navN ? stripMarks(navN.cloneNode(true)).outerHTML : '';
+      if (!navO) items.push({ type: 'add', el: navN, neu: 'Навигация по странице' });
+      else if (!navN) items.push({ type: 'del', old: 'Навигация по странице' });
+      else if (a !== b) items.push({ type: 'mod', el: navN, old: 'Навигация', neu: 'изменена' });
+    }
     let pi = 0, pj = 0;
     for (const [i, j] of [...matchPairs(A, B), [A.length, B.length]]) {
       const rem = A.slice(pi, i), add = B.slice(pj, j), k = Math.min(rem.length, add.length);
@@ -1122,6 +1224,441 @@
   }
   $('#devMode').onchange = e => setDev(e.target.checked);
 
+  /* ═════════════════ НАВИГАЦИЯ ПО СТРАНИЦЕ ═════════════════
+     Всё — в одном блоке <div id="hed-nav"> в начале body: разметка, стиль и маленький скрипт.
+     Разметка статична (видна и в редакторе, и без JS), скрипт добавляет подсветку текущего раздела,
+     прогресс, кнопку «Наверх» и раскрытие оглавления. */
+  const NAV_ID = 'hed-nav';
+  const navRoot = () => doc && doc.getElementById(NAV_ID);
+  const navOpts = () => { const r = navRoot(); if (!r) return null; try { return JSON.parse(r.getAttribute('data-hn') || 'null'); } catch (_) { return null; } };
+  const TRL = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
+  const slug = s => (s.toLowerCase().split('').map(c => TRL[c] ?? c).join('').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40)) || 'razdel';
+  function navHeadings(levels) {
+    return [...doc.body.querySelectorAll(levels === 'h2h3' ? 'h2,h3' : 'h2')].filter(h => !h.closest('#' + NAV_ID) && h.textContent.trim());
+  }
+  const navLabel = h => short(h.innerText || h.textContent, 48);
+  function ensureId(h, dry) {
+    if (h.id) return h.id;
+    if (dry) return '?';
+    const base = 's-' + slug(h.textContent); let id = base, k = 2;
+    while (doc.getElementById(id)) id = base + '-' + k++;
+    h.id = id; return id;
+  }
+  const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  function inkFor(hex) {
+    const L = hexRgb(hex).map(c => c / 255).map(c => c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4);
+    return 0.2126 * L[0] + 0.7152 * L[1] + 0.0722 * L[2] > 0.4 ? '#111111' : '#ffffff';
+  }
+  function pickAccent(pal) {
+    let best = null, bs = -1;
+    for (const c of pal) { const [r, g, b] = hexRgb(c), mx = Math.max(r, g, b), mn = Math.min(r, g, b), s = mx ? (mx - mn) / mx : 0; if (mx > 70 && s > bs) { bs = s; best = c; } }
+    return bs > 0.25 ? best : '#1a73e8';
+  }
+  function navCss(o) {
+    const A = /^#[0-9a-f]{6}$/i.test(o.accent || '') ? o.accent : '#1a73e8', INK = inkFor(A);
+    return `
+#hed-nav{--hn-a:${A};--hn-ai:${INK};--hn-ink:#151517;font:500 14px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+#hed-nav a{text-decoration:none;color:inherit}
+#hed-nav button{font:inherit}
+html{scroll-behavior:smooth${o.top ? ';scroll-padding-top:72px' : ''}}
+${o.top ? 'body{padding-top:56px}' : ''}
+.hn-prog{position:fixed;top:0;left:0;right:0;height:3px;z-index:2147483001;background:var(--hn-a);transform-origin:0 50%;transform:scaleX(0);pointer-events:none}
+@supports (animation-timeline:scroll()){.hn-prog{animation:hn-p linear both;animation-timeline:scroll(root)}@keyframes hn-p{from{transform:scaleX(0)}to{transform:scaleX(1)}}}
+.hn-top{position:fixed;top:0;left:0;right:0;z-index:2147483000;height:56px;display:flex;align-items:center;gap:18px;padding:0 20px;background:rgba(255,255,255,.86);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid rgba(0,0,0,.08);color:var(--hn-ink);animation:hn-in .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes hn-in{from{transform:translateY(-100%)}to{transform:none}}
+.hn-brand{font-weight:800;letter-spacing:-.2px;white-space:nowrap;max-width:26%;overflow:hidden;text-overflow:ellipsis;flex:none}
+.hn-track{position:relative;flex:1;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;height:100%;align-items:center}
+.hn-track::-webkit-scrollbar{display:none}
+.hn-track a{position:relative;padding:8px 12px;border-radius:9px;color:#55555a;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis;flex:none;transition:color .25s,background .25s}
+.hn-track a:hover{background:rgba(0,0,0,.05);color:var(--hn-ink)}
+.hn-track a.on{color:var(--hn-ink);font-weight:700}
+.hn-track a.sub{font-size:13px;color:#77777c}
+.hn-ind{position:absolute;bottom:0;left:0;height:3px;border-radius:3px 3px 0 0;background:var(--hn-a);width:0;opacity:0;pointer-events:none;transition:transform .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),opacity .2s}
+.hn-dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:2147483000;display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+.hn-dots a{position:relative;display:block;padding:3px}
+.hn-dots i{display:block;width:10px;height:10px;border-radius:6px;background:rgba(0,0,0,.28);box-shadow:0 0 0 3px rgba(255,255,255,.85);transition:height .4s cubic-bezier(.2,.8,.2,1),background .25s}
+.hn-dots a.sub i{width:7px;height:7px;margin-right:1.5px}
+.hn-dots a:hover i{background:rgba(0,0,0,.5)}
+.hn-dots a.on i{height:28px;background:var(--hn-a)}
+.hn-dots a.sub.on i{height:18px}
+.hn-dots span{position:absolute;right:24px;top:50%;margin-top:-12px;background:var(--hn-ink);color:#fff;font-size:12px;padding:5px 10px;border-radius:7px;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateX(8px);transition:opacity .2s,transform .2s;pointer-events:none}
+.hn-dots a:hover span,.hn-dots a:focus-visible span{opacity:1;transform:none}
+.hn-dots a.sub span{margin-right:1.5px}
+.hn-fabs{position:fixed;right:20px;bottom:20px;z-index:2147483000;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.hn-fab{height:46px;min-width:46px;border-radius:23px;border:0;background:var(--hn-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s}
+.hn-fab:hover{transform:translateY(-2px)}
+.hn-fab svg{width:20px;height:20px;flex:none}
+.hn-totop{opacity:0;transform:translateY(12px) scale(.85);pointer-events:none}
+.hn-totop.show{opacity:1;transform:none;pointer-events:auto}
+.hn-toc{position:relative}
+.hn-toc-btn{padding:0 18px 0 14px;background:var(--hn-a);color:var(--hn-ai);font-weight:700}
+.hn-panel{position:absolute;right:0;bottom:58px;width:310px;max-width:calc(100vw - 40px);max-height:62vh;overflow:auto;background:#fff;color:var(--hn-ink);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.22);padding:8px;opacity:0;transform:translateY(10px) scale(.96);transform-origin:100% 100%;pointer-events:none;transition:opacity .22s,transform .3s cubic-bezier(.2,.8,.2,1)}
+.hn-toc.open .hn-panel{opacity:1;transform:none;pointer-events:auto}
+.hn-panel a{display:block;padding:9px 12px;border-radius:10px;color:#3a3a3e;transition:background .15s}
+.hn-panel a.sub{padding-left:28px;font-size:13px;color:#66666b}
+.hn-panel a:hover{background:rgba(0,0,0,.05)}
+.hn-panel a.on{background:color-mix(in srgb,var(--hn-a) 22%,#fff);color:var(--hn-ink);font-weight:700}
+@media (max-width:760px){.hn-dots{display:none}.hn-brand{display:none}.hn-top{padding:0 8px}}
+@media print{#hed-nav{display:none!important}body{padding-top:0!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}#hed-nav *{transition:none!important;animation:none!important}}`;
+  }
+  // скрипт, который уйдёт в документ. Внимание: закрывающий тег script нельзя писать буквально нигде в этом файле
+  // запускаем после разбора всей страницы: блок стоит в начале body, заголовков ниже ещё нет
+  const NAV_JS = `(function(f){document.readyState==='loading'?document.addEventListener('DOMContentLoaded',f):f();})(function(){var r=document.getElementById('hed-nav');if(!r)return;
+var links=[].slice.call(r.querySelectorAll('a[data-hn-i]')),seen={},secs=[];
+links.forEach(function(a){var id=decodeURIComponent(a.getAttribute('href').slice(1));a._id=id;if(!seen[id]){seen[id]=1;var s=document.getElementById(id);if(s)secs.push(s);}});
+var track=r.querySelector('.hn-track'),ind=r.querySelector('.hn-ind'),prog=r.querySelector('.hn-prog'),up=r.querySelector('.hn-totop'),toc=r.querySelector('.hn-toc'),cur,tick;
+function moveInd(scroll){if(!ind)return;var a=track.querySelector('a.on');if(!a){ind.style.opacity=0;return;}
+ind.style.opacity=1;ind.style.width=a.offsetWidth+'px';ind.style.transform='translateX('+a.offsetLeft+'px)';
+if(scroll&&track.scrollWidth>track.clientWidth)track.scrollTo({left:a.offsetLeft-track.clientWidth/2+a.offsetWidth/2,behavior:'smooth'});}
+function setActive(id){if(id===cur)return;cur=id;links.forEach(function(a){a.classList.toggle('on',a._id===id);});moveInd(true);}
+function update(){tick=0;var line=innerHeight*0.3,id=null,i;for(i=0;i<secs.length;i++){if(secs[i].getBoundingClientRect().top<=line)id=secs[i].id;else break;}
+var h=document.documentElement,max=h.scrollHeight-h.clientHeight,y=h.scrollTop||document.body.scrollTop;
+if(max>0&&y>=max-2&&secs.length)id=secs[secs.length-1].id;if(Date.now()>lock)setActive(id);
+if(prog&&!CSS.supports('animation-timeline','scroll()'))prog.style.transform='scaleX('+(max>0?y/max:0)+')';
+if(up)up.classList.toggle('show',y>innerHeight*0.6);}
+addEventListener('scroll',function(){if(!tick){tick=1;requestAnimationFrame(update);}},{passive:true});
+addEventListener('resize',function(){moveInd(false);});
+var lock=0;
+links.forEach(function(a){a.addEventListener('click',function(e){var s=document.getElementById(a._id);if(!s)return;e.preventDefault();setActive(a._id);lock=Date.now()+1100;s.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});try{history.replaceState(null,'','#'+a._id);}catch(_){}});});
+if(up)up.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'});});
+var brand=r.querySelector('.hn-brand');if(brand)brand.addEventListener('click',function(e){e.preventDefault();scrollTo({top:0,behavior:'smooth'});});
+if(toc){var btn=toc.querySelector('.hn-toc-btn');
+btn.addEventListener('click',function(e){e.stopPropagation();btn.setAttribute('aria-expanded',toc.classList.toggle('open'));});
+document.addEventListener('click',function(e){if(!toc.contains(e.target)||e.target.closest('a')){toc.classList.remove('open');btn.setAttribute('aria-expanded','false');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')toc.classList.remove('open');});}
+update();});`;
+
+  function buildNav(o, dry) {
+    const hs = navHeadings(o.levels).map(h => ({ id: ensureId(h, dry), t: navLabel(h), sub: h.tagName === 'H3' }));
+    const list = inner => hs.map(x => `<a href="#${attr(encodeURIComponent(x.id))}" data-hn-i${x.sub ? ' class="sub"' : ''}>${inner(x)}</a>`).join('');
+    const SVG_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+    const SVG_TOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg>';
+    const parts = [];
+    if (o.progress) parts.push('<div class="hn-prog"></div>');
+    if (o.top) parts.push(`<nav class="hn-top" aria-label="Разделы">${o.brand ? `<a class="hn-brand" href="#">${esc(o.brand)}</a>` : ''}<div class="hn-track">${list(x => esc(x.t))}<span class="hn-ind"></span></div></nav>`);
+    if (o.dots) parts.push(`<nav class="hn-dots" aria-label="Разделы">${list(x => `<i></i><span>${esc(x.t)}</span>`)}</nav>`);
+    if (o.toc || o.progress) parts.push(`<div class="hn-fabs">${o.progress ? `<button class="hn-fab hn-totop" type="button" aria-label="Наверх">${SVG_UP}</button>` : ''}${o.toc
+      ? `<div class="hn-toc"><div class="hn-panel" role="menu">${list(x => esc(x.t))}</div><button class="hn-fab hn-toc-btn" type="button" aria-expanded="false">${SVG_TOC}<span>Оглавление</span></button></div>` : ''}</div>`);
+    return `<div id="${NAV_ID}" class="hn-root" data-hn="${attr(JSON.stringify(o))}"><style>${navCss(o)}</style>${parts.join('')}<script>${NAV_JS}<\/script></div>`;
+  }
+  const parseOne = html => { const t = doc.createElement('template'); t.innerHTML = html; return t.content.firstElementChild; };
+  function applyNav(o) {
+    const el = parseOne(buildNav(o)), old = navRoot();
+    if (old) old.replaceWith(el); else doc.body.insertBefore(el, doc.body.firstChild);
+  }
+  function navOutdated() {
+    const r = navRoot(), o = navOpts(); if (!r || !o) return false;
+    return parseOne(buildNav(o, true)).outerHTML !== stripMarks(r.cloneNode(true)).outerHTML;
+  }
+  // перестроить, если заголовки поменялись; true — если что-то изменилось
+  function syncNav() { if (!navOutdated()) return false; applyNav(navOpts()); return true; }
+
+  /* ── окно настройки навигации ── */
+  const modal = $('#modal'), modalBody = $('#modalBody');
+  function closeModal() { modal.hidden = true; modalBody.innerHTML = ''; }
+  const ILL = {
+    top: '<svg class="ill" viewBox="0 0 92 62"><rect x="0" y="0" width="92" height="13" fill="#f3f3f3"/><rect x="6" y="5" width="14" height="3" rx="1.5" fill="#222"/><rect x="28" y="5" width="12" height="3" rx="1.5" fill="#bbb"/><rect x="44" y="5" width="14" height="3" rx="1.5" fill="#222"/><rect x="62" y="5" width="12" height="3" rx="1.5" fill="#bbb"/><rect x="43" y="11" width="16" height="2" rx="1" fill="ACC"/><rect x="10" y="22" width="56" height="4" rx="2" fill="#ddd"/><rect x="10" y="30" width="72" height="3" rx="1.5" fill="#eee"/><rect x="10" y="36" width="64" height="3" rx="1.5" fill="#eee"/><rect x="10" y="46" width="44" height="4" rx="2" fill="#ddd"/></svg>',
+    dots: '<svg class="ill" viewBox="0 0 92 62"><rect x="8" y="10" width="56" height="4" rx="2" fill="#ddd"/><rect x="8" y="18" width="64" height="3" rx="1.5" fill="#eee"/><rect x="8" y="24" width="58" height="3" rx="1.5" fill="#eee"/><rect x="8" y="34" width="44" height="4" rx="2" fill="#ddd"/><rect x="8" y="42" width="62" height="3" rx="1.5" fill="#eee"/><circle cx="83" cy="16" r="2.4" fill="#bbb"/><rect x="80.6" y="22" width="4.8" height="12" rx="2.4" fill="ACC"/><circle cx="83" cy="40" r="2.4" fill="#bbb"/><circle cx="83" cy="48" r="2.4" fill="#bbb"/><rect x="50" y="20" width="26" height="8" rx="3" fill="#222"/></svg>',
+    toc: '<svg class="ill" viewBox="0 0 92 62"><rect x="8" y="8" width="56" height="4" rx="2" fill="#ddd"/><rect x="8" y="16" width="64" height="3" rx="1.5" fill="#eee"/><rect x="8" y="22" width="58" height="3" rx="1.5" fill="#eee"/><rect x="40" y="18" width="46" height="28" rx="4" fill="#fff" stroke="#ddd"/><rect x="45" y="23" width="30" height="3" rx="1.5" fill="#999"/><rect x="45" y="29" width="34" height="5" rx="2" fill="ACC" opacity=".5"/><rect x="45" y="37" width="26" height="3" rx="1.5" fill="#999"/><rect x="58" y="50" width="28" height="8" rx="4" fill="ACC"/></svg>',
+    progress: '<svg class="ill" viewBox="0 0 92 62"><rect x="0" y="0" width="92" height="62" fill="#fff"/><rect x="0" y="0" width="54" height="3" fill="ACC"/><rect x="8" y="12" width="56" height="4" rx="2" fill="#ddd"/><rect x="8" y="20" width="64" height="3" rx="1.5" fill="#eee"/><rect x="8" y="26" width="58" height="3" rx="1.5" fill="#eee"/><rect x="8" y="36" width="44" height="4" rx="2" fill="#ddd"/><circle cx="80" cy="50" r="7" fill="#222"/><path d="M80 53v-6M77 49.5l3-3 3 3" stroke="#fff" stroke-width="1.4" fill="none"/></svg>'
+  };
+  const NAV_KINDS = [
+    ['top', 'Липкое меню сверху', 'Разделы в шапке, текущий подсвечен, под ним плавно едет полоска'],
+    ['dots', 'Точки сбоку', 'Справа точка на каждый раздел, при наведении — название'],
+    ['toc', 'Кнопка «Оглавление»', 'Кнопка в углу, по клику раскрывается список разделов'],
+    ['progress', 'Прогресс + «Наверх»', 'Полоска прочитанного сверху и кнопка возврата наверх']
+  ];
+  function openNavModal() {
+    if (!doc) return;
+    commitEdit(); closePop();
+    const cur = navOpts();
+    const pal = docPalette();
+    const brand0 = (doc.title || '').replace(/\{\{[^}]*\}\}/g, '').replace(/^[\s—–-]+|[\s—–-]+$/g, '');
+    const o = Object.assign({ top: true, dots: false, toc: false, progress: true, levels: 'h2', accent: pickAccent(pal), brand: short(brand0, 40) }, cur || {});
+    const render = () => {
+      const keepBrand = $('#nBrand') ? $('#nBrand').value : o.brand;
+      o.brand = keepBrand;
+      const hs = navHeadings(o.levels);
+      const any = o.top || o.dots || o.toc || o.progress;
+      const sw = [...new Set([o.accent, ...pal])].map(c => `<button class="swatch${c === o.accent ? ' on' : ''}" style="background:${c}" data-acc="${c}" title="${c}"></button>`).join('');
+      modalBody.innerHTML = `<h3>Навигация по странице</h3>
+        <p class="hint">Меню соберётся из заголовков документа и сохранится прямо в файл. Анимации видны в «Предпросмотре» и у читателя; при печати навигация скрывается.</p>
+        <div class="opt-grid">${NAV_KINDS.map(([k, t, d]) => `<label class="opt${o[k] ? ' on' : ''}"><input type="checkbox" data-o="${k}" ${o[k] ? 'checked' : ''}>
+          ${ILL[k].replace(/ACC/g, o.accent)}<div><b>${t}</b><span>${d}</span></div><span class="chk">${o[k] ? '✓' : ''}</span></label>`).join('')}</div>
+        <div class="mrow"><span class="mlabel">Пункты меню</span><div class="seg"><button data-lv="h2" class="${o.levels === 'h2' ? 'on' : ''}">Только разделы</button><button data-lv="h2h3" class="${o.levels === 'h2h3' ? 'on' : ''}">Разделы и подразделы</button></div></div>
+        <div class="mrow"><span class="mlabel">Цвет акцента</span><div class="sw-row" style="margin:0">${sw}</div></div>
+        ${o.top ? `<div class="mrow"><span class="mlabel">Название слева в меню</span><input class="inp" id="nBrand" value="${attr(o.brand || '')}" placeholder="Можно оставить пустым"></div>` : ''}
+        <div class="mrow" style="align-items:flex-start"><span class="mlabel">Найдено разделов: <b style="color:var(--ink)">${hs.length}</b></span>
+          ${hs.length ? `<ol class="sec-list">${hs.map(h => `<li${h.tagName === 'H3' ? ' class="sub"' : ''}>${esc(navLabel(h))}</li>`).join('')}</ol>`
+            : '<p class="hint" style="flex:1">В документе нет заголовков второго уровня (h2) — навигации не из чего собраться.</p>'}</div>
+        <div class="modal-foot">${cur ? '<button class="btn left" id="nDel" style="color:var(--danger)">Убрать навигацию</button>' : ''}
+          <button class="btn" id="nCancel">Отмена</button>
+          <button class="btn primary" id="nOk" ${hs.length && any ? '' : 'disabled'}>${cur ? 'Обновить' : 'Вставить в документ'}</button></div>`;
+      modalBody.querySelectorAll('[data-o]').forEach(i => i.onchange = () => { o[i.dataset.o] = i.checked; render(); });
+      modalBody.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { o.levels = b.dataset.lv; render(); });
+      modalBody.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { o.accent = b.dataset.acc; render(); });
+      $('#nCancel').onclick = closeModal;
+      if ($('#nDel')) $('#nDel').onclick = () => { navRoot().remove(); select(null); push('Навигация убрана'); closeModal(); };
+      $('#nOk').onclick = () => {
+        o.brand = $('#nBrand') ? $('#nBrand').value.trim() : (o.brand || '');
+        applyNav(o); select(null);
+        push(cur ? 'Навигация обновлена' : 'Добавлена навигация');
+        closeModal();
+        toast(cur ? 'Навигация обновлена' : 'Навигация добавлена', { action: 'Предпросмотр', fn: openPreview, ms: 7000 });
+      };
+    };
+    render();
+    modal.hidden = false;
+  }
+
+  /* ── предпросмотр: отдельный iframe со скриптами, но без доступа к редактору; чужие скрипты вырезаются ── */
+  function previewHtml() {
+    const d = new DOMParser().parseFromString(serialize(), 'text/html');
+    d.querySelectorAll('script').forEach(s => { if (!(s.parentElement && s.parentElement.id === NAV_ID)) s.remove(); });
+    d.querySelectorAll('meta[http-equiv]').forEach(m => m.remove());
+    d.querySelectorAll('*').forEach(el => { for (const a of [...el.attributes]) {
+      if (/^on/i.test(a.name)) el.removeAttribute(a.name);
+      else if (/^(href|src|action|formaction)$/i.test(a.name) && /^\s*javascript:/i.test(a.value)) el.removeAttribute(a.name);
+    } });
+    // служебный слушатель: Esc внутри предпросмотра сообщает редактору (iframe изолирован, клавиши наружу не идут)
+    const esc = d.createElement('script');
+    esc.textContent = "addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.querySelector('.hn-toc.open'))parent.postMessage({hed:'esc'},'*');},true);";
+    d.body.appendChild(esc);
+    return '<!DOCTYPE html>\n' + d.documentElement.outerHTML;
+  }
+  window.addEventListener('message', e => { if (e.source === $('#pvFrame').contentWindow && e.data && e.data.hed === 'esc') closePreview(); });
+  function openPreview() {
+    if (!doc) return;
+    commitEdit(); closePop(); closeFind(); select(null);
+    if (syncNav()) push('Навигация обновлена под заголовки');
+    $('#pvFrame').srcdoc = previewHtml();
+    $('#preview').hidden = false; ftb.hidden = true; $('#dragH').hidden = true;
+    ui();
+  }
+  function closePreview() {
+    if ($('#preview').hidden) return;
+    $('#preview').hidden = true; $('#pvFrame').srcdoc = ''; ui();
+  }
+
+  /* ═════════════════ ПЕРЕТАСКИВАНИЕ БЛОКОВ ═════════════════
+     Ручка ⋮⋮ слева от выделенного блока. Перенос — только среди соседей того же родителя,
+     чтобы не сломать структуру (строка остаётся в своей таблице, пункт — в своём списке). */
+  const dragH = $('#dragH'), dropLine = $('#dropLine');
+  function placeHandle() {
+    if (drag) return;                       // во время перетаскивания ручку двигает сам drag
+    const el = selected;
+    const ok = doc && el && el.isConnected && el.id !== NAV_ID && el.parentElement && el.parentElement !== doc.documentElement
+      && el.parentElement.children.length > 1 && !drag && $('#preview').hidden;
+    if (!ok) { dragH.hidden = true; return; }
+    const r = el.getBoundingClientRect(), vh = view.clientHeight;
+    if (r.bottom * scale < 0 || r.top * scale > vh) { dragH.hidden = true; return; }
+    let x = r.left * scale - 30; if (x < 2) x = Math.max(2, r.left * scale + 4);
+    const y = Math.max(2, Math.min(r.top * scale + 2, vh - 32));
+    dragH.style.transform = `translate(${x}px,${y}px)`; dragH.hidden = false;
+  }
+  const isRow = parent => {
+    const kids = [...parent.children].filter(k => k.getBoundingClientRect().height);
+    for (let i = 1; i < kids.length; i++) {
+      const a = kids[i - 1].getBoundingClientRect(), b = kids[i].getBoundingClientRect();
+      if (Math.abs(a.top - b.top) < 4 && b.left > a.left) return true;
+    }
+    return false;
+  };
+  dragH.addEventListener('pointerdown', e => {
+    if (!selected) return;
+    e.preventDefault(); commitEdit(); closePop();
+    dragH.setPointerCapture(e.pointerId);
+    drag = { el: selected, parent: selected.parentElement, target: null, after: false, row: isRow(selected.parentElement), y0: e.clientY };
+    selected.setAttribute('data-hed-drag', '');
+    selected.style.setProperty('opacity', '.45');
+    view.classList.add('dragging'); ftb.hidden = true;
+  });
+  dragH.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const vr = view.getBoundingClientRect();
+    // автопрокрутка у краёв
+    if (e.clientY - vr.top < 50) W().scrollBy(0, -14); else if (vr.bottom - e.clientY < 50) W().scrollBy(0, 14);
+    const ix = (e.clientX - vr.left) / scale, iy = (e.clientY - vr.top) / scale;
+    let s = doc.elementFromPoint(ix, iy);
+    while (s && s.parentElement !== drag.parent) s = s.parentElement;
+    if (!s) {   // мимо соседей — берём ближайшего по вертикали
+      let best = null, bd = Infinity;
+      for (const k of drag.parent.children) { const r = k.getBoundingClientRect(); if (!r.height) continue; const d = iy < r.top ? r.top - iy : iy > r.bottom ? iy - r.bottom : 0; if (d < bd) { bd = d; best = k; } }
+      s = bd < 120 ? best : null;
+    }
+    dragH.style.transform = `translate(${e.clientX - vr.left - 11}px,${e.clientY - vr.top - 15}px)`;
+    if (!s || s === drag.el) { drag.target = null; dropLine.hidden = true; return; }
+    const r = s.getBoundingClientRect();
+    drag.target = s;
+    drag.after = drag.row ? ix > r.left + r.width / 2 : iy > r.top + r.height / 2;
+    dropLine.hidden = false;
+    if (drag.row) Object.assign(dropLine.style, { left: ((drag.after ? r.right : r.left) * scale - 2) + 'px', top: (r.top * scale) + 'px', width: '4px', height: (r.height * scale) + 'px' });
+    else Object.assign(dropLine.style, { left: (r.left * scale) + 'px', top: ((drag.after ? r.bottom : r.top) * scale - 2) + 'px', width: (r.width * scale) + 'px', height: '4px' });
+  });
+  const endDrag = commit => {
+    if (!drag) return;
+    const { el, target, after } = drag;
+    el.removeAttribute('data-hed-drag'); el.style.removeProperty('opacity'); if (!el.getAttribute('style')) el.removeAttribute('style');
+    drag = null; dropLine.hidden = true; view.classList.remove('dragging');
+    if (commit && target && (after ? target.nextElementSibling !== el : target.previousElementSibling !== el)) {
+      after ? target.after(el) : target.before(el);
+      push(`${nm(el)[0]}: ${gend(el, 'перемещена', 'перемещён', 'перемещено')}`);
+    }
+    select(el);
+  };
+  dragH.addEventListener('pointerup', () => endDrag(true));
+  dragH.addEventListener('pointercancel', () => endDrag(false));
+  dragH.addEventListener('keydown', e => { if (e.key === 'Escape') endDrag(false); });
+
+  /* ═════════════════ ВСТАВКА ИЗ БУФЕРА ═════════════════ */
+  function handlePaste(e) {
+    const cd = e.clipboardData; if (!cd || !doc) return;
+    const img = [...cd.items].find(i => i.kind === 'file' && i.type.startsWith('image/'));
+    if (img) {
+      e.preventDefault();
+      if (editing) keepRange();
+      shrinkImage(img.getAsFile()).then(insertImageUrl).catch(() => toast('Не получилось вставить картинку'));
+      return;
+    }
+    if (!editing) return;
+    e.preventDefault();
+    const text = cd.getData('text/plain');
+    if (/\t/.test(text) && editing.closest('td,th') && editing.closest('tr')) { pasteTable(text); return; }
+    doc.execCommand('insertText', false, text.replace(/\r\n?/g, '\n'));
+  }
+  // большие картинки ужимаем до 1600 px по ширине, чтобы файл не раздувался
+  function shrinkImage(file) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onerror = rej;
+      fr.onload = () => {
+        const im = new Image();
+        im.onerror = rej;
+        im.onload = () => {
+          const MAX = 1600;
+          if (im.width <= MAX && file.size < 900 * 1024) { res(fr.result); return; }
+          const k = Math.min(1, MAX / im.width), c = document.createElement('canvas');
+          c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          const png = c.toDataURL('image/png');
+          res(png.length < 1.5e6 ? png : c.toDataURL('image/jpeg', 0.88));
+        };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function insertImageUrl(url) {
+    if (editing) {
+      backToRange();
+      doc.execCommand('insertImage', false, url);
+      const im = [...editing.querySelectorAll('img')].find(i => i.getAttribute('src') === url);
+      if (im) { im.style.maxWidth = '100%'; im.style.height = 'auto'; im.alt = ''; }
+      pending = true; ui(); commitEdit(); toast('Картинка вставлена');
+      return;
+    }
+    // без активного текста — отдельным абзацем после выбранного блока (но не внутрь таблицы/списка)
+    let anchor = selected;
+    while (anchor && anchor.parentElement && anchor.parentElement !== doc.body && anchor.closest('table,ul,ol,#' + NAV_ID)) anchor = anchor.parentElement;
+    if (!anchor || anchor.id === NAV_ID) { toast('Кликните по месту в документе, куда вставить картинку'); return; }
+    const p = doc.createElement('p'), im = doc.createElement('img');
+    im.src = url; im.alt = ''; im.style.maxWidth = '100%'; im.style.height = 'auto';
+    p.appendChild(im); anchor.after(p);
+    clickEl = im; select(im); push('Вставлена картинка');
+    toast('Картинка вставлена — добавьте описание', { action: 'Описать', fn: () => openPop('alt', ftb.querySelector('[data-pop=alt]')), ms: 6000 });
+  }
+  // табличные данные (Excel, Google Таблицы) заполняют ячейки начиная с текущей; не хватит строк — добавятся
+  function pasteTable(text) {
+    const cell = editing.closest('td,th'), row0 = cell.parentElement;
+    const col0 = [...row0.cells].indexOf(cell);
+    const lines = text.replace(/\r/g, '').replace(/\n+$/, '').split('\n').map(l => l.split('\t'));
+    commitEdit();
+    let row = row0, added = 0;
+    lines.forEach((vals, i) => {
+      if (i) {
+        let next = row.nextElementSibling;
+        if (!next) {
+          next = stripMarks(row0.cloneNode(true));
+          [next, ...next.querySelectorAll('[id]')].forEach(x => x.removeAttribute('id'));
+          [...next.cells].forEach(c => { c.textContent = ''; });
+          row.after(next); added++;
+        }
+        row = next;
+      }
+      vals.forEach((v, j) => { const c = row.cells[col0 + j]; if (c) c.textContent = v.trim(); });
+    });
+    const cols = Math.max(...lines.map(l => l.length));
+    push(`Вставлена таблица ${lines.length}×${cols}${added ? `, добавлено строк: ${added}` : ''}`);
+    select(row0.closest('table') || row0);
+    toast(`Заполнено ${lines.length}×${cols}${added ? `, новых строк: ${added}` : ''}`, { action: 'Отменить', fn: undo, ms: 6000 });
+  }
+
+  /* ═════════════════ ПРОВЕРКА ДОКУМЕНТА ═════════════════ */
+  function runChecks() {
+    const items = [], add = (lvl, group, text, el, fix) => items.push({ lvl, group, text, el, fix });
+    const inNav = el => el && el.closest && el.closest('#' + NAV_ID);
+    if (/\{\{/.test(doc.title)) add('err', 'Незаполненные поля', 'Вкладка браузера: ' + short(doc.title, 50));
+    const tw = doc.createTreeWalker(doc.body, 4, { acceptNode: n => n.parentElement && n.parentElement.closest('script,style,template,#' + NAV_ID) ? 2 : 1 });
+    let ph = 0;
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+      const m = n.data.match(/\{\{[^{}]{1,200}\}\}/g);
+      if (m) for (const x of m) { ph++; if (ph <= 60) add('err', 'Незаполненные поля', short(x, 60), n.parentElement); }
+    }
+    if (ph > 60) add('err', 'Незаполненные поля', `…и ещё ${ph - 60}`);
+    doc.body.querySelectorAll('img').forEach(img => {
+      if (inNav(img)) return;
+      const src = img.getAttribute('src') || '';
+      if (!src || (img.complete && img.naturalWidth === 0)) add('err', 'Картинки', 'Не загружается: ' + (src ? short(src.startsWith('data:') ? 'встроенная картинка повреждена' : src, 50) : 'пустой адрес'), img);
+      else if (!img.getAttribute('alt')) add('warn', 'Картинки', 'Картинка без описания (alt)', img,
+        { label: 'Описать', fn: () => { commitEdit(); clickEl = img; img.scrollIntoView({ block: 'center' }); select(img); setTimeout(() => openPop('alt', ftb.querySelector('[data-pop=alt]')), 300); } });
+    });
+    doc.body.querySelectorAll('a[href]').forEach(a => {
+      if (inNav(a)) return;
+      const h = a.getAttribute('href').trim(), t = short(a.textContent, 30) || '(без текста)';
+      if (!h || h === '#') add('warn', 'Ссылки', `Пустая ссылка «${t}»`, a);
+      else if (/^javascript:/i.test(h)) add('err', 'Ссылки', `Ссылка-скрипт «${t}» — не сработает у читателя`, a);
+      else if (h[0] === '#') { let id = h.slice(1); try { id = decodeURIComponent(id); } catch (_) {} if (!doc.getElementById(id)) add('err', 'Ссылки', `«${t}» ведёт на несуществующий раздел ${short(h, 30)}`, a); }
+      else if (/\s/.test(h) || /^https?:\/\/[^./]+\/?$/i.test(h) || /^(www\.)/i.test(h)) add('warn', 'Ссылки', `Странный адрес у «${t}»: ${short(h, 40)}`, a);
+    });
+    doc.body.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li,blockquote,figcaption').forEach(el => {
+      if (inNav(el) || el.textContent.trim() || el.querySelector('img,svg,video,iframe,canvas,input,hr')) return;
+      add('warn', 'Пустые блоки', `${nm(el)[0]} без текста`, el, { label: 'Удалить', fn: () => { el.remove(); select(null); push(`Удалён пустой блок: ${nm(el)[0].toLowerCase()}`); } });
+    });
+    const ids = new Map();
+    doc.body.querySelectorAll('[id]').forEach(e => { if (!inNav(e)) ids.set(e.id, (ids.get(e.id) || []).concat(e)); });
+    for (const [id, els] of ids) if (els.length > 1) add('warn', 'Структура', `id «${short(id, 30)}» встречается ${els.length} раза — якоря работают неверно`, els[1],
+      { label: 'Исправить', fn: () => { els.slice(1).forEach(e => e.removeAttribute('id')); push('Убраны повторяющиеся id'); } });
+    let prev = 0;
+    doc.body.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(h => {
+      if (inNav(h)) return;
+      const l = +h.tagName[1];
+      if (prev && l > prev + 1) add('warn', 'Структура', `После H${prev} сразу H${l}: «${short(h.textContent, 30)}»`, h);
+      prev = l;
+    });
+    if (navOutdated()) add('warn', 'Навигация', 'Меню не совпадает с заголовками документа', navRoot(),
+      { label: 'Обновить', fn: () => { syncNav(); push('Навигация обновлена под заголовки'); } });
+    return items;
+  }
+  function renderChecks(items) {
+    chkItems = items;
+    const cnt = $('#chkCnt'); cnt.hidden = !items.length; cnt.textContent = items.length;
+    cnt.classList.toggle('bad', items.some(i => i.lvl === 'err'));
+    if (tab !== 'check') return;
+    const box = $('#chkBody');
+    if (!items.length) { box.innerHTML = '<p class="hint">✓ Проблем не найдено: поля заполнены, ссылки и картинки в порядке.</p>'; return; }
+    const groups = [];
+    items.forEach((it, i) => { let g = groups.find(x => x.name === it.group); if (!g) groups.push(g = { name: it.group, list: [] }); g.list.push([it, i]); });
+    box.innerHTML = '<p class="hint" style="margin-bottom:6px">Кликните по пункту, чтобы перейти к месту в документе.</p>' + groups.map(g => `<div class="chk-group">${esc(g.name)} · ${g.list.length}</div><ul class="chklist">${g.list.map(([it, i]) =>
+      `<li class="${it.lvl}"${it.el ? ` data-i="${i}"` : ''}><span class="dot"></span><span>${esc(it.text)}</span>${it.fix ? `<button class="btn fix" data-fix="${i}">${esc(it.fix.label)}</button>` : ''}</li>`).join('')}</ul>`).join('');
+    box.querySelectorAll('li[data-i]').forEach(li => li.onclick = e => {
+      if (e.target.closest('[data-fix]')) return;
+      const el = items[+li.dataset.i].el; if (!el || !el.isConnected) return;
+      commitEdit(); clickEl = el; el.scrollIntoView({ block: 'center', behavior: 'smooth' }); select(defaultTarget(el)); setTimeout(placeTb, 350);
+    });
+    box.querySelectorAll('[data-fix]').forEach(b => b.onclick = () => items[+b.dataset.fix].fix.fn());
+  }
+
   /* ───────── найти и заменить ───────── */
   const hlApi = () => { const w = W(); return w && w.CSS && w.CSS.highlights && w.Highlight ? w : null; };
   function openFind(withReplace) {
@@ -1146,7 +1683,7 @@
     find.list = [];
     if (doc && q) {
       const needle = find.cs ? q : q.toLowerCase();
-      const tw = doc.createTreeWalker(doc.body, 4, { acceptNode: n => n.parentElement && n.parentElement.closest('script,style,template') ? 2 : 1 });
+      const tw = doc.createTreeWalker(doc.body, 4, { acceptNode: n => n.parentElement && n.parentElement.closest('script,style,template,#hed-nav') ? 2 : 1 });
       for (let n = tw.nextNode(); n; n = tw.nextNode()) {
         const hay = find.cs ? n.data : n.data.toLowerCase();
         let i = hay.indexOf(needle);
@@ -1259,18 +1796,46 @@
   }
 
   /* ───────── сохранение ───────── */
-  function save() {
-    if (!doc) return;
+  // перед сохранением: синхронизируем навигацию с заголовками
+  function prepareSave() {
     commitEdit();
+    if (syncNav()) push('Навигация обновлена под заголовки');
+  }
+  function afterSave(msg) {
+    savedAt = hi; ui(); store.del('draft');
+    const ph = chkItems.filter(i => i.group === 'Незаполненные поля').length;
+    if (ph) toast(`${msg}. Но осталось незаполненных полей: ${ph}`, { action: 'Показать', fn: () => { setSide(true); setTab('check'); }, ms: 7000 });
+    else toast(msg);
+  }
+  function download() {
     const blob = new Blob([serialize()], { type: 'text/html;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = fileName;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    savedAt = hi; ui();
-    store.del('draft');
-    toast('Файл скачан: ' + fileName);
   }
+  // Ctrl+S: если файл открыт через системный диалог/перетаскивание в Chrome/Edge — пишем прямо в него
+  async function save() {
+    if (!doc) return;
+    prepareSave();
+    if (fileHandle) {
+      if (!overwriteOk && !confirm(`Сохранить изменения прямо в файл «${fileName}»?\n\nИсходная версия будет перезаписана. «Вернуть исходник» продолжит работать, пока редактор открыт.\nКопию можно скачать через Файл → Скачать копию.`)) return;
+      overwriteOk = true;
+      try {
+        let p = fileHandle.queryPermission ? await fileHandle.queryPermission({ mode: 'readwrite' }) : 'granted';
+        if (p !== 'granted') p = await fileHandle.requestPermission({ mode: 'readwrite' });
+        if (p !== 'granted') throw new Error('denied');
+        const w = await fileHandle.createWritable();
+        await w.write(serialize()); await w.close();
+        afterSave('Сохранено в файл ' + fileName);
+        return;
+      } catch (err) {
+        toast('Не получилось записать в файл — скачиваю копию');
+      }
+    }
+    download(); afterSave('Файл скачан: ' + fileName);
+  }
+  function saveCopy() { if (!doc) return; prepareSave(); download(); toast('Копия скачана: ' + fileName); }
 
   /* ───────── черновик ───────── */
   function scheduleDraft() {
@@ -1288,8 +1853,10 @@
   function closeFile() {
     if (isDirty() && !confirm('Есть несохранённые изменения. Закрыть без сохранения?')) return;
     store.del('draft');
-    closeFind(); closePop();
-    doc = null; hist = []; hi = -1; selected = null; editing = null; diffItems = [];
+    closeFind(); closePop(); closePreview(); closeModal();
+    doc = null; hist = []; hi = -1; selected = null; editing = null; diffItems = []; chkItems = []; fileHandle = null;
+    $('#dragH').hidden = true; $('#chkCnt').hidden = true;
+    $('#chkBody').innerHTML = '<p class="hint">Откройте файл — здесь появятся незаполненные поля, битые ссылки, картинки без описания и другие проблемы.</p>';
     frame.srcdoc = ''; stage.classList.remove('loaded');
     $('#tabbar').hidden = true; ftb.hidden = true; $('#coach').hidden = true; $('#sideOpen').hidden = true;
     $('#diffCnt').hidden = true; $('#diffBody').innerHTML = '<p class="hint">Откройте файл — здесь будет видно всё, что изменилось относительно исходника.</p>';
@@ -1304,6 +1871,8 @@
     e.stopPropagation();
     if (!fileMenu.hidden) { closeFileMenu(); return; }
     fileMenu.querySelectorAll('[data-f]').forEach(b => b.disabled = b.dataset.f !== 'open' && !doc);
+    $('#miSaveT').textContent = fileHandle ? 'Сохранить в исходный файл' : 'Скачать HTML';
+    $('#miCopy').hidden = !fileHandle;
     fileMenu.hidden = false;
     const r = $('#bFile').getBoundingClientRect();
     fileMenu.style.top = (r.bottom + 6) + 'px';
@@ -1312,7 +1881,7 @@
   fileMenu.onclick = e => {
     const b = e.target.closest('[data-f]'); if (!b || b.disabled) return;
     closeFileMenu();
-    ({ open: pick, save, pdf: printDoc, reset: resetToOriginal, close: closeFile })[b.dataset.f]();
+    ({ open: pick, save, copy: saveCopy, pdf: printDoc, reset: resetToOriginal, close: closeFile })[b.dataset.f]();
   };
   document.addEventListener('mousedown', e => {
     if (!fileMenu.hidden && !fileMenu.contains(e.target) && !$('#bFile').contains(e.target)) closeFileMenu();
@@ -1337,6 +1906,8 @@
     return false;
   }
   document.addEventListener('keydown', e => {
+    if (!$('#modal').hidden) { if (e.key === 'Escape') closeModal(); return; }
+    if (!$('#preview').hidden) { if (e.key === 'Escape') closePreview(); return; }
     if (e.target.matches && e.target.matches('input,textarea,select')) {
       const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase(), c = e.code;
       if (mod && (k === 's' || c === 'KeyS')) { e.preventDefault(); e.target.blur(); save(); }
@@ -1349,7 +1920,16 @@
   });
 
   /* ───────── привязки ───────── */
-  const pick = () => { $('#fileIn').value = ''; $('#fileIn').click(); };
+  // открытие: в Chrome/Edge через системный диалог (даёт право потом сохранить прямо в файл), иначе обычный input
+  async function pick() {
+    if (window.showOpenFilePicker) {
+      try {
+        const [h] = await window.showOpenFilePicker({ types: [{ description: 'HTML', accept: { 'text/html': ['.html', '.htm'] } }] });
+        readFile(await h.getFile(), h); return;
+      } catch (err) { if (err && err.name === 'AbortError') return; }
+    }
+    $('#fileIn').value = ''; $('#fileIn').click();
+  }
   $('#bOpen2').onclick = pick;
   $('#fileIn').onchange = e => readFile(e.target.files[0]);
   $('#bUndo').onclick = undo; $('#bRedo').onclick = redo; $('#bSave').onclick = save;
@@ -1358,13 +1938,25 @@
   const drop = $('#drop');
   ['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
   ['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if (ev === 'drop' || !e.relatedTarget) drop.classList.remove('over'); }));
-  document.addEventListener('drop', e => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) readFile(f); });
+  document.addEventListener('drop', e => {
+    const dt = e.dataTransfer, f = dt && dt.files[0]; if (!f) return;
+    const it = dt.items && dt.items[0];
+    const hp = it && it.getAsFileSystemHandle ? it.getAsFileSystemHandle() : null;   // вызывать синхронно, иначе данные пропадут
+    if (hp) hp.then(h => readFile(f, h && h.kind === 'file' ? h : null)).catch(() => readFile(f));
+    else readFile(f);
+  });
+  document.addEventListener('paste', e => { if (!doc || (e.target.closest && e.target.closest('input,textarea'))) return; handlePaste(e); });
+  $('#pvClose').onclick = closePreview;
+  $('#bPreview').onclick = () => $('#preview').hidden ? openPreview() : closePreview();
+  $('#bNav').onclick = openNavModal;
+  $('#modal').addEventListener('mousedown', e => { if (e.target === $('#modal')) closeModal(); });
   window.addEventListener('beforeunload', e => { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
 
   $('#devMode').checked = dev; $('#tabCode').hidden = !dev;
   if (store.get('side', true) === false) { $('#side').hidden = true; }
   checkDraft();
-  window.__hed = { load, undo, redo, serialize, openFind, printDoc, setTab, blockAct, fmt,
+  window.__hed = { load, undo, redo, serialize, openFind, printDoc, setTab, blockAct, fmt, openNavModal, openPreview, previewHtml, runChecks, save, pasteTable, insertImageUrl,
+    setHandle(h) { fileHandle = h; ui(); },
     get doc(){ return doc; }, get hist(){ return hist; }, get diff(){ return diffItems; }, get sel(){ return selected; }, get editing(){ return editing; } };
 })();
 </script>

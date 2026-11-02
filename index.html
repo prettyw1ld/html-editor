@@ -66,19 +66,39 @@
   /* ── рабочая область ── */
   main{flex:1;display:flex;min-height:0}
   #stage{flex:1;display:flex;flex-direction:column;min-width:0}
-  .tabbar{display:flex;align-items:flex-end;gap:12px;padding:8px 12px 0;background:var(--surface-3);border-bottom:1px solid var(--line);flex-wrap:wrap}
-  .tab{position:relative;display:flex;align-items:center;gap:8px;background:#fff;color:#18181a;border-radius:10px 10px 0 0;padding:7px 10px 8px;width:min(380px,100%);margin-bottom:-1px;border:1px solid var(--line);border-bottom-color:#fff}
-  .fav{width:20px;height:20px;flex:none;border:0;padding:0;background:none;cursor:pointer;border-radius:4px;display:grid;place-items:center}
-  .fav:hover{outline:2px solid var(--accent);outline-offset:1px}
-  .fav img{width:16px;height:16px;object-fit:contain}
-  .fav svg{width:16px;height:16px;color:#6c6c70}
-  .fav-x{position:absolute;left:22px;top:2px;width:14px;height:14px;border-radius:50%;border:0;padding:0;font-size:10px;line-height:14px;background:#18181a;color:#fff;cursor:pointer;display:none}
-  .tab:hover .fav-x.has{display:block}
-  .tab input{flex:1;min-width:0;border:1px solid transparent;background:transparent;border-radius:6px;padding:2px 6px;font-size:13px;color:#18181a;text-overflow:ellipsis}
-  .tab input:hover{border-color:#e3e3df}
-  .tab input:focus{outline:none;border-color:#1a73e8;background:#fff}
-  .tab .pen{width:13px;height:13px;color:#9a9aa0;flex:none}
-  .tab-cap{font-size:11px;color:var(--muted);align-self:center;padding-bottom:8px}
+  /* полоска вкладок документов */
+  .tabbar{display:flex;align-items:flex-end;gap:6px;padding:6px 10px 0;background:var(--surface-3);border-bottom:1px solid var(--line);min-height:44px}
+  .tabs{display:flex;align-items:flex-end;gap:1px;min-width:0;flex:0 1 auto;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .dtab{position:relative;display:flex;align-items:center;gap:8px;height:37px;padding:0 6px 0 11px;min-width:110px;max-width:240px;flex:0 1 240px;border-radius:10px 10px 0 0;color:var(--muted);cursor:pointer;user-select:none;border:1px solid transparent;border-bottom:0;margin-bottom:-1px;transition:background .15s,color .15s}
+  .dtab:hover{background:color-mix(in srgb,var(--surface) 55%,transparent);color:var(--ink)}
+  .dtab.on{background:var(--surface);color:var(--ink);border-color:var(--line);z-index:1}
+  .dtab:not(.on):not(:hover) + .dtab:not(.on):not(:hover)::before{content:"";position:absolute;left:-1px;top:11px;bottom:11px;width:1px;background:var(--line)}
+  .dtab .fv{width:18px;height:18px;flex:none;display:grid;place-items:center;border:0;padding:0;background:none;border-radius:4px;cursor:inherit;color:var(--muted)}
+  .dtab.on .fv{cursor:pointer}
+  .dtab.on .fv:hover{outline:2px solid var(--accent);outline-offset:1px}
+  .dtab .fv img{width:16px;height:16px;object-fit:contain}
+  .dtab .fv svg{width:15px;height:15px}
+  .dtab .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+  .dtab.on .tt{font-weight:600}
+  .dtab input.tt{border:1px solid var(--focus);border-radius:6px;padding:3px 6px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;outline:none;cursor:text;font-weight:500}
+  .dtab .x{width:22px;height:22px;flex:none;border:0;background:none;border-radius:6px;display:grid;place-items:center;color:var(--muted);cursor:pointer;padding:0;font-size:16px;line-height:1}
+  .dtab .x:hover{background:var(--surface-3);color:var(--ink)}
+  .dtab .x .dot{display:none;width:8px;height:8px;border-radius:50%;background:var(--mod)}
+  .dtab .x.dirty .dot{display:block}
+  .dtab .x.dirty .cross{display:none}
+  .dtab:hover .x.dirty .dot{display:none}
+  .dtab:hover .x.dirty .cross{display:inline}
+  .dtab:not(.on):not(:hover) .x:not(.dirty){visibility:hidden}
+  .dtab.loading .tt{opacity:.5}
+  .dtab.dragging{opacity:.45}
+  .dtab.drop-before{box-shadow:inset 3px 0 0 var(--focus)}
+  .dtab.drop-after{box-shadow:inset -3px 0 0 var(--focus)}
+  .tadd{width:30px;height:30px;margin:0 0 4px;flex:none;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--muted);display:grid;place-items:center}
+  .tadd:hover{background:var(--surface);color:var(--ink)}
+  .tadd svg{width:18px;height:18px}
+  .fileover{position:absolute;inset:10px;z-index:30;border:2px dashed var(--accent);border-radius:16px;background:color-mix(in srgb,var(--accent) 14%,transparent);display:grid;place-items:center;pointer-events:none}
+  .fileover div{background:var(--surface);color:var(--ink);font-weight:700;padding:12px 18px;border-radius:12px;box-shadow:var(--shadow)}
   .zoom{margin-left:auto;display:flex;align-items:center;gap:2px;padding-bottom:6px}
   .zoom .btn{padding:4px 9px;border-radius:7px;font-size:13px}
   #zVal{min-width:58px;justify-content:center;font-variant-numeric:tabular-nums}
@@ -92,8 +112,8 @@
   .findbar .x{margin-left:auto}
 
   .view{position:relative;flex:1;overflow:hidden;background:var(--bg)}
-  #frame{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#fff;display:none;transform-origin:0 0}
-  #stage.loaded #frame{display:block}
+  .docframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#fff;display:none;transform-origin:0 0}
+  .docframe.active{display:block}
   #stage.loaded #empty{display:none}
   #empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
   .drop{max-width:520px;width:100%;text-align:center;border:2px dashed var(--line);border-radius:18px;padding:40px 28px;background:var(--surface)}
@@ -233,12 +253,24 @@
   .chklist .err .dot{background:var(--danger)}
   .chklist .fix{margin-left:auto;flex:none;font-size:12px;padding:3px 9px;border-radius:7px}
 
+  /* ── блоки ── */
+  .bl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .bl{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:grab;text-align:left;font-size:12.5px;touch-action:none;user-select:none;position:relative}
+  .bl:hover{border-color:var(--muted);background:var(--surface-2)}
+  .bl:active{cursor:grabbing}
+  .bl .ic{width:30px;height:30px;border-radius:8px;background:var(--surface-3);display:grid;place-items:center}
+  .bl .ic svg{width:17px;height:17px}
+  .bl b{font-weight:600;line-height:1.25}
+  .bl .badge{position:absolute;top:8px;right:8px;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--accent-soft);color:var(--ink)}
+  .bl-ghost{position:fixed;z-index:60;pointer-events:none;padding:8px 12px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;box-shadow:var(--shadow);transform:translate(-50%,-130%);white-space:nowrap}
+  .tpl-ic{width:52px;height:52px;flex:none;border-radius:12px;background:var(--surface-3);display:grid;place-items:center}
+  .tpl-ic svg{width:24px;height:24px}
+
   @media (max-width:1150px){ .bar .btn .t{display:none} .bar .btn.primary .t,.bar #bFile .t{display:inline} .switch .t{display:none} }
   @media (max-width:820px){
     main{flex-direction:column}
     #stage{min-height:65vh}
     aside{width:auto;border-left:0;border-top:1px solid var(--line);max-height:50vh}
-    .tab-cap{display:none}
     .file b{max-width:50vw}
     .zoom{margin-left:0}
   }
@@ -247,16 +279,12 @@
 <body>
 
 <header class="bar">
-  <div class="logo"><img src="data:image/png;base64,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" alt="">Правка HTML</div>
+  <div class="logo"><img src="data:image/png;base64,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" alt="" title="Правка HTML"></div>
   <div class="file"><b id="fname">Файл не открыт</b><span id="fstate">Откройте .html, чтобы начать</span></div>
   <button class="btn" id="bFile" title="Открыть, PDF, вернуть исходник, закрыть">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span class="t">Файл</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="m6 9 6 6 6-6"/></svg></button>
   <span class="sep"></span>
-  <button class="btn" id="bUndo" disabled title="Отменить (Ctrl+Z)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg><span class="t">Отменить</span></button>
-  <button class="btn" id="bRedo" disabled title="Повторить (Ctrl+Y)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg><span class="t">Повторить</span></button>
   <button class="btn" id="bFind" disabled title="Найти и заменить (Ctrl+F)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="t">Найти</span></button>
   <button class="btn" id="bNav" disabled title="Добавить навигацию по странице: меню, оглавление, прогресс">
@@ -270,29 +298,29 @@
 </header>
 
 <div class="menu" id="fileMenu" hidden>
-  <button class="mi" data-f="open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Открыть другой файл…</button>
+  <button class="mi" data-f="open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Открыть файл…<kbd>Ctrl+O</kbd></button>
+  <button class="mi" data-f="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg>Новый документ…</button>
   <div class="mdiv"></div>
   <button class="mi" data-f="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span id="miSaveT">Скачать HTML</span><kbd>Ctrl+S</kbd></button>
   <button class="mi" data-f="copy" id="miCopy" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Скачать копию</button>
   <button class="mi" data-f="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>Сохранить как PDF<kbd>Ctrl+P</kbd></button>
   <div class="mdiv"></div>
   <button class="mi" data-f="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Вернуть исходник</button>
-  <button class="mi" data-f="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>Закрыть файл</button>
+  <button class="mi" data-f="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>Закрыть вкладку</button>
 </div>
+
+<div class="menu" id="addMenu" hidden>
+  <button class="mi" data-a="open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Открыть файл…<kbd>Ctrl+O</kbd></button>
+  <button class="mi" data-a="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg>Новый документ…</button>
+</div>
+<div class="menu" id="tabMenu" hidden></div>
 
 <main>
   <div id="stage">
     <div class="tabbar" id="tabbar" hidden>
-      <span class="tab-cap">Вкладка браузера:</span>
-      <div class="tab">
-        <button class="fav" id="favBtn" title="Иконка вкладки — нажмите, чтобы заменить">
-          <img id="favImg" alt="" hidden>
-          <svg id="favDef" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        </button>
-        <button class="fav-x" id="favDel" title="Убрать иконку">×</button>
-        <input type="text" id="docTitle" placeholder="Без названия" title="Название вкладки — нажмите, чтобы изменить" spellcheck="true">
-        <svg class="pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l1.5-5L16 4.5l3.5 3.5L9 18.5z"/></svg>
-      </div>
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <button class="tadd" id="tAdd" title="Новая вкладка: открыть файл или создать документ (Ctrl+O)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
       <div class="zoom">
         <button class="btn" id="zOut" title="Уменьшить">−</button>
         <button class="btn" id="zVal" title="Вернуть 100%">100%</button>
@@ -316,9 +344,12 @@
     <div class="view" id="view">
       <div id="empty">
         <div class="drop" id="drop">
-          <h1>Перетащите сюда HTML-файл</h1>
-          <p>или выберите его на компьютере. Исходный файл не изменится — исправленная версия скачается отдельно.</p>
-          <button class="btn primary" id="bOpen2">Выбрать файл</button>
+          <h1>Перетащите сюда HTML-файлы</h1>
+          <p>или выберите на компьютере — каждый откроется в своей вкладке.</p>
+          <div class="row" style="justify-content:center;margin-top:0">
+            <button class="btn primary" id="bOpen2">Выбрать файлы</button>
+            <button class="btn" id="bNew2">Новый документ</button>
+          </div>
           <div class="draft" id="draft">
             <div id="draftText"></div>
             <button class="btn" id="bDraftOpen">Восстановить</button>
@@ -326,10 +357,10 @@
           </div>
         </div>
       </div>
-      <iframe id="frame" sandbox="allow-same-origin allow-modals" title="Документ"></iframe>
+      <div class="fileover" id="fileOver" hidden><div>Отпустите — файл откроется в новой вкладке</div></div>
 
       <div class="coach" id="coach" hidden>
-        <span>Кликните по тексту и правьте. Над ним появится панель: форматирование и меню блока — копировать, перенести, удалить.</span>
+        <span>Кликните по тексту и правьте — над ним появится панель. Новые блоки и интерактив — во вкладке «Блоки» справа.</span>
         <button id="coachOk">Понятно</button>
       </div>
       <button class="btn" id="sideOpen" hidden title="Показать панель">
@@ -357,6 +388,7 @@
           <button class="tb txt" data-pop="alt" title="Описание картинки (alt)">Описание</button>
           <span class="vsep"></span>
         </div>
+        <div class="grp" id="gKit" hidden></div>
         <div class="grp" id="gNav">
           <button class="tb txt" data-act="navcfg" title="Настроить навигацию"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Настроить</button>
           <button class="tb txt" data-act="preview" title="Посмотреть анимацию"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Предпросмотр</button>
@@ -380,6 +412,7 @@
 
   <aside id="side">
     <div class="stabs">
+      <button class="stab" data-tab="blocks">Блоки</button>
       <button class="stab on" data-tab="hist">История</button>
       <button class="stab" data-tab="diff">Сравнение<span class="cnt" id="diffCnt" hidden></span></button>
       <button class="stab" data-tab="check">Проверка<span class="cnt" id="chkCnt" hidden></span></button>
@@ -387,6 +420,7 @@
       <button class="hide" id="sideHide" title="Скрыть панель">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
+    <div class="pane" id="paneBlocks" hidden><div id="blBody"></div></div>
     <div class="pane" id="paneHist"><ul class="hist" id="hist"><li style="cursor:default"><span class="hint">Пока пусто. Здесь появится каждая правка — кликните по любой, чтобы вернуться к ней.</span></li></ul></div>
     <div class="pane" id="paneDiff" hidden><div id="diffBody"><p class="hint">Откройте файл — здесь будет видно всё, что изменилось относительно исходника.</p></div></div>
     <div class="pane" id="paneCheck" hidden><div id="chkBody"><p class="hint">Откройте файл — здесь появятся незаполненные поля, битые ссылки, картинки без описания и другие проблемы.</p></div></div>
@@ -394,7 +428,7 @@
   </aside>
 </main>
 
-<input type="file" id="fileIn" accept=".html,.htm,text/html" hidden>
+<input type="file" id="fileIn" accept=".html,.htm,text/html" multiple hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
 <input type="file" id="favIn" accept="image/*" hidden>
 <div id="toast" role="status"></div>
@@ -404,7 +438,7 @@
 (() => {
   'use strict';
   const $ = s => document.querySelector(s);
-  const frame = $('#frame'), stage = $('#stage'), view = $('#view'), ftb = $('#ftb'), pop = $('#pop');
+  const stage = $('#stage'), view = $('#view'), ftb = $('#ftb'), pop = $('#pop');
   const MAX_HIST = 150, KEY = 'html-editor-';
   const APP_TITLE = 'Правка HTML', APP_ICON = $('#appIcon').href;
   const ZOOMS = [0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -424,6 +458,9 @@
   let tab = 'hist', diffItems = [], dev = !!store.get('dev', false);
   let popType = null, popAnchor = null, savedRange = null;
   let fileHandle = null, overwriteOk = false, chkItems = [], drag = null;
+  // вкладки: у каждой свой iframe, история, исходник и файл; глобальные переменные выше — состояние активной
+  let frame = null, cur = null, tabSeq = 0, renaming = false, dragTabId = null;
+  const tabs = [];
 
   /* имена: [именительный, родительный, винительный, род] */
   const N = {
@@ -440,15 +477,20 @@
     FOOTER:['Подвал','подвала','подвал','m'], NAV:['Меню','меню','меню','n'], MAIN:['Основной блок','основного блока','основной блок','m'],
     ASIDE:['Боковой блок','бокового блока','боковой блок','m'], LABEL:['Подпись','подписи','подпись','f'], FIGCAPTION:['Подпись','подписи','подпись','f'],
     BUTTON:['Кнопка','кнопки','кнопку','f'], FIGURE:['Иллюстрация','иллюстрации','иллюстрацию','f'], BLOCKQUOTE:['Цитата','цитаты','цитату','f'],
+    DETAILS:['Пункт аккордеона','пункта аккордеона','пункт аккордеона','m'], SUMMARY:['Вопрос','вопроса','вопрос','m'], CITE:['Подпись','подписи','подпись','f'],
     DL:['Список','списка','список','m'], DT:['Термин','термина','термин','m'], DD:['Описание','описания','описание','n'],
     SMALL:['Мелкий текст','мелкого текста','мелкий текст','m'], HR:['Разделитель','разделителя','разделитель','m']
   };
-  const nm = el => el.id === 'hed-nav' ? ['Навигация','навигации','навигацию','f'] : (N[el.tagName] || ['Элемент','элемента','элемент','m']);
+  const nm = el => {
+    if (el.id === 'hed-nav') return ['Навигация','навигации','навигацию','f'];
+    for (const c of el.classList || []) if (KN[c]) return KN[c];
+    return N[el.tagName] || ['Элемент','элемента','элемент','m'];
+  };
   const gend = (el, f, m, n) => ({ f, m, n })[nm(el)[3]];
-  const LEAFY = new Set(['TD','TH','LI','P','H1','H2','H3','H4','H5','H6','SPAN','A','CODE','B','STRONG','EM','I','LABEL','DT','DD','SMALL','FIGCAPTION','BUTTON']);
+  const LEAFY = new Set(['TD','TH','LI','P','H1','H2','H3','H4','H5','H6','SPAN','A','CODE','B','STRONG','EM','I','LABEL','DT','DD','SMALL','FIGCAPTION','BUTTON','SUMMARY','CITE']);
   const INLINE = new Set(['SPAN','CODE','B','STRONG','EM','I','U','S','A','SMALL','MARK','SUB','SUP','FONT','BR']);
   const FLOW_OK = new Set(['TD','TH','DIV','DD','BLOCKQUOTE','SECTION','ARTICLE','ASIDE','MAIN','HEADER','FOOTER','FIGCAPTION']);
-  const MARK_SEL = '[data-hed-sel],[data-hed-hover],[data-hed-edit],[data-hed-diff],[data-hed-sp],[data-hed-drag]';
+  const MARK_SEL = '[data-hed-sel],[data-hed-hover],[data-hed-edit],[data-hed-diff],[data-hed-sp],[data-hed-drag],[data-hed-open]';
 
   /* ───────── утилиты ───────── */
   function toast(msg, opt = {}) {
@@ -470,7 +512,7 @@
     return LEAFY.has(el.tagName) && !el.children.length;
   };
   const isBlockable = el => !!(el && doc && el !== doc.body && el !== doc.documentElement && el.parentElement && doc.body.contains(el));
-  const W = () => frame.contentWindow;
+  const W = () => frame && frame.contentWindow;
 
   function stripMarks(root) {
     const all = [...root.querySelectorAll(MARK_SEL)];
@@ -478,6 +520,7 @@
     for (const e of all) {
       if (e.hasAttribute('data-hed-edit')) e.removeAttribute('contenteditable');
       if (e.hasAttribute('data-hed-sp')) e.removeAttribute('spellcheck');
+      if (e.hasAttribute('data-hed-open')) e.removeAttribute('open');
       for (const a of [...e.attributes]) if (a.name.startsWith('data-hed-')) e.removeAttribute(a.name);
     }
     return root;
@@ -487,9 +530,9 @@
   const getCss = (d = doc) => headStyles(d).map(s => s.textContent);
   const setCss = arr => headStyles().forEach((s, i) => { if (arr && arr[i] != null && s.textContent !== arr[i]) s.textContent = arr[i]; });
 
-  function serialize() {
+  function serialize(d = doc) {
     const out = [];
-    for (const n of doc.childNodes) {
+    for (const n of d.childNodes) {
       if (n.nodeType === 10) out.push('<!DOCTYPE ' + (n.name || 'html') + '>');
       else if (n.nodeType === 8) out.push('<!--' + n.data + '-->');
       else if (n.nodeType === 1) {
@@ -517,44 +560,280 @@
   }
   function renderHead() {
     const on = !!doc, title = on ? doc.title : '';
-    if (document.activeElement !== $('#docTitle')) $('#docTitle').value = title;
     document.title = on ? `${title || 'Без названия'} — ${APP_TITLE}` : APP_TITLE;
     const ic = on ? getIcon() : null;
-    $('#favImg').toggleAttribute('hidden', !ic); $('#favDef').toggleAttribute('hidden', !!ic);
-    if (ic) $('#favImg').src = ic;
-    $('#favDel').classList.toggle('has', !!ic);
     $('#appIcon').href = ic || APP_ICON;
+    renderTabs();
   }
 
-  /* ───────── загрузка ───────── */
-  function readFile(file, handle) {
+  /* ───────── вкладки и загрузка ───────── */
+  const GLOBE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
+  const isHtmlFile = f => /\.html?$/i.test(f.name) || f.type === 'text/html';
+  const tabDoc = t => t === cur ? doc : t.doc;
+  const tabDirty = t => t === cur ? isDirty() : (!!t.doc && t.hi !== t.savedAt);
+  const tabTitle = t => { const d = tabDoc(t); return (d && d.title.trim()) || t.fileName.replace(/\.html?$/i, ''); };
+
+  function stash() { if (cur) Object.assign(cur, { doc, fileName, fileHandle, overwriteOk, origHtml, hist, hi, savedAt }); }
+  // перед уходом с вкладки — зафиксировать правку и закрыть всё, что относится к её документу
+  function leaveCurrent() {
+    commitEdit(); closePop(); closeFind(); closePreview(); closeModal();
+    if (hovered) { hovered.removeAttribute('data-hed-hover'); hovered = null; }
+    if (drag) drag = null;
+    select(null);
+  }
+  function activate(t) {
+    if (t && t === cur) return;   // без перерисовки: иначе ломаются двойной клик и перетаскивание
+    if (cur) { leaveCurrent(); stash(); cur.frame.classList.remove('active'); }
+    cur = t || null;
+    editing = null; selected = null; clickEl = null; pending = false; savedRange = null;
+    if (!cur) { doc = null; frame = null; hist = []; hi = -1; savedAt = 0; fileHandle = null; origHtml = ''; fileName = 'document.html'; noDocState(); return; }
+    ({ doc, fileName, fileHandle, overwriteOk, origHtml, hist, hi, savedAt } = cur);
+    frame = cur.frame; frame.classList.add('active');
+    stage.classList.add('loaded'); $('#tabbar').hidden = false; $('#sideOpen').hidden = !sideHidden();
+    renderHead(); ui(); applyZoom(); renderSide(); placeTb();
+    scheduleSession();
+  }
+  // открыть документ в новой вкладке; промис — когда документ готов
+  function openTab(html, name, o = {}) {
+    return new Promise(res => {
+      const f = document.createElement('iframe');
+      f.className = 'docframe'; f.setAttribute('sandbox', 'allow-same-origin allow-modals'); f.title = 'Документ';
+      view.insertBefore(f, $('#fileOver'));
+      const t = { id: ++tabSeq, frame: f, doc: null, fileName: name || 'document.html', fileHandle: o.handle || null, overwriteOk: false,
+        origHtml: o.orig || html, hist: [], hi: -1, savedAt: 0, loading: true };
+      tabs.splice(o.index != null ? o.index : (cur ? tabs.indexOf(cur) + 1 : tabs.length), 0, t);
+      activate(t);
+      f.onload = () => {
+        if (!t.loading) return;
+        t.loading = false;
+        if (cur !== t) activate(t);
+        doc = f.contentDocument; t.doc = doc;
+        if (!doc || !doc.body) { toast('Не удалось открыть ' + t.fileName); closeTab(t, true); res(null); return; }
+        setup();
+        hist = []; hi = -1;
+        push(o.restored ? 'Восстановлено после перезапуска' : (o.label || 'Исходный файл'), true);
+        savedAt = o.restored && o.dirty ? -1 : 0;
+        stash();
+        $('#coach').hidden = !!store.get('coach', false);
+        select(null); renderHead(); ui(); applyZoom(); renderSide();
+        scheduleSession();
+        res(t);
+      };
+      f.srcdoc = html;
+    });
+  }
+  // совместимость: load(html, name, restored, orig, handle)
+  const load = (html, name, restored, orig, handle) => openTab(html, name, { restored, orig, handle, dirty: restored });
+
+  async function readFile(file, handle) {
     if (!file) return;
-    if (!/\.html?$/i.test(file.name) && file.type !== 'text/html') { toast('Нужен файл .html'); return; }
-    const r = new FileReader();
-    r.onload = () => load(r.result, file.name, false, null, handle);
-    r.readAsText(file, 'utf-8');
+    if (!isHtmlFile(file)) { toast('Можно открыть только .html'); return; }
+    const html = await file.text();
+    for (const t of tabs) {   // уже открыт — просто переключаемся
+      let same = false;
+      if (handle && t.fileHandle && t.fileHandle.isSameEntry) { try { same = await t.fileHandle.isSameEntry(handle); } catch (_) {} }
+      else if (!handle && !t.fileHandle) same = t.fileName === file.name && t.origHtml === html;
+      if (same) { activate(t); toast('Этот файл уже открыт'); return; }
+    }
+    return openTab(html, file.name, { handle });
+  }
+  async function readFiles(list) { for (const f of list) await readFile(f.file || f, f.handle); }
+
+  function closeTab(t, force) {
+    if (!t) return false;
+    if (!force && tabDirty(t)) {
+      activate(t);
+      if (!confirm(`Во вкладке «${short(tabTitle(t), 50)}» есть несохранённые изменения.\nЗакрыть без сохранения?`)) return false;
+    }
+    const i = tabs.indexOf(t); if (i < 0) return false;
+    const wasCur = t === cur;
+    if (wasCur) { leaveCurrent(); cur = null; }
+    tabs.splice(i, 1); t.frame.remove();
+    if (!tabs.length) { clearTimeout(sessionTimer); store.del('session'); }   // закрыли всё сами — восстанавливать нечего
+    if (wasCur) activate(tabs[i] || tabs[i - 1] || null); else renderTabs();
+    scheduleSession();
+    return true;
+  }
+  function closeOthers(t) { for (const x of tabs.filter(x => x !== t)) closeTab(x); activate(t); }
+  function closeRight(t) { for (const x of tabs.slice(tabs.indexOf(t) + 1)) closeTab(x); if (tabs.includes(t)) activate(t); }
+  function dupTab(t) {
+    const d = tabDoc(t); if (!d) return;
+    if (t === cur) commitEdit();
+    openTab(serialize(d), t.fileName.replace(/(\.html?)?$/i, ' (копия)$1'), { orig: t.origHtml, index: tabs.indexOf(t) + 1, label: 'Копия вкладки' });
+  }
+  const BLANK = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Новый документ</title>
+<style>
+  body{margin:0;background:#f4f4f2;color:#1d1d1f;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  main{max-width:760px;margin:40px auto;background:#fff;padding:48px 56px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  h1{font-size:34px;line-height:1.15;letter-spacing:-.5px;margin:0 0 12px}
+  h2{font-size:24px;line-height:1.25;margin:32px 0 10px}
+  p{margin:0 0 12px}
+  table{border-collapse:collapse;width:100%;margin:8px 0 16px}
+  td,th{border:1px solid #e3e3df;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f6f6f4}
+  a{color:#1a73e8}
+  @media (max-width:700px){main{margin:0;padding:24px 16px;border-radius:0}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Заголовок документа</h1>
+  <p>Кликните по тексту, чтобы начать писать.</p>
+  <h2>Раздел</h2>
+  <p>Текст раздела.</p>
+</main>
+</body>
+</html>`;
+  function newBlank() {
+    let n = 1, name = 'Новый документ.html';
+    while (tabs.some(t => t.fileName === name)) name = `Новый документ ${++n}.html`;
+    return openTab(BLANK.replace('<title>Новый документ</title>', `<title>${n > 1 ? 'Новый документ ' + n : 'Новый документ'}</title>`), name, { label: 'Новый документ' });
   }
 
-  function load(html, name, restoreDraft, orig, handle) {
-    if (doc && isDirty() && !confirm('Есть несохранённые изменения. Открыть другой файл?')) return;
-    fileName = name || 'document.html';
-    fileHandle = handle || null; overwriteOk = false;
-    closePreview();
-    origHtml = orig || html;
-    pending = false; editing = null; selected = null; closeFind(); closePop();
-    frame.onload = () => {
-      doc = frame.contentDocument;
-      if (!doc || !doc.body) { toast('Не удалось открыть файл'); return; }
-      setup();
-      hist = []; hi = -1;
-      push(restoreDraft ? 'Восстановлен черновик' : 'Исходный файл', true);
-      savedAt = restoreDraft ? -1 : 0;
-      stage.classList.add('loaded'); $('#tabbar').hidden = false;
-      $('#coach').hidden = !!store.get('coach', false);
-      $('#sideOpen').hidden = !sideHidden();
-      select(null); renderHead(); ui(); applyZoom(); renderSide();
+  // полоска вкладок
+  function renderTabs() {
+    if (renaming) return;
+    const box = $('#tabs');
+    box.innerHTML = tabs.map(t => {
+      const d = tabDoc(t), ic = d ? getIcon(d) : null, dirty = tabDirty(t), on = t === cur;
+      return `<div class="dtab${on ? ' on' : ''}${t.loading ? ' loading' : ''}" role="tab" aria-selected="${on}" draggable="true" data-id="${t.id}"
+        title="${attr(tabTitle(t) + '\n' + t.fileName + (dirty ? '\nЕсть несохранённые изменения' : ''))}">
+        <button class="fv" data-fav tabindex="-1"${on ? ' title="Сменить иконку вкладки"' : ''}>${ic ? `<img src="${attr(ic)}" alt="">` : GLOBE}</button>
+        <span class="tt">${esc(tabTitle(t) || 'Без названия')}</span>
+        <button class="x${dirty ? ' dirty' : ''}" data-close tabindex="-1" title="Закрыть вкладку"><span class="dot"></span><span class="cross">×</span></button></div>`;
+    }).join('');
+    const on = box.querySelector('.dtab.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+  const tabOf = el => { const e = el && el.closest && el.closest('.dtab'); return e ? tabs.find(t => t.id === +e.dataset.id) : null; };
+  function startRename(t) {
+    activate(t);
+    if (!doc) return;
+    const el = $('#tabs .dtab.on .tt'); if (!el) return;
+    renaming = true;
+    const inp = document.createElement('input');
+    inp.className = 'tt'; inp.value = doc.title; inp.placeholder = 'Название вкладки'; inp.spellcheck = true;
+    el.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const finish = ok => {
+      if (done) return; done = true; renaming = false;
+      const v = inp.value.trim();
+      if (ok && doc && v !== doc.title) { doc.title = v; push(`Название вкладки → «${short(v, 30)}»`); }
+      else { renderHead(); }
     };
-    frame.srcdoc = html;
+    inp.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') finish(true); if (e.key === 'Escape') finish(false); };
+    inp.onblur = () => finish(true);
+    inp.onmousedown = e => e.stopPropagation();
+  }
+  { const box = $('#tabs');
+    box.addEventListener('mousedown', e => {
+      if (e.button !== 0 || e.target.closest('input')) return;
+      const t = tabOf(e.target); if (!t || e.target.closest('[data-close]')) return;
+      if (e.target.closest('[data-fav]') && t === cur && doc) { e.preventDefault(); $('#favIn').value = ''; $('#favIn').click(); return; }
+      activate(t);
+    });
+    box.addEventListener('click', e => { const b = e.target.closest('[data-close]'); if (b) { e.stopPropagation(); closeTab(tabOf(b)); } });
+    box.addEventListener('dblclick', e => { if (e.target.closest('[data-close],[data-fav],input')) return; const t = tabOf(e.target); if (t) startRename(t); });
+    box.addEventListener('contextmenu', e => { const t = tabOf(e.target); if (!t) return; e.preventDefault(); openTabMenu(t, e.clientX, e.clientY); });
+    // перетаскивание вкладок
+    box.addEventListener('dragstart', e => {
+      const el = e.target.closest && e.target.closest('.dtab'); if (!el || renaming) { e.preventDefault(); return; }
+      dragTabId = +el.dataset.id; el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('application/x-hed-tab', String(dragTabId));
+    });
+    const clearDrop = () => box.querySelectorAll('.drop-before,.drop-after').forEach(x => x.classList.remove('drop-before', 'drop-after'));
+    box.addEventListener('dragover', e => {
+      if (dragTabId == null) return;
+      e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'move';
+      const el = e.target.closest('.dtab'); clearDrop(); if (!el || +el.dataset.id === dragTabId) return;
+      const r = el.getBoundingClientRect(); el.classList.add(e.clientX < r.left + r.width / 2 ? 'drop-before' : 'drop-after');
+    });
+    box.addEventListener('drop', e => {
+      if (dragTabId == null) return;
+      e.preventDefault(); e.stopPropagation();
+      const el = box.querySelector('.drop-before,.drop-after'), moving = tabs.find(t => t.id === dragTabId);
+      if (el && moving) {
+        const target = tabOf(el), after = el.classList.contains('drop-after');
+        tabs.splice(tabs.indexOf(moving), 1);
+        tabs.splice(tabs.indexOf(target) + (after ? 1 : 0), 0, moving);
+        scheduleSession();
+      }
+      dragTabId = null; renderTabs();
+    });
+    box.addEventListener('dragend', () => { dragTabId = null; clearDrop(); box.querySelectorAll('.dragging').forEach(x => x.classList.remove('dragging')); });
+  }
+
+  // меню по правому клику на вкладке и меню «+»
+  const tabMenu = $('#tabMenu'), addMenu = $('#addMenu');
+  function showMenu(m, x, y) {
+    m.hidden = false;
+    m.style.left = Math.max(8, Math.min(x, innerWidth - m.offsetWidth - 8)) + 'px';
+    m.style.top = Math.max(8, Math.min(y, innerHeight - m.offsetHeight - 8)) + 'px';
+  }
+  function hideMenus() { tabMenu.hidden = true; addMenu.hidden = true; }
+  function openTabMenu(t, x, y) {
+    hideMenus(); closeFileMenu();
+    const d = tabDoc(t), i = tabs.indexOf(t), ic = d && getIcon(d);
+    const I = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p}</svg>`;
+    tabMenu.innerHTML = `
+      <button class="mi" data-m="rename" ${d ? '' : 'disabled'}>${I('<path d="M4 20l1.5-5L16 4.5l3.5 3.5L9 18.5z"/>')}Переименовать<kbd>двойной клик</kbd></button>
+      <button class="mi" data-m="icon" ${d ? '' : 'disabled'}>${I('<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="3"/>')}Сменить иконку…</button>
+      <button class="mi" data-m="noicon" ${ic ? '' : 'disabled'}>${I('<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>')}Убрать иконку</button>
+      <div class="mdiv"></div>
+      <button class="mi" data-m="save" ${d ? '' : 'disabled'}>${I('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>')}Сохранить</button>
+      <button class="mi" data-m="dup" ${d ? '' : 'disabled'}>${I('<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>')}Дублировать вкладку</button>
+      <div class="mdiv"></div>
+      <button class="mi" data-m="close">${I('<path d="M18 6 6 18M6 6l12 12"/>')}Закрыть</button>
+      <button class="mi" data-m="others" ${tabs.length > 1 ? '' : 'disabled'}>${I('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M9 5v14"/>')}Закрыть другие вкладки</button>
+      <button class="mi" data-m="right" ${i < tabs.length - 1 ? '' : 'disabled'}>${I('<path d="M13 5l7 7-7 7M4 12h16"/>')}Закрыть вкладки справа</button>`;
+    tabMenu.onclick = e => {
+      const b = e.target.closest('[data-m]'); if (!b || b.disabled) return;
+      hideMenus();
+      ({
+        rename: () => startRename(t),
+        icon: () => { activate(t); $('#favIn').value = ''; $('#favIn').click(); },
+        noicon: () => { activate(t); if (getIcon()) { setIcon(null); push('Иконка вкладки убрана'); } },
+        save: () => { activate(t); save(); },
+        dup: () => dupTab(t),
+        close: () => closeTab(t),
+        others: () => closeOthers(t),
+        right: () => closeRight(t)
+      })[b.dataset.m]();
+    };
+    showMenu(tabMenu, x, y);
+  }
+  $('#tAdd').onclick = e => {
+    e.stopPropagation();
+    if (!addMenu.hidden) { hideMenus(); return; }
+    hideMenus(); closeFileMenu();
+    const r = $('#tAdd').getBoundingClientRect();
+    showMenu(addMenu, r.left, r.bottom + 6);
+  };
+  addMenu.onclick = e => { const b = e.target.closest('[data-a]'); if (!b) return; hideMenus(); b.dataset.a === 'open' ? pick() : openNewModal(); };
+  document.addEventListener('mousedown', e => {
+    if (!tabMenu.hidden && !tabMenu.contains(e.target)) tabMenu.hidden = true;
+    if (!addMenu.hidden && !addMenu.contains(e.target) && !$('#tAdd').contains(e.target)) addMenu.hidden = true;
+  });
+
+  // файлы, перетащенные в окно (в том числе поверх документа)
+  const hasFiles = e => !!(e.dataTransfer && [...e.dataTransfer.types].includes('Files'));
+  let overTimer = null;
+  function showFileOver() {
+    if (doc) $('#fileOver').hidden = false; else $('#drop').classList.add('over');
+    clearTimeout(overTimer); overTimer = setTimeout(hideFileOver, 250);
+  }
+  function hideFileOver() { $('#fileOver').hidden = true; $('#drop').classList.remove('over'); }
+  function openDropped(dt) {
+    const files = [...dt.files];
+    if (!files.length) return;
+    if (!files.some(isHtmlFile)) { toast('Можно открыть только .html'); return; }
+    // хэндлы берём синхронно — потом данные перетаскивания пропадут
+    const hps = [...(dt.items || [])].filter(i => i.kind === 'file').map(i => i.getAsFileSystemHandle ? i.getAsFileSystemHandle().catch(() => null) : Promise.resolve(null));
+    Promise.all(hps).then(hs => readFiles(files.filter(isHtmlFile).map(f => ({ file: f, handle: hs.find(h => h && h.kind === 'file' && h.name === f.name) || null }))));
   }
 
   function setup() {
@@ -569,7 +848,15 @@
       ::highlight(hed-find){background-color:#ffe066;color:inherit}
       ::highlight(hed-cur){background-color:#ff9632;color:#000}
       img{cursor:pointer}
-      a{cursor:text}`;
+      a{cursor:text}
+      .hk-pop::before{content:"Содержимое всплывающего окна — откроется по кнопке";display:block;font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;opacity:.55;margin-bottom:10px}
+      .hk-chart::after{content:"График появится в предпросмотре — данные правьте в таблице";display:block;font:600 11px/1.3 system-ui,sans-serif;opacity:.55;margin-top:8px}
+      .hk-opts li[data-correct]::after{content:"✓ верный";position:absolute;right:12px;top:50%;transform:translateY(-50%);font:700 11px system-ui,sans-serif;color:#1e9e57}
+      .hk-fb-ok::before{content:"Если ответ верный: ";font-weight:400;opacity:.6}
+      .hk-fb-no::before{content:"Если ответ неверный: ";font-weight:400;opacity:.6}
+      .hk-tab-t::before{content:"Вкладка · ";font-weight:400;opacity:.5}
+      .hk-carousel .hk-track{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));overflow:visible!important}
+      .hk-acc summary{cursor:text}`;
     (doc.head || doc.documentElement).appendChild(st);
 
     doc.addEventListener('mouseover', e => {
@@ -593,10 +880,11 @@
       if (t.tagName !== 'IMG' && hasText(t)) startEdit(t);
       select(defaultTarget(t));
     });
-    doc.addEventListener('click', e => { if (e.target.closest('a')) e.preventDefault(); }, true);
+    doc.addEventListener('click', e => { if (e.target.closest('a') || e.target.closest('summary')) e.preventDefault(); }, true);
     doc.addEventListener('submit', e => e.preventDefault(), true);
     doc.addEventListener('dragstart', e => e.preventDefault());
-    doc.addEventListener('drop', e => e.preventDefault());
+    doc.addEventListener('dragover', e => { if (hasFiles(e)) { e.preventDefault(); showFileOver(); } });
+    doc.addEventListener('drop', e => { e.preventDefault(); if (hasFiles(e)) { hideFileOver(); openDropped(e.dataTransfer); } });
     doc.addEventListener('paste', handlePaste);
     doc.addEventListener('input', () => { if (editing) { if (!pending) { pending = true; ui(); } placeTb(); } });
     doc.addEventListener('selectionchange', () => { if (editing) fmtState(); });
@@ -609,6 +897,7 @@
         select(null); return;
       }
       if (!editing) return;
+      if (e.key === ' ' && editing.closest('summary')) { e.preventDefault(); doc.execCommand('insertText', false, ' '); return; }
       if (e.key === 'Enter') {
         const sel = doc.getSelection(), n = sel && sel.anchorNode;
         const li = n && (n.nodeType === 1 ? n : n.parentElement).closest('li');
@@ -681,6 +970,7 @@
       $('#gFmt').hidden = !editing;
       $('#gImg').hidden = !(selected && selected.tagName === 'IMG');
       $('#gNav').hidden = !(selected && selected.id === 'hed-nav');
+      renderKitBar();
       const bb = $('#blockBtn'); bb.hidden = !selected;
       if (selected) bb.firstChild.nodeValue = nm(selected)[0] + ' ';
       const listOk = editing && FLOW_OK.has(editing.tagName);
@@ -716,6 +1006,7 @@
     else if (b.dataset.act === 'img') { closePop(); $('#imgIn').value = ''; $('#imgIn').click(); }
     else if (b.dataset.act === 'navcfg') { closePop(); openNavModal(); }
     else if (b.dataset.act === 'preview') { closePop(); openPreview(); }
+    else if (b.dataset.kit) { closePop(); kitAct(b.dataset.kit, b); }
   });
 
   function keepRange() {
@@ -878,6 +1169,21 @@
       $('#pAltOk').onclick = ok;
       $('#pAlt').onkeydown = e => { if (e.key === 'Enter') ok(); if (e.key === 'Escape') closePop(); };
     }
+    else if (t === 'video') {
+      const c = kitCtx(editing || selected); if (!c) { closePop(); return; }
+      const v = c.root;
+      pop.innerHTML = `<div class="field" style="margin-top:4px"><label>Ссылка на видео — YouTube, RuTube или Vimeo</label><input type="url" id="pVid" value="${attr(v.dataset.url || '')}" placeholder="https://youtu.be/…"></div>
+        <div class="row"><button class="btn primary" id="pVidOk" style="flex:1;justify-content:center">Вставить</button></div>`;
+      const ok = () => {
+        const u = $('#pVid').value.trim(), e = embedUrl(u);
+        if (!e) { toast('Не получилось распознать ссылку на видео'); return; }
+        v.dataset.src = e.src; v.dataset.url = u;
+        v.innerHTML = `<div class="hk-video-ph"><span>▶</span><p>${esc(e.name)} — запустится в предпросмотре и у читателя</p><a href="${attr(u)}">Открыть по ссылке</a></div>`;
+        select(v); push('Видео: вставлена ссылка'); closePop();
+      };
+      $('#pVidOk').onclick = ok;
+      $('#pVid').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); ok(); } if (e.key === 'Escape') closePop(); };
+    }
     pop.style.width = '';
   }
   function currentLink() {
@@ -964,8 +1270,6 @@
   };
 
   /* ───────── favicon и название ───────── */
-  $('#favBtn').onclick = () => { if (!doc) return; $('#favIn').value = ''; $('#favIn').click(); };
-  $('#favDel').onclick = () => { if (!doc || !getIcon()) return; setIcon(null); push('Иконка вкладки убрана'); };
   $('#favIn').onchange = e => {
     const f = e.target.files[0]; if (!f || !doc) return;
     const r = new FileReader();
@@ -983,11 +1287,6 @@
     };
     r.readAsDataURL(f);
   };
-  const titleIn = $('#docTitle');
-  titleIn.oninput = () => { if (doc) { doc.title = titleIn.value; document.title = `${titleIn.value || 'Без названия'} — ${APP_TITLE}`; } };
-  titleIn.onchange = () => { if (doc && doc.title !== hist[hi].title) push(`Название вкладки → «${short(titleIn.value, 30)}»`); };
-  titleIn.onkeydown = e => { if (e.key === 'Enter') titleIn.blur(); if (e.key === 'Escape') { titleIn.value = hist[hi].title; doc.title = hist[hi].title; titleIn.blur(); renderHead(); } };
-
   /* ───────── история ───────── */
   function push(label, initial) {
     hist = hist.slice(0, hi + 1);
@@ -995,7 +1294,7 @@
     if (hist.length > MAX_HIST) { hist.splice(1, 1); savedAt--; }
     hi = hist.length - 1;
     afterChange();
-    if (!initial) scheduleDraft();
+    if (!initial) scheduleSession();
   }
   function restore(i) {
     if (i < 0 || i >= hist.length) return;
@@ -1006,9 +1305,9 @@
     doc.title = h.title;
     setCss(h.css);
     if (getIcon() !== h.icon) setIcon(h.icon);
-    select(null); afterChange(); scheduleDraft();
+    select(null); afterChange(); scheduleSession();
   }
-  function afterChange() { renderHead(); ui(); if (find.open) runFind(true); renderSide(); placeTb(); }
+  function afterChange() { openDetails(); renderHead(); ui(); if (find.open) runFind(true); renderSide(); placeTb(); }
   const undo = () => { commitEdit(); if (hi > 0) { restore(hi - 1); toast('Отменено'); } };
   const redo = () => { commitEdit(); if (hi < hist.length - 1) { restore(hi + 1); toast('Повторено'); } };
   const isDirty = () => !!doc && (hi !== savedAt || pending);
@@ -1031,8 +1330,6 @@
 
   function ui() {
     const on = !!doc;
-    $('#bUndo').disabled = !on || (hi <= 0 && !pending);
-    $('#bRedo').disabled = !on || pending || hi >= hist.length - 1;
     ['#bSave', '#bFind', '#bNav', '#bPreview'].forEach(s => $(s).disabled = !on);
     $('#bFind').classList.toggle('on', find.open);
     $('#bPreview').classList.toggle('on', !$('#preview').hidden);
@@ -1042,6 +1339,7 @@
     if (!on) { st.textContent = 'Откройте .html, чтобы начать'; st.className = ''; }
     else if (isDirty()) { st.textContent = 'Есть несохранённые изменения'; st.className = 'dirty'; }
     else { st.textContent = hi === 0 ? 'Без изменений' : (fileHandle ? 'Сохранено в файл' : 'Сохранено'); st.className = ''; }
+    renderTabs();
   }
 
   /* ───────── боковая панель: История / Сравнение / Код ───────── */
@@ -1050,7 +1348,7 @@
     if (tab === 'diff' && t !== 'diff' && doc) doc.querySelectorAll('[data-hed-diff]').forEach(e => e.removeAttribute('data-hed-diff'));
     tab = t;
     document.querySelectorAll('.stab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-    $('#paneHist').hidden = t !== 'hist'; $('#paneDiff').hidden = t !== 'diff'; $('#paneCode').hidden = t !== 'code'; $('#paneCheck').hidden = t !== 'check';
+    $('#paneHist').hidden = t !== 'hist'; $('#paneBlocks').hidden = t !== 'blocks'; $('#paneDiff').hidden = t !== 'diff'; $('#paneCode').hidden = t !== 'code'; $('#paneCheck').hidden = t !== 'check';
     renderSide();
   }
   document.querySelectorAll('.stab').forEach(b => b.onclick = () => { commitEdit(); setTab(b.dataset.tab); });
@@ -1415,7 +1713,7 @@ update();});`;
   /* ── предпросмотр: отдельный iframe со скриптами, но без доступа к редактору; чужие скрипты вырезаются ── */
   function previewHtml() {
     const d = new DOMParser().parseFromString(serialize(), 'text/html');
-    d.querySelectorAll('script').forEach(s => { if (!(s.parentElement && s.parentElement.id === NAV_ID)) s.remove(); });
+    d.querySelectorAll('script').forEach(s => { if (!(s.parentElement && (s.parentElement.id === NAV_ID || s.parentElement.id === 'hed-kit'))) s.remove(); });
     d.querySelectorAll('meta[http-equiv]').forEach(m => m.remove());
     d.querySelectorAll('*').forEach(el => { for (const a of [...el.attributes]) {
       if (/^on/i.test(a.name)) el.removeAttribute(a.name);
@@ -1597,7 +1895,7 @@ update();});`;
   /* ═════════════════ ПРОВЕРКА ДОКУМЕНТА ═════════════════ */
   function runChecks() {
     const items = [], add = (lvl, group, text, el, fix) => items.push({ lvl, group, text, el, fix });
-    const inNav = el => el && el.closest && el.closest('#' + NAV_ID);
+    const inNav = el => el && el.closest && (el.closest('#' + NAV_ID) || el.closest('#hed-kit'));
     if (/\{\{/.test(doc.title)) add('err', 'Незаполненные поля', 'Вкладка браузера: ' + short(doc.title, 50));
     const tw = doc.createTreeWalker(doc.body, 4, { acceptNode: n => n.parentElement && n.parentElement.closest('script,style,template,#' + NAV_ID) ? 2 : 1 });
     let ph = 0;
@@ -1616,6 +1914,7 @@ update();});`;
     doc.body.querySelectorAll('a[href]').forEach(a => {
       if (inNav(a)) return;
       const h = a.getAttribute('href').trim(), t = short(a.textContent, 30) || '(без текста)';
+      if (a.hasAttribute('data-hk-open')) return;
       if (!h || h === '#') add('warn', 'Ссылки', `Пустая ссылка «${t}»`, a);
       else if (/^javascript:/i.test(h)) add('err', 'Ссылки', `Ссылка-скрипт «${t}» — не сработает у читателя`, a);
       else if (h[0] === '#') { let id = h.slice(1); try { id = decodeURIComponent(id); } catch (_) {} if (!doc.getElementById(id)) add('err', 'Ссылки', `«${t}» ведёт на несуществующий раздел ${short(h, 30)}`, a); }
@@ -1657,6 +1956,489 @@ update();});`;
       commitEdit(); clickEl = el; el.scrollIntoView({ block: 'center', behavior: 'smooth' }); select(defaultTarget(el)); setTimeout(placeTb, 350);
     });
     box.querySelectorAll('[data-fix]').forEach(b => b.onclick = () => items[+b.dataset.fix].fix.fn());
+  }
+
+  /* ═════════════════ КОНСТРУКТОР: БЛОКИ И ИНТЕРАКТИВ ═════════════════
+     Блоки — обычная разметка с классами hk-*. Стили и маленький скрипт для интерактива лежат
+     одним блоком <div id="hed-kit"> в конце body. Без скрипта (в редакторе) всё видно и правится:
+     вкладки стоят друг под другом, данные графика — таблицей, окно — рамкой. */
+  const KIT_ID = 'hed-kit', KIT_V = '1';
+  const kitEl = () => doc && doc.getElementById(KIT_ID);
+  const docAccent = () => { const k = kitEl(); return (k && k.dataset.accent) || pickAccent(docPalette()); };
+  const noIds = c => { [c, ...c.querySelectorAll('[id]')].forEach(x => x.removeAttribute('id')); return c; };
+  function kitCss(A) {
+    const INK = inkFor(/^#[0-9a-f]{6}$/i.test(A) ? A : '#1a73e8');
+    return `
+.hk{--k-a:${A};--k-ai:${INK};--k-soft:color-mix(in srgb,var(--k-a) 18%,transparent);--k-line:rgba(127,127,127,.28);--k-card:color-mix(in srgb,currentColor 4%,transparent);--k-fill:color-mix(in srgb,currentColor 9%,transparent);box-sizing:border-box;margin:24px 0}
+.hk *,.hk *::before,.hk *::after{box-sizing:border-box}
+.hk p{margin:0 0 8px}.hk p:last-child{margin-bottom:0}
+.hk-hero{padding:clamp(28px,6vw,64px) clamp(22px,5vw,48px);border-radius:22px;background:var(--k-a);color:var(--k-ai)}
+.hk-hero h1{font-size:clamp(30px,5vw,54px);line-height:1.05;letter-spacing:-.02em;margin:0 0 14px;color:inherit}
+.hk-eyebrow{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.hk-lead{font-size:clamp(16px,2vw,20px);max-width:640px;opacity:.9;margin-bottom:24px!important}
+.hk-actions,.hk-btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.hk-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;background:var(--k-a);color:var(--k-ai);font-weight:700;text-decoration:none;line-height:1.2;transition:transform .2s,box-shadow .2s;cursor:pointer}
+.hk-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.16)}
+.hk-btn-ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 2px var(--k-line)}
+.hk-hero .hk-btn{background:var(--k-ai);color:var(--k-a)}
+.hk-hero .hk-btn-ghost{background:transparent;color:var(--k-ai);box-shadow:inset 0 0 0 2px currentColor}
+.hk-quote{border-left:4px solid var(--k-a);padding:6px 0 6px 22px;margin-left:0;margin-right:0;font-size:1.15em}
+.hk-quote cite{display:block;margin-top:8px;font-size:.8em;font-style:normal;opacity:.7}
+.hk-callout{--c:var(--k-a);--ci:var(--k-ai);position:relative;padding:16px 20px 16px 54px;border-radius:14px;background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
+.hk-callout::before{content:"i";position:absolute;left:18px;top:16px;width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--ci);font:700 13px/22px Georgia,serif;text-align:center}
+.hk-callout[data-variant=tip]{--c:#1e9e57;--ci:#fff}.hk-callout[data-variant=tip]::before{content:"✓";font-family:inherit}
+.hk-callout[data-variant=warn]{--c:#e5484d;--ci:#fff}.hk-callout[data-variant=warn]::before{content:"!";font-family:inherit}
+.hk-callout-t,.hk-card-t,.hk-col-t,.hk-step-t,.hk-pop-t,.hk-check-t,.hk-chart-t,.hk-q{font-weight:700;font-size:1.08em}
+.hk-hr{border:0;height:1px;background:var(--k-line);margin:40px 0}
+.hk-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.hk-card,.hk-kpi{padding:22px;border-radius:16px;background:var(--k-card);border:1px solid var(--k-line);transition:transform .25s,box-shadow .25s}
+.hk-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.08)}
+.hk-card-ic{width:40px;height:40px;border-radius:12px;background:var(--k-a);color:var(--k-ai);display:grid;place-items:center;font-weight:800;margin-bottom:14px!important}
+.hk-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px}
+.hk-timeline{list-style:none;padding:0 0 0 28px;margin-left:8px;border-left:2px solid var(--k-line)}
+.hk-step{position:relative;padding:0 0 26px}
+.hk-step:last-child{padding-bottom:4px}
+.hk-step::before{content:"";position:absolute;left:-36px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--k-a);box-shadow:0 0 0 4px var(--k-soft)}
+.hk-step-d{font-size:.82em;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px!important}
+.hk-table{width:100%;border-collapse:collapse}
+.hk-table th,.hk-table td{padding:10px 12px;border-bottom:1px solid var(--k-line);text-align:left;vertical-align:top}
+.hk-table thead th{border-bottom:2px solid var(--k-a)}
+.hk-figure,.hk-chart{margin-left:0;margin-right:0}
+.hk-figure img{display:block;width:100%;height:auto;border-radius:14px}
+.hk-figure figcaption{font-size:.9em;opacity:.7;margin-top:8px}
+.hk-video{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#111;color:#fff}
+.hk-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.hk-video-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px}
+.hk-video-ph span{width:64px;height:64px;border-radius:50%;background:var(--k-a);color:var(--k-ai);display:grid;place-items:center;font-size:24px}
+.hk-video-ph a{color:#fff}
+.hk-tab-t{font-weight:700;margin-top:18px!important}
+.hk-js .hk-tab-t{display:none}
+.hk-tabbar{position:relative;display:flex;gap:4px;border-bottom:1px solid var(--k-line);margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+.hk-tabbar button{border:0;background:none;padding:10px 16px;font:inherit;font-weight:600;color:inherit;opacity:.6;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.hk-tabbar button:hover,.hk-tabbar button[aria-selected=true]{opacity:1}
+.hk-tabind{position:absolute;bottom:0;left:0;height:3px;border-radius:3px 3px 0 0;background:var(--k-a);transition:transform .35s cubic-bezier(.2,.8,.2,1),width .35s cubic-bezier(.2,.8,.2,1)}
+.hk-js .hk-tab{display:none}
+.hk-js .hk-tab.on{display:block;animation:hk-fade .35s ease}
+@keyframes hk-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hk-acc details{border-bottom:1px solid var(--k-line)}
+.hk-acc summary{list-style:none;cursor:pointer;padding:16px 40px 16px 0;font-weight:600;position:relative}
+.hk-acc summary::-webkit-details-marker{display:none}
+.hk-acc summary::after{content:"";position:absolute;right:10px;top:50%;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg);transition:transform .3s}
+.hk-acc details[open] summary::after{transform:translateY(-25%) rotate(-135deg)}
+.hk-acc-b{padding:0 0 16px}
+.hk-acc details[open] .hk-acc-b{animation:hk-fade .3s ease}
+.hk-carousel{position:relative}
+.hk-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}
+.hk-track::-webkit-scrollbar{display:none}
+.hk-slide{flex:0 0 100%;scroll-snap-align:start;margin:0}
+.hk-slide img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px}
+.hk-slide figcaption{margin-top:10px;font-weight:600}
+.hk-cnav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px}
+.hk-cnav button{width:38px;height:38px;border-radius:50%;border:1px solid var(--k-line);background:transparent;color:inherit;cursor:pointer;font-size:17px;transition:background .2s}
+.hk-cnav button:hover{background:var(--k-fill)}
+.hk-dots{display:flex;gap:8px}
+.hk-dots i{width:8px;height:8px;border-radius:4px;background:var(--k-line);transition:width .3s,background .3s;cursor:pointer}
+.hk-dots i.on{width:24px;background:var(--k-a)}
+.hk-pop{margin-top:12px;padding:16px;border:1px dashed var(--k-line);border-radius:14px}
+.hk-js .hk-pop{display:none}
+.hk-js .hk-pop.open{display:grid;place-items:center;position:fixed;inset:0;z-index:2147483100;margin:0;padding:20px;border:0;border-radius:0;background:rgba(0,0,0,.5);animation:hk-bg .25s ease}
+.hk-js .hk-pop.open .hk-pop-box{position:relative;background:#fff;color:#151517;border-radius:18px;padding:30px 28px 24px;max-width:540px;width:100%;max-height:85vh;overflow:auto;box-shadow:0 24px 64px rgba(0,0,0,.3);animation:hk-up .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes hk-bg{from{opacity:0}}
+@keyframes hk-up{from{opacity:0;transform:translateY(16px) scale(.97)}}
+.hk-pop-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(0,0,0,.06);cursor:pointer;font-size:20px;line-height:1;color:inherit}
+.hk-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}
+.hk-kpi{border-top:4px solid var(--k-a)}
+.hk-num{font-size:clamp(32px,5vw,48px);font-weight:800;line-height:1;letter-spacing:-.02em;margin-bottom:8px!important;font-variant-numeric:tabular-nums}
+.hk-kpi-l{opacity:.72}
+.hk-chart-t{margin-bottom:14px!important}
+.hk-chart-data{width:100%;border-collapse:collapse;font-size:.92em}
+.hk-chart-data th,.hk-chart-data td{padding:6px 10px;border-bottom:1px solid var(--k-line);text-align:left}
+.hk-js .hk-chart-data{display:none}
+.hk-bars{display:grid;gap:12px}
+.hk-bar{display:grid;grid-template-columns:minmax(70px,28%) 1fr auto;gap:12px;align-items:center}
+.hk-bar-track{height:14px;border-radius:7px;background:var(--k-fill);overflow:hidden}
+.hk-bar-fill{height:100%;width:0;border-radius:7px;background:var(--k-a);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.hk-bar-v{font-variant-numeric:tabular-nums}
+.hk-donut-wrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.hk-donut{width:180px;height:180px;flex:none;border-radius:50%;-webkit-mask:radial-gradient(circle,transparent 54%,#000 55%);mask:radial-gradient(circle,transparent 54%,#000 55%);transition:transform 1s cubic-bezier(.2,.8,.2,1),opacity .6s}
+.hk-donut.hk-wait{transform:rotate(-120deg) scale(.6);opacity:0}
+.hk-legend{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.hk-legend li{display:flex;gap:10px;align-items:center}
+.hk-legend i{width:12px;height:12px;border-radius:3px;flex:none}
+.hk-legend b{margin-left:auto;padding-left:16px;font-variant-numeric:tabular-nums}
+.hk-quiz,.hk-check{padding:22px;border-radius:16px;border:1px solid var(--k-line)}
+.hk-q{margin-bottom:14px!important}
+.hk-opts{list-style:none;padding:0;margin:0 0 12px;display:grid;gap:8px;counter-reset:hko}
+.hk-opts li{position:relative;padding:12px 16px 12px 48px;border-radius:12px;border:1.5px solid var(--k-line);counter-increment:hko;transition:border-color .2s,background .2s}
+.hk-opts li::before{content:counter(hko,upper-alpha);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:6px;background:var(--k-fill);display:grid;place-items:center;font-size:12px;font-weight:700}
+.hk-js .hk-opts li{cursor:pointer}
+.hk-js .hk-quiz:not(.done) .hk-opts li:hover{border-color:var(--k-a)}
+.hk-opts li.ok{border-color:#1e9e57;background:color-mix(in srgb,#1e9e57 12%,transparent)}
+.hk-opts li.no{border-color:#e5484d;background:color-mix(in srgb,#e5484d 12%,transparent);animation:hk-shake .4s}
+@keyframes hk-shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.hk-js .hk-fb{display:none}
+.hk-quiz.r-ok .hk-fb-ok,.hk-quiz.r-no .hk-fb-no{display:block;animation:hk-fade .3s}
+.hk-fb-ok{color:#1e9e57;font-weight:600}.hk-fb-no{color:#e5484d;font-weight:600}
+.hk-again{margin-top:10px;border:0;background:none;padding:0;color:inherit;font:inherit;text-decoration:underline;opacity:.7;cursor:pointer}
+.hk-check ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:2px}
+.hk-check li{position:relative;padding:8px 0 8px 34px;transition:opacity .2s}
+.hk-check li::before{content:"";position:absolute;left:0;top:9px;width:20px;height:20px;border-radius:6px;border:2px solid var(--k-line);transition:background .2s,border-color .2s}
+.hk-js .hk-check li{cursor:pointer;user-select:none}
+.hk-check li.on{opacity:.6;text-decoration:line-through}
+.hk-check li.on::before{background:var(--k-a);border-color:var(--k-a)}
+.hk-check li.on::after{content:"";position:absolute;left:7px;top:12px;width:6px;height:11px;border:solid var(--k-ai);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.hk-check-prog{height:6px;border-radius:3px;background:var(--k-fill);margin-top:12px;overflow:hidden}
+.hk-check-prog span{display:block;height:100%;width:0;background:var(--k-a);transition:width .4s}
+.hk-check-n{font-size:.85em;opacity:.65;margin-top:6px!important}
+.hk-rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.hk-rv.hk-in{opacity:1;transform:none}
+@media print{.hk-rv{opacity:1!important;transform:none!important}.hk-js .hk-tab,.hk-js .hk-tab-t{display:block!important}.hk-tabbar,.hk-cnav,.hk-pop,.hk-again{display:none!important}.hk-js .hk-chart-data{display:table!important}.hk-chart-viz{display:none}}
+@media (prefers-reduced-motion:reduce){.hk,.hk *{animation:none!important;transition:none!important}}`;
+  }
+  const KIT_JS = String.raw`(function(f){document.readyState==='loading'?document.addEventListener('DOMContentLoaded',f):f();})(function(){
+var D=document;D.documentElement.classList.add('hk-js');
+function $$(s,r){return [].slice.call((r||D).querySelectorAll(s));}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var io='IntersectionObserver' in window,rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function onView(el,fn){if(!io||rm){fn();return;}var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnect();fn();}},{threshold:.25});o.observe(el);}
+$$('.hk-tabs').forEach(function(t){var items=$$(':scope>.hk-tab',t);if(!items.length)return;
+var bar=D.createElement('div');bar.className='hk-tabbar';bar.setAttribute('role','tablist');var ind=D.createElement('span');ind.className='hk-tabind';
+items.forEach(function(it,i){var b=D.createElement('button');b.type='button';b.setAttribute('role','tab');var tt=it.querySelector('.hk-tab-t');b.textContent=tt?tt.textContent.trim():'Вкладка '+(i+1);b.onclick=function(){sel(i);};bar.appendChild(b);});
+bar.appendChild(ind);t.insertBefore(bar,t.firstChild);var cur=0;
+function sel(i){cur=i;items.forEach(function(it,j){it.classList.toggle('on',i===j);});var bs=$$('button',bar);bs.forEach(function(b,j){b.setAttribute('aria-selected',i===j);});ind.style.width=bs[i].offsetWidth+'px';ind.style.transform='translateX('+bs[i].offsetLeft+'px)';}
+sel(0);addEventListener('resize',function(){sel(cur);});});
+$$('.hk-carousel').forEach(function(c){var tr=c.querySelector('.hk-track');if(!tr)return;var sl=$$('.hk-slide',tr);if(sl.length<2)return;
+var nav=D.createElement('div'),p=D.createElement('button'),n=D.createElement('button'),dots=D.createElement('div');nav.className='hk-cnav';dots.className='hk-dots';
+p.type=n.type='button';p.innerHTML='&#8592;';n.innerHTML='&#8594;';p.setAttribute('aria-label','Назад');n.setAttribute('aria-label','Вперёд');
+sl.forEach(function(s,i){var d=D.createElement('i');d.onclick=function(){go(i);};dots.appendChild(d);});
+nav.appendChild(p);nav.appendChild(dots);nav.appendChild(n);c.appendChild(nav);
+function step(){return (sl[1].offsetLeft-sl[0].offsetLeft)||tr.clientWidth;}
+function idx(){return Math.round(tr.scrollLeft/step());}
+function go(i){i=(i+sl.length)%sl.length;tr.scrollTo({left:i*step(),behavior:rm?'auto':'smooth'});}
+function mark(){var i=idx();$$('i',dots).forEach(function(d,j){d.classList.toggle('on',i===j);});}
+p.onclick=function(){go(idx()-1);};n.onclick=function(){go(idx()+1);};
+tr.addEventListener('scroll',function(){clearTimeout(tr._t);tr._t=setTimeout(mark,60);},{passive:true});mark();});
+$$('.hk-modal').forEach(function(m){var pop=m.querySelector('.hk-pop');if(!pop)return;var box=pop.querySelector('.hk-pop-box')||pop;
+var x=D.createElement('button');x.type='button';x.className='hk-pop-x';x.setAttribute('aria-label','Закрыть');x.innerHTML='&times;';box.appendChild(x);
+pop.classList.add('hk');pop.setAttribute('role','dialog');pop.setAttribute('aria-modal','true');D.body.appendChild(pop);
+function close(){pop.classList.remove('open');}
+$$('[data-hk-open]',m).forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();pop.classList.add('open');x.focus();});});
+x.onclick=close;pop.addEventListener('click',function(e){if(e.target===pop)close();});D.addEventListener('keydown',function(e){if(e.key==='Escape')close();});});
+$$('.hk-num').forEach(function(el){var t=el.textContent,m=t.match(/-?\d[\d\s .,]*/);if(!m||/\d\s*[\/:–-]\s*\d/.test(t))return;var s0=m[0].replace(/[\s .,]+$/,'');
+var raw=s0.replace(/[\s ]/g,''),dec=0,num,mm=raw.match(/^(-?\d+)[.,](\d{1,2})$/);
+if(mm){num=parseFloat(mm[1]+'.'+mm[2]);dec=mm[2].length;}else num=parseFloat(raw.replace(/[.,]/g,''));if(!isFinite(num))return;
+var pre=t.slice(0,m.index),suf=t.slice(m.index+s0.length);
+function fmt(v){return pre+v.toLocaleString('ru-RU',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;}
+if(rm)return;el.textContent=fmt(0);
+onView(el,function(){var t0=0;function f(ts){if(!t0)t0=ts;var k=Math.min(1,(ts-t0)/1400),e=1-Math.pow(1-k,3);el.textContent=fmt(num*e);if(k<1)requestAnimationFrame(f);else el.textContent=t;}requestAnimationFrame(f);});});
+$$('.hk-chart').forEach(function(c){var tb=c.querySelector('table');if(!tb)return;
+var rows=$$('tbody tr',tb).map(function(r){var a=r.cells[0],b=r.cells[1];var raw=b?b.textContent.trim():'';return {l:a?a.textContent.trim():'',raw:raw,v:parseFloat(raw.replace(/[^\d.,-]/g,'').replace(',','.'))||0};}).filter(function(r){return r.l||r.v;});
+if(!rows.length)return;var A=getComputedStyle(c).getPropertyValue('--k-a').trim()||'#1a73e8';
+var pal=[A,'#1a73e8','#1e9e57','#e5484d','#8e44ad','#f39c12','#00a3a3','#6c6c70'].filter(function(x,i,arr){return arr.indexOf(x)===i;});
+var viz=D.createElement('div');viz.className='hk-chart-viz';c.insertBefore(viz,tb);
+if(c.getAttribute('data-type')==='donut'){var sum=rows.reduce(function(s,r){return s+Math.max(0,r.v);},0)||1,acc=0;
+var stops=rows.map(function(r,i){var a=acc/sum*360;acc+=Math.max(0,r.v);return pal[i%pal.length]+' '+a+'deg '+(acc/sum*360)+'deg';});
+viz.innerHTML='<div class="hk-donut-wrap"><div class="hk-donut hk-wait" style="background:conic-gradient('+stops.join(',')+')"></div><ul class="hk-legend">'+rows.map(function(r,i){return '<li><i style="background:'+pal[i%pal.length]+'"></i><span>'+esc(r.l)+'</span><b>'+esc(r.raw)+'</b></li>';}).join('')+'</ul></div>';
+var dn=viz.querySelector('.hk-donut');onView(viz,function(){dn.classList.remove('hk-wait');});}
+else{var max=Math.max.apply(null,rows.map(function(r){return Math.max(0,r.v);}))||1;
+viz.innerHTML='<div class="hk-bars">'+rows.map(function(r){return '<div class="hk-bar"><span>'+esc(r.l)+'</span><div class="hk-bar-track"><div class="hk-bar-fill" data-w="'+(Math.max(0,r.v)/max*100)+'"></div></div><b class="hk-bar-v">'+esc(r.raw)+'</b></div>';}).join('')+'</div>';
+onView(viz,function(){$$('.hk-bar-fill',viz).forEach(function(f,i){setTimeout(function(){f.style.width=f.getAttribute('data-w')+'%';},rm?0:i*90);});});}});
+$$('.hk-quiz').forEach(function(q){var opts=$$('.hk-opts > li',q);opts.forEach(function(li){li.setAttribute('tabindex','0');li.setAttribute('role','button');
+function pick(){if(q.classList.contains('done'))return;q.classList.add('done');var ok=li.hasAttribute('data-correct');li.classList.add(ok?'ok':'no');
+if(!ok)opts.forEach(function(o){if(o.hasAttribute('data-correct'))o.classList.add('ok');});q.classList.add(ok?'r-ok':'r-no');
+var again=D.createElement('button');again.type='button';again.className='hk-again';again.textContent='Ответить ещё раз';
+again.onclick=function(){q.classList.remove('done','r-ok','r-no');opts.forEach(function(o){o.classList.remove('ok','no');});again.remove();};q.appendChild(again);}
+li.addEventListener('click',pick);li.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});});});
+$$('.hk-check').forEach(function(c,ci){var lis=$$('li',c),key='hk-check:'+location.pathname+':'+ci,st={};try{st=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){}
+var prog=D.createElement('div');prog.className='hk-check-prog';prog.innerHTML='<span></span>';var lbl=D.createElement('p');lbl.className='hk-check-n';c.appendChild(prog);c.appendChild(lbl);
+function upd(){var n=lis.filter(function(l){return l.classList.contains('on');}).length;prog.firstChild.style.width=(lis.length?n/lis.length*100:0)+'%';lbl.textContent='Выполнено '+n+' из '+lis.length;}
+lis.forEach(function(li,i){li.setAttribute('role','checkbox');li.setAttribute('tabindex','0');if(st[i])li.classList.add('on');li.setAttribute('aria-checked',!!st[i]);
+function t(){var on=li.classList.toggle('on');li.setAttribute('aria-checked',on);st[i]=on;try{localStorage.setItem(key,JSON.stringify(st));}catch(e){}upd();}
+li.addEventListener('click',t);li.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();t();}});});upd();});
+$$('.hk-video[data-src]').forEach(function(v){var s=v.getAttribute('data-src');if(!/^https:\/\/(www\.youtube-nocookie\.com\/embed\/|rutube\.ru\/play\/embed\/|player\.vimeo\.com\/video\/)/.test(s))return;
+var f=D.createElement('iframe');f.src=s;f.title='Видео';f.setAttribute('allow','accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen');f.setAttribute('allowfullscreen','');f.setAttribute('loading','lazy');v.innerHTML='';v.appendChild(f);});
+if(io&&!rm)$$('.hk').forEach(function(b){if(b.classList.contains('hk-pop')||b.parentElement.closest('.hk'))return;if(b.getBoundingClientRect().top<innerHeight)return;b.classList.add('hk-rv');
+var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnect();b.classList.add('hk-in');}},{threshold:.1});o.observe(b);});
+});`;
+  const kitHtml = A => `<div id="${KIT_ID}" data-v="${KIT_V}" data-accent="${A}"><style>${kitCss(A)}</style><script>${KIT_JS}<\/script></div>`;
+  function ensureKit(A) {
+    const k = kitEl(), a = A || docAccent();
+    if (k && k.dataset.v === KIT_V && k.dataset.accent === a) return;
+    const el = parseOne(kitHtml(a));
+    if (k) k.replaceWith(el); else doc.body.appendChild(el);
+  }
+
+  /* ── каталог блоков ── */
+  const PH = n => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450"><rect width="800" height="450" fill="#e9e9e6"/><path d="M0 450 260 210l170 160 110-90 260 170z" fill="#d4d4d0"/><circle cx="600" cy="130" r="48" fill="#d4d4d0"/><text x="400" y="420" text-anchor="middle" font-family="system-ui,sans-serif" font-size="26" fill="#9a9a96">${n}</text></svg>`);
+  const I = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const rep = (n, f) => Array.from({ length: n }, (_, i) => f(i + 1)).join('');
+  const BLOCKS = [
+    { id: 'hero', g: 'Основа', name: 'Обложка', ic: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10h10M7 14h6"/>',
+      html: () => `<section class="hk hk-hero" data-hk="hero"><p class="hk-eyebrow">Надзаголовок</p><h1>Большой заголовок страницы</h1><p class="hk-lead">Короткое описание в одну-две строки: о чём эта страница и зачем её читать.</p><p class="hk-actions"><a class="hk-btn" href="#">Главное действие</a> <a class="hk-btn hk-btn-ghost" href="#">Подробнее</a></p></section>` },
+    { id: 'h2', g: 'Основа', name: 'Заголовок раздела', ic: '<path d="M4 7V5h16v2M12 5v14M9 19h6"/>', html: () => `<h2>Новый раздел</h2>` },
+    { id: 'hr', g: 'Основа', name: 'Разделитель', ic: '<path d="M3 12h18"/><path d="M8 7h8M8 17h8" opacity=".4"/>', html: () => `<hr class="hk hk-hr" data-hk="hr">` },
+    { id: 'p', g: 'Текст', name: 'Абзац', ic: '<path d="M4 6h16M4 10h16M4 14h16M4 18h10"/>', html: () => `<p>Новый абзац. Кликните, чтобы написать текст.</p>` },
+    { id: 'ul', g: 'Текст', name: 'Список', ic: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>', html: () => `<ul><li>Первый пункт</li><li>Второй пункт</li><li>Третий пункт</li></ul>` },
+    { id: 'callout', g: 'Текст', name: 'Выноска', ic: '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>', html: () => `<div class="hk hk-callout" data-hk="callout" data-variant="info"><p class="hk-callout-t">Важно</p><p>Короткий текст, на который стоит обратить внимание.</p></div>` },
+    { id: 'quote', g: 'Текст', name: 'Цитата', ic: '<path d="M7 7h4v4H7zM7 11c0 3-1 5-3 6M15 7h4v4h-4zM15 11c0 3-1 5-3 6"/>', html: () => `<blockquote class="hk hk-quote" data-hk="quote"><p>«Цитата или отзыв — одна-две яркие фразы.»</p><cite>— Имя Фамилия, должность</cite></blockquote>` },
+    { id: 'cards', g: 'Сетка', name: 'Карточки', ic: '<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/>',
+      html: () => `<div class="hk hk-cards" data-hk="cards">${rep(3, i => `<div class="hk-card"><p class="hk-card-ic">${i}</p><p class="hk-card-t">Карточка ${i}</p><p>Короткое описание преимущества или шага.</p></div>`)}</div>` },
+    { id: 'cols', g: 'Сетка', name: 'Колонки', ic: '<rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/>',
+      html: () => `<div class="hk hk-cols" data-hk="cols">${rep(2, i => `<div class="hk-col"><p class="hk-col-t">Колонка ${i}</p><p>Текст колонки. Сюда можно перетащить другие блоки.</p></div>`)}</div>` },
+    { id: 'timeline', g: 'Сетка', name: 'Таймлайн', ic: '<path d="M6 3v18"/><circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><path d="M11 7h9M11 17h9"/>',
+      html: () => `<ol class="hk hk-timeline" data-hk="timeline">${rep(3, i => `<li class="hk-step"><p class="hk-step-d">Этап ${i}</p><p class="hk-step-t">Название этапа</p><p>Что происходит на этом этапе.</p></li>`)}</ol>` },
+    { id: 'table', g: 'Сетка', name: 'Таблица', ic: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>',
+      html: () => `<table class="hk hk-table" data-hk="table"><thead><tr><th>Колонка 1</th><th>Колонка 2</th><th>Колонка 3</th></tr></thead><tbody>${rep(3, () => '<tr><td>Значение</td><td>Значение</td><td>Значение</td></tr>')}</tbody></table>` },
+    { id: 'figure', g: 'Медиа', name: 'Картинка', ic: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="m3 14 5-5 5 5 3-3 5 5M7 21h10"/>',
+      html: () => `<figure class="hk hk-figure" data-hk="figure"><img src="${PH('Нажмите на картинку → «Заменить»')}" alt=""><figcaption>Подпись к картинке</figcaption></figure>` },
+    { id: 'video', g: 'Медиа', name: 'Видео', ic: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>',
+      html: () => `<div class="hk hk-video" data-hk="video"><div class="hk-video-ph"><span>▶</span><p>Выделите блок и нажмите «Ссылка на видео» — YouTube, RuTube или Vimeo</p></div></div>` },
+    { id: 'btnrow', g: 'Медиа', name: 'Кнопки', ic: '<rect x="3" y="8" width="18" height="8" rx="4"/><path d="M9 12h6"/>',
+      html: () => `<p class="hk hk-btnrow" data-hk="btnrow"><a class="hk-btn" href="#">Кнопка</a> <a class="hk-btn hk-btn-ghost" href="#">Вторая кнопка</a></p>` },
+    { id: 'tabs', g: 'Интерактив', live: 1, name: 'Вкладки', ic: '<path d="M3 9h18v11H3zM3 9V5h6v4M9 5h6v4"/>',
+      html: () => `<div class="hk hk-tabs" data-hk="tabs">${rep(3, i => `<div class="hk-tab"><p class="hk-tab-t">Вкладка ${i}</p><div class="hk-tab-b"><p>Содержимое вкладки ${i}. Читатель переключает вкладки сверху.</p></div></div>`)}</div>` },
+    { id: 'acc', g: 'Интерактив', live: 1, name: 'Аккордеон', ic: '<rect x="3" y="4" width="18" height="5" rx="1.5"/><rect x="3" y="11" width="18" height="9" rx="1.5"/>',
+      html: () => `<div class="hk hk-acc" data-hk="acc">${rep(3, i => `<details><summary>Вопрос ${i}?</summary><div class="hk-acc-b"><p>Ответ на вопрос ${i}. Раскрывается по клику.</p></div></details>`)}</div>` },
+    { id: 'carousel', g: 'Интерактив', live: 1, name: 'Карусель', ic: '<rect x="6" y="5" width="12" height="12" rx="2"/><path d="M3 8v6M21 8v6M10 20h.01M12 20h.01M14 20h.01"/>',
+      html: () => `<div class="hk hk-carousel" data-hk="carousel"><div class="hk-track">${rep(3, i => `<figure class="hk-slide"><img src="${PH('Слайд ' + i)}" alt=""><figcaption>Подпись слайда ${i}</figcaption></figure>`)}</div></div>` },
+    { id: 'modal', g: 'Интерактив', live: 1, name: 'Всплывающее окно', ic: '<rect x="3" y="3" width="18" height="18" rx="2" opacity=".35"/><rect x="6" y="7" width="12" height="10" rx="2"/>',
+      html: () => `<div class="hk hk-modal" data-hk="modal"><p><a class="hk-btn" href="#" data-hk-open="">Открыть окно</a></p><div class="hk-pop"><div class="hk-pop-box"><p class="hk-pop-t">Заголовок окна</p><p>Текст внутри всплывающего окна: подробности, условия, контакты.</p></div></div></div>` },
+    { id: 'kpis', g: 'Интерактив', live: 1, name: 'Счётчики', ic: '<path d="M4 17l4-5 4 3 7-8"/><path d="M15 7h4v4"/>',
+      html: () => `<div class="hk hk-kpis" data-hk="kpis"><div class="hk-kpi"><p class="hk-num">1 250+</p><p class="hk-kpi-l">клиентов</p></div><div class="hk-kpi"><p class="hk-num">98%</p><p class="hk-kpi-l">довольны сервисом</p></div><div class="hk-kpi"><p class="hk-num">24/7</p><p class="hk-kpi-l">поддержка</p></div></div>` },
+    { id: 'chart', g: 'Интерактив', live: 1, name: 'График', ic: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+      html: () => `<figure class="hk hk-chart" data-hk="chart" data-type="bar"><figcaption class="hk-chart-t">Название графика</figcaption><table class="hk-chart-data"><thead><tr><th>Подпись</th><th>Значение</th></tr></thead><tbody><tr><td>Январь</td><td>42</td></tr><tr><td>Февраль</td><td>58</td></tr><tr><td>Март</td><td>73</td></tr><tr><td>Апрель</td><td>65</td></tr></tbody></table></figure>` },
+    { id: 'quiz', g: 'Интерактив', live: 1, name: 'Тест', ic: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 1-1 1.7M12 17h.01"/>',
+      html: () => `<div class="hk hk-quiz" data-hk="quiz"><p class="hk-q">Вопрос для самопроверки?</p><ol class="hk-opts"><li>Первый вариант</li><li data-correct="">Правильный вариант</li><li>Третий вариант</li></ol><p class="hk-fb hk-fb-ok">Верно! Короткое пояснение, почему.</p><p class="hk-fb hk-fb-no">Не совсем — правильный ответ подсвечен.</p></div>` },
+    { id: 'check', g: 'Интерактив', live: 1, name: 'Чек-лист', ic: '<rect x="3" y="4" width="6" height="6" rx="1.5"/><path d="m4.5 7 1 1 2-2M12 7h9M3 15h6v6H3zM12 18h9"/>',
+      html: () => `<div class="hk hk-check" data-hk="check"><p class="hk-check-t">Чек-лист</p><ul><li>Первый пункт</li><li>Второй пункт</li><li>Третий пункт</li></ul></div>` }
+  ];
+  const KN = {
+    'hk-hero': ['Обложка','обложки','обложку','f'], 'hk-quote': ['Цитата','цитаты','цитату','f'], 'hk-callout': ['Выноска','выноски','выноску','f'],
+    'hk-cards': ['Сетка карточек','сетки карточек','сетку карточек','f'], 'hk-card': ['Карточка','карточки','карточку','f'],
+    'hk-cols': ['Блок колонок','блока колонок','блок колонок','m'], 'hk-col': ['Колонка','колонки','колонку','f'],
+    'hk-timeline': ['Таймлайн','таймлайна','таймлайн','m'], 'hk-step': ['Этап','этапа','этап','m'],
+    'hk-figure': ['Иллюстрация','иллюстрации','иллюстрацию','f'], 'hk-video': ['Видео','видео','видео','n'],
+    'hk-btnrow': ['Блок кнопок','блока кнопок','блок кнопок','m'], 'hk-btn': ['Кнопка','кнопки','кнопку','f'],
+    'hk-tabs': ['Блок вкладок','блока вкладок','блок вкладок','m'], 'hk-tab': ['Вкладка','вкладки','вкладку','f'],
+    'hk-acc': ['Аккордеон','аккордеона','аккордеон','m'], 'hk-carousel': ['Карусель','карусели','карусель','f'], 'hk-slide': ['Слайд','слайда','слайд','m'],
+    'hk-modal': ['Всплывающее окно','всплывающего окна','всплывающее окно','n'], 'hk-pop': ['Содержимое окна','содержимого окна','содержимое окна','n'],
+    'hk-kpis': ['Блок счётчиков','блока счётчиков','блок счётчиков','m'], 'hk-kpi': ['Счётчик','счётчика','счётчик','m'],
+    'hk-chart': ['График','графика','график','m'], 'hk-quiz': ['Тест','теста','тест','m'], 'hk-check': ['Чек-лист','чек-листа','чек-лист','m']
+  };
+  const KIT_ITEMS = { tabs: ['.hk-tab', 'вкладку'], acc: ['details', 'вопрос'], carousel: ['.hk-slide', 'слайд'], cards: ['.hk-card', 'карточку'], cols: ['.hk-col', 'колонку'],
+    timeline: ['.hk-step', 'этап'], kpis: ['.hk-kpi', 'счётчик'], quiz: ['.hk-opts > li', 'вариант'], check: ['li', 'пункт'], btnrow: ['.hk-btn', 'кнопку'], chart: ['tbody tr', 'строку'] };
+  const CALLOUT = [['info', 'Важно'], ['tip', 'Совет'], ['warn', 'Внимание']];
+
+  /* ── куда вставлять ── */
+  const FLOW = /^(BODY|MAIN|SECTION|ARTICLE|DIV|ASIDE|HEADER|FOOTER|BLOCKQUOTE)$/;
+  const CONTENT_OK = '.hk-col,.hk-card,.hk-tab-b,.hk-acc-b,.hk-pop-box';
+  function okParent(p) {
+    if (p === doc.body) return true;
+    if (!FLOW.test(p.tagName) || p.id === NAV_ID || p.id === KIT_ID) return false;
+    if (p.closest('table,ul,ol,dl,p,h1,h2,h3,h4,h5,h6,a,summary,figure,#' + NAV_ID)) return false;
+    const kr = p.closest('[data-hk]'); if (!kr) return true;
+    const ca = p.closest(CONTENT_OK); return !!(ca && kr.contains(ca));
+  }
+  function flowRef(el) {
+    if (!el || !doc || !el.isConnected || el === doc.body || el === doc.documentElement) return null;
+    if (el.closest('#' + NAV_ID) || el.closest('#' + KIT_ID)) return null;
+    let e = el;
+    while (e && e.parentElement && !okParent(e.parentElement)) e = e.parentElement;
+    return e && e !== doc.documentElement && e !== doc.body ? e : null;
+  }
+  function defaultHost() {
+    const main = doc.querySelector('main'); if (main) return main;
+    const kids = [...doc.body.children].filter(x => x.id !== KIT_ID && x.id !== NAV_ID && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(x.tagName));
+    const last = kids[kids.length - 1];
+    return last && /^(DIV|SECTION|ARTICLE)$/.test(last.tagName) && last.children.length && !last.closest('[data-hk]') ? last : doc.body;
+  }
+  function insertBlock(def, place) {
+    if (!doc) { toast('Сначала откройте или создайте документ'); return; }
+    commitEdit(); closePop();
+    const el = parseOne(def.html());
+    let ref = place && place.ref, after = place ? place.after : true;
+    if (!place) ref = flowRef(selected || clickEl);
+    if (ref) after ? ref.after(el) : ref.before(el);
+    else { const host = defaultHost(), k = kitEl(); host === doc.body && k ? doc.body.insertBefore(el, k) : host.appendChild(el); }
+    if (el.matches('.hk') || el.querySelector('.hk')) ensureKit();
+    clickEl = el; select(el);
+    push(`Вставлен блок: ${def.name.toLowerCase()}`);
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(placeTb, 380);
+    if (def.live) toast(`${def.name}: оживёт в предпросмотре и у читателя`, { action: 'Предпросмотр', fn: openPreview, ms: 6000 });
+  }
+
+  /* ── панель «Блоки» ── */
+  function renderBlocks() {
+    const box = $('#blBody'); const groups = [];
+    BLOCKS.forEach(b => { let g = groups.find(x => x.n === b.g); if (!g) groups.push(g = { n: b.g, l: [] }); g.l.push(b); });
+    box.innerHTML = `<p class="hint">Кликните — блок встанет после выделенного места. Или перетащите его в нужное место документа.</p>` +
+      groups.map(g => `<div class="chk-group">${g.n}</div><div class="bl-grid">${g.l.map(b =>
+        `<button class="bl" data-bl="${b.id}" title="${b.live ? 'Интерактивный: оживает в предпросмотре и у читателя' : ''}"><span class="ic">${I(b.ic)}</span><b>${b.name}</b>${b.live ? '<span class="badge">интерактив</span>' : ''}</button>`).join('')}</div>`).join('');
+  }
+  let bdrag = null;
+  function placeAt(cx, cy) {
+    const vr = view.getBoundingClientRect();
+    if (cx < vr.left || cx > vr.right || cy < vr.top || cy > vr.bottom || !doc) return null;
+    const ix = (cx - vr.left) / scale, iy = (cy - vr.top) / scale;
+    const el = doc.elementFromPoint(ix, iy);
+    const ref = flowRef(el);
+    if (!ref) return { host: true };
+    const r = ref.getBoundingClientRect();
+    return { ref, after: iy > r.top + r.height / 2, r };
+  }
+  $('#blBody').addEventListener('pointerdown', e => {
+    const t = e.target.closest('.bl'); if (!t || e.button !== 0) return;
+    e.preventDefault(); t.setPointerCapture(e.pointerId);
+    bdrag = { def: BLOCKS.find(b => b.id === t.dataset.bl), x: e.clientX, y: e.clientY, moved: false, place: null, ghost: null };
+  });
+  $('#blBody').addEventListener('pointermove', e => {
+    if (!bdrag) return;
+    if (!bdrag.moved && Math.hypot(e.clientX - bdrag.x, e.clientY - bdrag.y) < 6) return;
+    if (!bdrag.moved) {
+      bdrag.moved = true; commitEdit(); closePop();
+      const g = document.createElement('div'); g.className = 'bl-ghost'; g.textContent = bdrag.def.name; document.body.appendChild(g); bdrag.ghost = g;
+      view.classList.add('dragging');
+    }
+    bdrag.ghost.style.left = e.clientX + 'px'; bdrag.ghost.style.top = e.clientY + 'px';
+    const vr = view.getBoundingClientRect();
+    if (doc && e.clientX > vr.left && e.clientX < vr.right) { if (e.clientY - vr.top < 50) W().scrollBy(0, -16); else if (vr.bottom - e.clientY < 50) W().scrollBy(0, 16); }
+    const p = bdrag.place = placeAt(e.clientX, e.clientY);
+    if (p && p.ref) {
+      dropLine.hidden = false;
+      Object.assign(dropLine.style, { left: (p.r.left * scale) + 'px', top: ((p.after ? p.r.bottom : p.r.top) * scale - 2) + 'px', width: (p.r.width * scale) + 'px', height: '4px' });
+    } else dropLine.hidden = true;
+  });
+  const endBdrag = ok => {
+    if (!bdrag) return;
+    const d = bdrag; bdrag = null;
+    if (d.ghost) d.ghost.remove(); dropLine.hidden = true; view.classList.remove('dragging');
+    if (!ok) return;
+    if (!d.moved) insertBlock(d.def);
+    else if (d.place) insertBlock(d.def, d.place.ref ? d.place : null);
+  };
+  $('#blBody').addEventListener('pointerup', () => endBdrag(true));
+  $('#blBody').addEventListener('pointercancel', () => endBdrag(false));
+
+  /* ── действия конкретного блока на плавающей панели ── */
+  const kitCtx = el => { const root = el && el.closest && el.closest('[data-hk]'); return root && doc.body.contains(root) ? { root, type: root.dataset.hk } : null; };
+  let kitKey = '';
+  function renderKitBar() {
+    const el = editing || selected, c = kitCtx(el), g = $('#gKit');
+    let h = '';
+    if (c) {
+      const it = KIT_ITEMS[c.type];
+      if (it) h += `<button class="tb txt" data-kit="add" title="Добавить элемент в этот блок">${I('<path d="M12 5v14M5 12h14"/>')}${it[1][0].toUpperCase() + it[1].slice(1)}</button>`;
+      if (c.type === 'quiz' && el.closest('.hk-opts > li')) h += `<button class="tb txt${el.closest('li').hasAttribute('data-correct') ? ' on' : ''}" data-kit="correct">✓ Верный ответ</button>`;
+      if (c.type === 'chart') h += `<button class="tb txt${c.root.dataset.type !== 'donut' ? ' on' : ''}" data-kit="bar">Столбцы</button><button class="tb txt${c.root.dataset.type === 'donut' ? ' on' : ''}" data-kit="donut">Кольцо</button>`;
+      if (c.type === 'callout') { const v = CALLOUT.find(x => x[0] === c.root.dataset.variant) || CALLOUT[0]; h += `<button class="tb txt" data-kit="variant" title="Сменить тип выноски">Тип: ${v[1]}</button>`; }
+      if (c.type === 'video') h += `<button class="tb txt" data-kit="video">${I('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>')}Ссылка на видео</button>`;
+      if (h) h += '<span class="vsep"></span>';
+    }
+    if (h !== kitKey) { g.innerHTML = h; kitKey = h; }
+    g.hidden = !h;
+  }
+  function kitAct(a, btn) {
+    const c = kitCtx(editing || selected); if (!c) return;
+    const { root, type } = c;
+    if (a === 'video') { openPop('video', btn); return; }
+    const focusEl = clickEl && clickEl.isConnected ? clickEl : selected;
+    commitEdit();
+    if (a === 'add') {
+      const [sel, word] = KIT_ITEMS[type];
+      const items = [...root.querySelectorAll(sel)].filter(x => x.closest('[data-hk]') === root);
+      const base = items.find(x => x.contains(focusEl)) || items[items.length - 1]; if (!base) return;
+      const n = noIds(stripMarks(base.cloneNode(true)));
+      n.classList.remove('on', 'ok', 'no'); n.removeAttribute('data-correct'); n.removeAttribute('open');
+      base.after(n); clickEl = n; select(n);
+      push(`${nm(root)[0]}: добавлен элемент — ${word}`);
+      scrollIntoViewIfNeeded(n);
+    } else if (a === 'correct') {
+      const li = focusEl && focusEl.closest('.hk-opts > li'); if (!li) return;
+      root.querySelectorAll('.hk-opts > li[data-correct]').forEach(x => x.removeAttribute('data-correct'));
+      li.setAttribute('data-correct', ''); push('Тест: выбран верный ответ'); select(li);
+    } else if (a === 'bar' || a === 'donut') {
+      root.dataset.type = a; push(`График: ${a === 'bar' ? 'столбцы' : 'кольцо'}`); select(root);
+    } else if (a === 'variant') {
+      const i = Math.max(0, CALLOUT.findIndex(x => x[0] === root.dataset.variant)), nx = CALLOUT[(i + 1) % CALLOUT.length];
+      const t = root.querySelector('.hk-callout-t');
+      if (t && CALLOUT.some(x => x[1] === t.textContent.trim())) t.textContent = nx[1];
+      root.dataset.variant = nx[0]; push(`Выноска: ${nx[1].toLowerCase()}`); select(root);
+    }
+  }
+  function embedUrl(u) {
+    u = (u || '').trim(); let m;
+    if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/))) return { src: 'https://www.youtube-nocookie.com/embed/' + m[1], name: 'Видео YouTube' };
+    if ((m = u.match(/rutube\.ru\/(?:video|play\/embed)\/([\da-f]{32})/i))) return { src: 'https://rutube.ru/play/embed/' + m[1], name: 'Видео RuTube' };
+    if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return { src: 'https://player.vimeo.com/video/' + m[1], name: 'Видео Vimeo' };
+    return null;
+  }
+  function openDetails() { if (doc) doc.querySelectorAll('details:not([open])').forEach(d => { d.open = true; d.setAttribute('data-hed-open', ''); }); }
+
+  /* ── шаблоны нового документа ── */
+  const TPL_CSS = `  *{box-sizing:border-box}
+  body{margin:0;background:#f4f4f2;color:#1d1d1f;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  main{max-width:900px;margin:40px auto;background:#fff;padding:48px clamp(18px,5vw,56px);border-radius:20px;box-shadow:0 2px 14px rgba(0,0,0,.06)}
+  h1{font-size:clamp(30px,5vw,40px);line-height:1.12;letter-spacing:-.5px;margin:0 0 12px}
+  h2{font-size:clamp(22px,3vw,28px);line-height:1.25;letter-spacing:-.3px;margin:44px 0 12px}
+  p{margin:0 0 12px}
+  a{color:inherit}
+  img{max-width:100%;height:auto}
+  @media (max-width:700px){main{margin:0;border-radius:0}}`;
+  const B = id => BLOCKS.find(b => b.id === id).html();
+  const TEMPLATES = [
+    { id: 'blank', name: 'Пустой', d: 'Заголовок и абзац — дальше собираете из блоков', ic: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',
+      title: 'Новый документ', body: () => `<h1>Заголовок документа</h1>\n<p>Кликните по тексту, чтобы начать писать. Блоки — во вкладке «Блоки» справа.</p>` },
+    { id: 'landing', name: 'Лендинг', d: 'Обложка, преимущества, цифры, этапы, вопросы', ic: '<rect x="3" y="4" width="18" height="7" rx="2"/><path d="M3 15h5M10 15h5M17 15h4M3 19h18"/>',
+      title: 'Лендинг', body: () => [B('hero'), '<h2>Почему мы</h2>', B('cards'), B('kpis'), '<h2>Как это работает</h2>', B('timeline'), '<h2>Частые вопросы</h2>', B('acc'), B('btnrow')].join('\n') },
+    { id: 'report', name: 'Отчёт', d: 'Итоги, ключевые цифры, график, детали во вкладках', ic: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+      title: 'Отчёт', body: () => ['<h1>Отчёт за период</h1>', '<p>Коротко: что сделано, к чему пришли и что дальше.</p>', B('callout'), B('kpis'), '<h2>Динамика</h2>', B('chart'), '<h2>Детали</h2>', B('tabs'), '<h2>Выводы</h2>', B('ul')].join('\n') },
+    { id: 'guide', name: 'Обучение', d: 'Шаги, видео, тест для самопроверки, чек-лист', ic: '<path d="M2 7l10-4 10 4-10 4z"/><path d="M6 9v5c0 1.5 3 3 6 3s6-1.5 6-3V9"/>',
+      title: 'Инструкция', body: () => ['<h1>Инструкция</h1>', '<p>Что вы узнаете из этой инструкции и сколько времени она займёт.</p>', B('callout').replace('data-variant="info"><p class="hk-callout-t">Важно', 'data-variant="tip"><p class="hk-callout-t">Совет'), '<h2>Шаги</h2>', B('timeline'), '<h2>Видео</h2>', B('video'), '<h2>Проверьте себя</h2>', B('quiz'), '<h2>Перед началом работы</h2>', B('check'), '<h2>Вопросы</h2>', B('acc')].join('\n') }
+  ];
+  const tplHtml = (t, A) => `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${t.title}</title>
+<style>
+${TPL_CSS}
+</style>
+</head>
+<body>
+<main>
+${t.body()}
+</main>
+${kitHtml(A)}
+</body>
+</html>`;
+  const ACCENTS = ['#FFD200', '#1a73e8', '#1e9e57', '#e5484d', '#7c3aed', '#111111'];
+  function openNewModal() {
+    closePop(); hideMenus(); closeFileMenu();
+    let sel = 'landing', acc = store.get('accent', ACCENTS[0]);
+    const render = () => {
+      modalBody.innerHTML = `<h3>Новый документ</h3>
+        <p class="hint">Выберите заготовку — потом всё можно поменять: править текст, добавлять и убирать блоки.</p>
+        <div class="opt-grid">${TEMPLATES.map(t => `<label class="opt${t.id === sel ? ' on' : ''}"><input type="radio" name="tpl" data-t="${t.id}" ${t.id === sel ? 'checked' : ''}>
+          <span class="tpl-ic">${I(t.ic)}</span><div><b>${t.name}</b><span>${t.d}</span></div><span class="chk">${t.id === sel ? '✓' : ''}</span></label>`).join('')}</div>
+        <div class="mrow"><span class="mlabel">Цвет акцента</span><div class="sw-row" style="margin:0">${ACCENTS.map(c => `<button class="swatch${c.toLowerCase() === acc.toLowerCase() ? ' on' : ''}" style="background:${c}" data-acc="${c}" title="${c}"></button>`).join('')}
+          <input type="color" id="nAccC" value="${acc.toLowerCase()}" title="Свой цвет" style="width:30px;height:28px;padding:0;border:1px solid var(--line);border-radius:7px;background:none"></div></div>
+        <div class="modal-foot"><button class="btn left" id="nOpen">Открыть файл…</button><button class="btn" id="nCancel">Отмена</button><button class="btn primary" id="nCreate">Создать</button></div>`;
+      modalBody.querySelectorAll('[data-t]').forEach(i => i.onchange = () => { sel = i.dataset.t; render(); });
+      modalBody.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => { acc = b.dataset.acc; render(); });
+      $('#nAccC').oninput = e => { acc = e.target.value; };
+      $('#nAccC').onchange = () => render();
+      $('#nCancel').onclick = closeModal;
+      $('#nOpen').onclick = () => { closeModal(); pick(); };
+      $('#nCreate').onclick = async () => {
+        const t = TEMPLATES.find(x => x.id === sel); closeModal(); store.set('accent', acc);
+        let n = 1, name = `${t.title}.html`;
+        while (tabs.some(x => x.fileName === name)) name = `${t.title} ${++n}.html`;
+        const tab = await openTab(tplHtml(t, acc), name, { label: `Новый документ: ${t.name.toLowerCase()}` });
+        if (tab) { setSide(true); setTab('blocks'); }
+      };
+    };
+    render(); modal.hidden = false;
   }
 
   /* ───────── найти и заменить ───────── */
@@ -1753,7 +2535,7 @@ update();});`;
     return Math.max(0.25, Math.min(2, vw / content));
   }
   function applyZoom() {
-    if (!doc) return;
+    if (!doc || !frame) return;
     const s = zoomFit ? fitScale() : zoom;
     scale = s;
     frame.style.transform = s === 1 ? '' : `scale(${s})`;
@@ -1799,10 +2581,13 @@ update();});`;
   // перед сохранением: синхронизируем навигацию с заголовками
   function prepareSave() {
     commitEdit();
+    const k = kitEl(), used = !!doc.querySelector('.hk');
+    if (k && !used) { k.remove(); push('Убраны неиспользуемые стили блоков'); }
+    else if (used && (!k || k.dataset.v !== KIT_V)) { ensureKit(); push('Обновлены стили блоков'); }
     if (syncNav()) push('Навигация обновлена под заголовки');
   }
   function afterSave(msg) {
-    savedAt = hi; ui(); store.del('draft');
+    savedAt = hi; stash(); ui(); scheduleSession();
     const ph = chkItems.filter(i => i.group === 'Незаполненные поля').length;
     if (ph) toast(`${msg}. Но осталось незаполненных полей: ${ph}`, { action: 'Показать', fn: () => { setSide(true); setTab('check'); }, ms: 7000 });
     else toast(msg);
@@ -1837,32 +2622,56 @@ update();});`;
   }
   function saveCopy() { if (!doc) return; prepareSave(); download(); toast('Копия скачана: ' + fileName); }
 
-  /* ───────── черновик ───────── */
-  function scheduleDraft() {
-    clearTimeout(draftTimer);
-    draftTimer = setTimeout(() => store.set('draft', { name: fileName, html: serialize(), orig: origHtml, t: Date.now() }), 800);
+  /* ───────── сессия: все вкладки переживают закрытие браузера ───────── */
+  let sessionTimer = null;
+  function scheduleSession() { clearTimeout(sessionTimer); sessionTimer = setTimeout(saveSession, 800); }
+  function saveSession() {
+    stash();
+    const list = tabs.filter(t => t.doc).map(t => ({ name: t.fileName, html: serialize(t.doc), orig: t.origHtml, dirty: tabDirty(t) }));
+    if (!list.length) { store.del('session'); return; }
+    const data = { t: Date.now(), active: Math.max(0, tabs.filter(t => t.doc).indexOf(cur)), tabs: list };
+    const tryPut = d => { try { localStorage.setItem(KEY + 'session', JSON.stringify(d)); return true; } catch (_) { return false; } };
+    // не влезло в ~5 МБ: сначала без исходников у неизменённых, потом только изменённые вкладки
+    if (tryPut(data)) return;
+    if (tryPut({ ...data, tabs: list.map(x => x.dirty ? x : { ...x, orig: null }) })) return;
+    if (!tryPut({ ...data, active: 0, tabs: list.filter(x => x.dirty).map(x => ({ name: x.name, html: x.html, dirty: true })) })) toast('Слишком много данных — восстановить вкладки после перезапуска не получится');
   }
-  function checkDraft() {
-    const d = store.get('draft', null), box = $('#draft');
-    if (!d || !d.html) { box.classList.remove('show'); return; }
-    $('#draftText').innerHTML = `Найден несохранённый черновик <b>${esc(d.name)}</b><br><span class="hint" style="font-size:12px">${new Date(d.t).toLocaleString('ru-RU')}</span>`;
+  function checkSession() {
+    let s = store.get('session', null);
+    const old = store.get('draft', null);           // черновик из прошлой версии редактора
+    if ((!s || !s.tabs || !s.tabs.length) && old && old.html) s = { t: old.t, active: 0, tabs: [{ name: old.name, html: old.html, orig: old.orig, dirty: true }] };
+    const box = $('#draft');
+    if (!s || !s.tabs || !s.tabs.length) { box.classList.remove('show'); return; }
+    const n = s.tabs.length, dirty = s.tabs.filter(x => x.dirty).length;
+    const word = n % 10 === 1 && n % 100 !== 11 ? 'вкладка' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'вкладки' : 'вкладок';
+    $('#draftText').innerHTML = `С прошлого раза осталось: <b>${n} ${word}</b>${dirty ? `, с несохранёнными правками — ${dirty}` : ''}
+      <br><span class="hint" style="font-size:12px">${esc(short(s.tabs.map(x => x.name).join(', '), 90))} · ${new Date(s.t).toLocaleString('ru-RU')}</span>`;
     box.classList.add('show');
-    $('#bDraftOpen').onclick = () => load(d.html, d.name, true, d.orig);
-    $('#bDraftDrop').onclick = () => { store.del('draft'); box.classList.remove('show'); };
+    $('#bDraftOpen').textContent = 'Восстановить';
+    $('#bDraftOpen').onclick = () => restoreSession(s);
+    $('#bDraftDrop').textContent = 'Не нужно';
+    $('#bDraftDrop').onclick = () => { store.del('session'); store.del('draft'); box.classList.remove('show'); };
   }
-  function closeFile() {
-    if (isDirty() && !confirm('Есть несохранённые изменения. Закрыть без сохранения?')) return;
-    store.del('draft');
-    closeFind(); closePop(); closePreview(); closeModal();
-    doc = null; hist = []; hi = -1; selected = null; editing = null; diffItems = []; chkItems = []; fileHandle = null;
-    $('#dragH').hidden = true; $('#chkCnt').hidden = true;
+  async function restoreSession(s) {
+    $('#draft').classList.remove('show'); store.del('draft');
+    const opened = [];
+    for (const x of s.tabs) opened.push(await openTab(x.html, x.name, { orig: x.orig || x.html, restored: true, dirty: x.dirty }));
+    const a = opened[s.active] || opened.find(Boolean);
+    if (a) activate(a);
+    toast(`Восстановлено вкладок: ${opened.filter(Boolean).length}`);
+  }
+  // интерфейс без открытых документов
+  function noDocState() {
+    stage.classList.remove('loaded');
+    $('#tabbar').hidden = true; ftb.hidden = true; $('#coach').hidden = true; $('#sideOpen').hidden = true; $('#dragH').hidden = true;
+    diffItems = []; chkItems = [];
+    $('#chkCnt').hidden = true; $('#diffCnt').hidden = true;
     $('#chkBody').innerHTML = '<p class="hint">Откройте файл — здесь появятся незаполненные поля, битые ссылки, картинки без описания и другие проблемы.</p>';
-    frame.srcdoc = ''; stage.classList.remove('loaded');
-    $('#tabbar').hidden = true; ftb.hidden = true; $('#coach').hidden = true; $('#sideOpen').hidden = true;
-    $('#diffCnt').hidden = true; $('#diffBody').innerHTML = '<p class="hint">Откройте файл — здесь будет видно всё, что изменилось относительно исходника.</p>';
+    $('#diffBody').innerHTML = '<p class="hint">Откройте файл — здесь будет видно всё, что изменилось относительно исходника.</p>';
     $('#paneCode').innerHTML = '';
-    renderHead(); ui(); renderHist(); checkDraft();
+    renderHead(); ui(); renderHist(); renderTabs(); checkSession();
   }
+  function closeFile() { closeTab(cur); }
 
   /* ───────── меню «Файл» ───────── */
   const fileMenu = $('#fileMenu');
@@ -1870,7 +2679,8 @@ update();});`;
   $('#bFile').onclick = e => {
     e.stopPropagation();
     if (!fileMenu.hidden) { closeFileMenu(); return; }
-    fileMenu.querySelectorAll('[data-f]').forEach(b => b.disabled = b.dataset.f !== 'open' && !doc);
+    hideMenus();
+    fileMenu.querySelectorAll('[data-f]').forEach(b => b.disabled = !/^(open|new)$/.test(b.dataset.f) && !doc);
     $('#miSaveT').textContent = fileHandle ? 'Сохранить в исходный файл' : 'Скачать HTML';
     $('#miCopy').hidden = !fileHandle;
     fileMenu.hidden = false;
@@ -1881,7 +2691,7 @@ update();});`;
   fileMenu.onclick = e => {
     const b = e.target.closest('[data-f]'); if (!b || b.disabled) return;
     closeFileMenu();
-    ({ open: pick, save, copy: saveCopy, pdf: printDoc, reset: resetToOriginal, close: closeFile })[b.dataset.f]();
+    ({ open: pick, new: openNewModal, save, copy: saveCopy, pdf: printDoc, reset: resetToOriginal, close: closeFile })[b.dataset.f]();
   };
   document.addEventListener('mousedown', e => {
     if (!fileMenu.hidden && !fileMenu.contains(e.target) && !$('#bFile').contains(e.target)) closeFileMenu();
@@ -1890,8 +2700,10 @@ update();});`;
 
   /* ───────── горячие клавиши ───────── */
   function shortcuts(e) {
-    const mod = e.ctrlKey || e.metaKey; if (!mod || !doc) return false;
+    const mod = e.ctrlKey || e.metaKey; if (!mod) return false;
     const k = e.key.toLowerCase(), c = e.code, is = (ch, code) => k === ch || c === code;
+    if (is('o', 'KeyO')) { e.preventDefault(); pick(); return true; }
+    if (!doc) return false;
     if (is('z', 'KeyZ') && !e.shiftKey) { e.preventDefault(); undo(); return true; }
     if (is('y', 'KeyY') || (is('z', 'KeyZ') && e.shiftKey)) { e.preventDefault(); redo(); return true; }
     if (is('s', 'KeyS')) { e.preventDefault(); save(); return true; }
@@ -1911,11 +2723,12 @@ update();});`;
     if (e.target.matches && e.target.matches('input,textarea,select')) {
       const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase(), c = e.code;
       if (mod && (k === 's' || c === 'KeyS')) { e.preventDefault(); e.target.blur(); save(); }
+      else if (mod && (k === 'o' || c === 'KeyO')) { e.preventDefault(); pick(); }
       else if (mod && (k === 'f' || c === 'KeyF') && !e.target.closest('#findbar')) { e.preventDefault(); openFind(false); }
       else if (mod && (k === 'p' || c === 'KeyP')) { e.preventDefault(); e.target.blur(); printDoc(); }
       return;
     }
-    if (e.key === 'Escape') { if (popType) closePop(); else if (!fileMenu.hidden) closeFileMenu(); else if (find.open) closeFind(); return; }
+    if (e.key === 'Escape') { if (!tabMenu.hidden || !addMenu.hidden) hideMenus(); else if (popType) closePop(); else if (!fileMenu.hidden) closeFileMenu(); else if (find.open) closeFind(); return; }
     shortcuts(e);
   });
 
@@ -1924,38 +2737,30 @@ update();});`;
   async function pick() {
     if (window.showOpenFilePicker) {
       try {
-        const [h] = await window.showOpenFilePicker({ types: [{ description: 'HTML', accept: { 'text/html': ['.html', '.htm'] } }] });
-        readFile(await h.getFile(), h); return;
+        const hs = await window.showOpenFilePicker({ multiple: true, types: [{ description: 'HTML', accept: { 'text/html': ['.html', '.htm'] } }] });
+        await readFiles(await Promise.all(hs.map(async h => ({ file: await h.getFile(), handle: h })))); return;
       } catch (err) { if (err && err.name === 'AbortError') return; }
     }
     $('#fileIn').value = ''; $('#fileIn').click();
   }
-  $('#bOpen2').onclick = pick;
-  $('#fileIn').onchange = e => readFile(e.target.files[0]);
-  $('#bUndo').onclick = undo; $('#bRedo').onclick = redo; $('#bSave').onclick = save;
+  $('#bOpen2').onclick = pick; $('#bNew2').onclick = openNewModal; renderBlocks();
+  $('#fileIn').onchange = e => readFiles([...e.target.files]);
+  $('#bSave').onclick = save;
   $('#coachOk').onclick = () => { $('#coach').hidden = true; store.set('coach', true); };
 
-  const drop = $('#drop');
-  ['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if (ev === 'drop' || !e.relatedTarget) drop.classList.remove('over'); }));
-  document.addEventListener('drop', e => {
-    const dt = e.dataTransfer, f = dt && dt.files[0]; if (!f) return;
-    const it = dt.items && dt.items[0];
-    const hp = it && it.getAsFileSystemHandle ? it.getAsFileSystemHandle() : null;   // вызывать синхронно, иначе данные пропадут
-    if (hp) hp.then(h => readFile(f, h && h.kind === 'file' ? h : null)).catch(() => readFile(f));
-    else readFile(f);
-  });
+  document.addEventListener('dragover', e => { if (hasFiles(e)) { e.preventDefault(); showFileOver(); } });
+  document.addEventListener('drop', e => { if (!hasFiles(e)) return; e.preventDefault(); hideFileOver(); openDropped(e.dataTransfer); });
   document.addEventListener('paste', e => { if (!doc || (e.target.closest && e.target.closest('input,textarea'))) return; handlePaste(e); });
   $('#pvClose').onclick = closePreview;
   $('#bPreview').onclick = () => $('#preview').hidden ? openPreview() : closePreview();
   $('#bNav').onclick = openNavModal;
   $('#modal').addEventListener('mousedown', e => { if (e.target === $('#modal')) closeModal(); });
-  window.addEventListener('beforeunload', e => { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('beforeunload', e => { saveSession(); if (tabs.some(tabDirty)) { e.preventDefault(); e.returnValue = ''; } });
 
   $('#devMode').checked = dev; $('#tabCode').hidden = !dev;
   if (store.get('side', true) === false) { $('#side').hidden = true; }
-  checkDraft();
-  window.__hed = { load, undo, redo, serialize, openFind, printDoc, setTab, blockAct, fmt, openNavModal, openPreview, previewHtml, runChecks, save, pasteTable, insertImageUrl,
+  checkSession();
+  window.__hed = { insertBlock, BLOCKS, TEMPLATES, tplHtml, openNewModal, kitAct, get tabs(){ return tabs; }, get cur(){ return cur; }, activate, closeTab, openTab, newBlank, dupTab, saveSession, restoreSession, startRename, load, undo, redo, serialize, openFind, printDoc, setTab, blockAct, fmt, openNavModal, openPreview, previewHtml, runChecks, save, pasteTable, insertImageUrl,
     setHandle(h) { fileHandle = h; ui(); },
     get doc(){ return doc; }, get hist(){ return hist; }, get diff(){ return diffItems; }, get sel(){ return selected; }, get editing(){ return editing; } };
 })();

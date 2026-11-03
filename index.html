@@ -113,7 +113,31 @@
 
   .view{position:relative;flex:1;overflow:hidden;background:var(--bg)}
   .docframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#fff;display:none;transform-origin:0 0}
-  .docframe.active{display:block}
+  .docframe.show{display:block}
+  /* два документа рядом */
+  .phead{position:absolute;top:0;height:30px;z-index:6;display:flex;align-items:center;gap:8px;padding:0 6px 0 12px;background:var(--surface-3);border-bottom:2px solid transparent;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none}
+  .phead.on{background:var(--surface);color:var(--ink);border-bottom-color:var(--accent)}
+  .phead .pn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+  .phead .pd{width:7px;height:7px;border-radius:50%;background:var(--mod);flex:none}
+  .phead button{border:0;background:none;color:inherit;cursor:pointer;border-radius:6px;padding:3px 7px;font-size:12px;white-space:nowrap}
+  .phead button:hover{background:var(--surface-2);color:var(--ink)}
+  .splitdiv{position:absolute;top:0;bottom:0;width:8px;z-index:6;background:var(--line);cursor:col-resize;touch-action:none}
+  .splitdiv::after{content:"";position:absolute;left:3px;top:50%;width:2px;height:36px;margin-top:-18px;border-radius:2px;background:var(--muted);opacity:.6}
+  .splitdiv:hover,.splitdiv.drag{background:var(--accent)}
+  .splithint{position:absolute;top:10px;bottom:10px;right:10px;width:calc(50% - 15px);z-index:30;border:2px dashed var(--accent);border-radius:16px;background:color-mix(in srgb,var(--accent) 14%,transparent);display:grid;place-items:center;pointer-events:none}
+  .splithint div{background:var(--surface);color:var(--ink);font-weight:700;padding:12px 18px;border-radius:12px;box-shadow:var(--shadow)}
+  .tbtn{padding:4px 9px;border-radius:7px;font-size:13px}
+  /* изменение размера */
+  .rz{position:absolute;left:0;top:0;z-index:7;pointer-events:none;outline:1px solid rgba(240,170,0,.0)}
+  .rz i{position:absolute;background:#fff;border:2px solid #f0aa00;border-radius:4px;pointer-events:auto;box-shadow:0 1px 3px rgba(0,0,0,.25);touch-action:none}
+  .rz i:hover{background:#f0aa00}
+  .rz [data-rz=e]{right:-6px;top:50%;width:10px;height:26px;margin-top:-13px;cursor:ew-resize}
+  .rz [data-rz=s]{bottom:-6px;left:50%;width:26px;height:10px;margin-left:-13px;cursor:ns-resize}
+  .rz [data-rz=se]{right:-7px;bottom:-7px;width:13px;height:13px;cursor:nwse-resize}
+  .rz.img [data-rz=s]{display:none}
+  .rz-l{position:absolute;right:0;bottom:-32px;background:var(--ink);color:var(--bg);font-size:11.5px;font-weight:600;padding:4px 8px;border-radius:7px;white-space:nowrap;display:none;font-variant-numeric:tabular-nums}
+  .rz.on .rz-l{display:block}
+  .view.resizing,.view.resizing *{cursor:inherit}
   #stage.loaded #empty{display:none}
   #empty{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
   .drop{max-width:520px;width:100%;text-align:center;border:2px dashed var(--line);border-radius:18px;padding:40px 28px;background:var(--surface)}
@@ -157,7 +181,11 @@
   aside{width:340px;flex:none;background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
   .stabs{display:flex;align-items:center;gap:2px;padding:8px 8px 0;border-bottom:1px solid var(--line)}
   .stab{border:0;background:none;padding:8px 9px 9px;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;align-items:center;white-space:nowrap;flex:none}
-  .stabs{overflow-x:auto;scrollbar-width:none}
+  .stabs{overflow-x:auto;scrollbar-width:none;flex-wrap:wrap;row-gap:0;padding:4px 6px 0}
+  .stabs .stab{padding:8px 7px 9px;font-size:12.5px}
+  .stabs .hide{position:absolute;right:4px;top:6px}
+  aside{position:relative}
+  .stabs{padding-right:30px}
   .stab.on{color:var(--ink);border-bottom-color:var(--accent)}
   .stab .cnt{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--surface-3);font-size:11px;margin-left:4px;color:var(--ink)}
   .stabs .hide{margin-left:auto;border:0;background:none;cursor:pointer;color:var(--muted);padding:6px 8px;border-radius:8px}
@@ -266,6 +294,67 @@
   .tpl-ic{width:52px;height:52px;flex:none;border-radius:12px;background:var(--surface-3);display:grid;place-items:center}
   .tpl-ic svg{width:24px;height:24px}
 
+  /* ── мои блоки ── */
+  .bl .del{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:6px;display:none;place-items:center;color:var(--muted);font-size:14px;line-height:1}
+  .bl:hover .del{display:grid}
+  .bl .del:hover{background:var(--surface-3);color:var(--danger)}
+  .bl.my .ic{background:var(--accent-soft)}
+  .grp-head{display:flex;align-items:center;gap:6px;margin:16px 0 8px}
+  .grp-head .chk-group{margin:0;flex:1}
+  .lnk{border:0;background:none;padding:0;color:var(--focus);cursor:pointer;font:inherit;font-size:12px}
+  .lnk:hover{text-decoration:underline}
+  /* ── заметки ── */
+  .nhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12.5px}
+  .notes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .note{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;background:var(--surface)}
+  .note.focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .note.done{opacity:.6}
+  .nq{font-size:12px;color:var(--muted);border-left:3px solid var(--accent);padding:2px 0 2px 8px;margin-bottom:8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nq.gone{border-color:var(--line);font-style:italic;cursor:default}
+  .nm{font-size:11.5px;color:var(--muted);margin-bottom:2px}
+  .nm b{color:var(--ink);font-weight:600}
+  .nt{white-space:pre-wrap;word-break:break-word}
+  .nr{margin:8px 0 0 10px;padding-left:10px;border-left:2px solid var(--line)}
+  .na{display:flex;gap:4px;margin-top:8px}
+  .na button{border:0;background:var(--surface-2);border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer}
+  .na button:hover{background:var(--surface-3)}
+  .na .dl{margin-left:auto;color:var(--danger);background:none}
+  .nrep textarea,.pop textarea{width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);resize:vertical;font:inherit;font-size:13px;margin-top:8px}
+  .nrep textarea:focus,.pop textarea:focus{outline:2px solid var(--focus);outline-offset:-1px}
+  .ndone summary{cursor:pointer;list-style:none}
+  .pins{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+  .pin{position:absolute;pointer-events:auto;min-width:22px;height:22px;padding:0 6px;border-radius:11px 11px 11px 3px;border:2px solid #fff;background:#f5b800;color:#111;font:700 11px/18px system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .pin:hover{transform:scale(1.1)}
+  /* ── предпросмотр устройств ── */
+  .pv-stage{flex:1;display:flex;justify-content:center;align-items:flex-start;overflow:auto;min-height:0}
+  .pv-stage:not(.dev) #pvFrame{width:100%;height:100%}
+  .pv-stage.dev{padding:24px;background:var(--surface-3)}
+  .pv-stage.dev #pvFrame{flex:none;border-radius:26px;box-shadow:0 0 0 10px #1c1c1e,0 20px 50px rgba(0,0,0,.3)}
+  .pv-seg{display:inline-flex;border-radius:9px;background:rgba(255,255,255,.12);padding:2px;gap:2px}
+  .pv-seg button{border:0;background:none;color:inherit;padding:5px 11px;border-radius:7px;cursor:pointer;font-size:12.5px;opacity:.75}
+  .pv-seg button.on{background:var(--bg);color:var(--ink);opacity:1;font-weight:600}
+  #pvSize{opacity:.6;font-size:12px;font-variant-numeric:tabular-nums;min-width:70px}
+  /* ── справка ── */
+  .modal.wide{width:min(940px,100%);padding:0}
+  .guide{display:grid;grid-template-columns:220px 1fr;min-height:min(560px,calc(100vh - 32px))}
+  .guide nav{padding:18px 10px;border-right:1px solid var(--line);background:var(--surface-2);display:flex;flex-direction:column;gap:2px;border-radius:16px 0 0 16px}
+  .guide nav button{border:0;background:none;text-align:left;padding:8px 12px;border-radius:9px;cursor:pointer;font-size:13.5px;color:var(--muted)}
+  .guide nav button:hover{background:var(--surface-3);color:var(--ink)}
+  .guide nav button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+  .guide article{padding:24px 28px;font-size:14px;line-height:1.6;overflow:auto;max-height:calc(100vh - 32px)}
+  .guide article h3{font-size:20px;margin:0 0 12px}
+  .guide article h4{margin:18px 0 6px;font-size:14.5px}
+  .guide article ul,.guide article ol{padding-left:20px;margin:0 0 12px}
+  .guide article li{margin:6px 0}
+  .guide .steps li{margin:10px 0}
+  .guide .tip{background:var(--accent-soft);border-radius:10px;padding:10px 12px}
+  .guide code{font:12.5px "JetBrains Mono",Consolas,monospace;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+  .guide kbd,.keys kbd{font:600 11.5px system-ui,sans-serif;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--surface)}
+  .keys{border-collapse:collapse;width:100%}
+  .keys td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  .keys td:first-child{white-space:nowrap;width:46%}
+  @media (max-width:700px){.guide{grid-template-columns:1fr}.guide nav{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line);border-radius:16px 16px 0 0}}
+
   @media (max-width:1150px){ .bar .btn .t{display:none} .bar .btn.primary .t,.bar #bFile .t{display:inline} .switch .t{display:none} }
   @media (max-width:820px){
     main{flex-direction:column}
@@ -292,6 +381,7 @@
   <button class="btn" id="bPreview" disabled title="Посмотреть, как увидит читатель — с анимациями">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="t">Предпросмотр</span></button>
   <span class="sep"></span>
+  <button class="btn" id="bHelp" title="Как пользоваться (F1)" style="padding:7px 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 1-1 1.7M12 17h.01"/></svg><span class="t">Справка</span></button>
   <label class="switch" title="Показать стили элемента, HTML блока и CSS документа"><input type="checkbox" id="devMode"><span class="sw"></span><span class="t">Для разработчика</span></label>
   <button class="btn primary" id="bSave" disabled title="Скачать исправленный файл (Ctrl+S)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span class="t">Сохранить</span></button>
@@ -303,6 +393,7 @@
   <div class="mdiv"></div>
   <button class="mi" data-f="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span id="miSaveT">Скачать HTML</span><kbd>Ctrl+S</kbd></button>
   <button class="mi" data-f="copy" id="miCopy" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>Скачать копию</button>
+  <button class="mi" data-f="clean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 14l2 2 4-4"/></svg>Скачать чистовик — без заметок</button>
   <button class="mi" data-f="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>Сохранить как PDF<kbd>Ctrl+P</kbd></button>
   <div class="mdiv"></div>
   <button class="mi" data-f="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Вернуть исходник</button>
@@ -322,6 +413,10 @@
       <button class="tadd" id="tAdd" title="Новая вкладка: открыть файл или создать документ (Ctrl+O)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
       <div class="zoom">
+        <button class="btn tbtn" id="bSplit" title="Показать два документа рядом — сравнить или перенести текст">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg> Рядом</button>
+        <button class="btn tbtn" id="bSync" hidden title="Прокручивать оба документа вместе">⇅ Вместе</button>
+        <span class="sep" style="height:18px"></span>
         <button class="btn" id="zOut" title="Уменьшить">−</button>
         <button class="btn" id="zVal" title="Вернуть 100%">100%</button>
         <button class="btn" id="zIn" title="Увеличить">+</button>
@@ -350,6 +445,7 @@
             <button class="btn primary" id="bOpen2">Выбрать файлы</button>
             <button class="btn" id="bNew2">Новый документ</button>
           </div>
+          <p style="margin:16px 0 0;font-size:13px"><button class="lnk" id="bHelp2" style="font-size:13px">Как это работает? — короткая справка</button></p>
           <div class="draft" id="draft">
             <div id="draftText"></div>
             <button class="btn" id="bDraftOpen">Восстановить</button>
@@ -357,10 +453,15 @@
           </div>
         </div>
       </div>
+      <div class="pins" id="pins"></div>
+      <div class="phead" id="ph0" hidden></div><div class="phead" id="ph1" hidden></div>
+      <div class="splitdiv" id="splitDiv" hidden title="Потяните, чтобы поменять ширину"></div>
+      <div class="splithint" id="splitHint" hidden><div>Отпустите — откроется рядом</div></div>
+      <div class="rz" id="rz" hidden><i data-rz="e" title="Ширина · двойной клик — сбросить"></i><i data-rz="s" title="Высота · двойной клик — сбросить"></i><i data-rz="se" title="Размер · двойной клик — сбросить"></i><span class="rz-l" id="rzL"></span></div>
       <div class="fileover" id="fileOver" hidden><div>Отпустите — файл откроется в новой вкладке</div></div>
 
       <div class="coach" id="coach" hidden>
-        <span>Кликните по тексту и правьте — над ним появится панель. Новые блоки и интерактив — во вкладке «Блоки» справа.</span>
+        <span>Кликните по тексту и правьте — над ним появится панель. Новые блоки — во вкладке «Блоки» справа, справка — F1.</span>
         <button id="coachOk">Понятно</button>
       </div>
       <button class="btn" id="sideOpen" hidden title="Показать панель">
@@ -386,6 +487,9 @@
         <div class="grp" id="gImg">
           <button class="tb txt" data-act="img" title="Заменить картинку файлом с компьютера"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Заменить</button>
           <button class="tb txt" data-pop="alt" title="Описание картинки (alt)">Описание</button>
+          <button class="tb" data-act="imgL" title="Картинка слева"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="9" height="12" rx="1.5"/><path d="M15 8h6M15 12h6M15 16h4"/></svg></button>
+          <button class="tb" data-act="imgC" title="Картинка по центру"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="6" width="10" height="12" rx="1.5"/><path d="M3 4h18M3 20h18"/></svg></button>
+          <button class="tb" data-act="imgR" title="Картинка справа"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="12" y="6" width="9" height="12" rx="1.5"/><path d="M3 8h6M3 12h6M3 16h4"/></svg></button>
           <span class="vsep"></span>
         </div>
         <div class="grp" id="gKit" hidden></div>
@@ -394,6 +498,7 @@
           <button class="tb txt" data-act="preview" title="Посмотреть анимацию"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Предпросмотр</button>
           <span class="vsep"></span>
         </div>
+        <button class="tb" data-act="note" id="noteBtn" title="Оставить заметку к этому месту">💬</button>
         <button class="tb txt blockbtn" data-pop="block" id="blockBtn" title="Выбрать блок и действия с ним">Блок
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="m6 9 6 6 6-6"/></svg></button>
       </div>
@@ -404,9 +509,10 @@
     </div>
 
     <div class="preview" id="preview" hidden>
-      <div class="pv-bar"><span><b>Предпросмотр</b> — так страницу увидит читатель: с навигацией и анимациями. Править здесь нельзя.</span>
+      <div class="pv-bar"><span><b>Предпросмотр</b> — так страницу увидит читатель. Править здесь нельзя.</span>
+        <span class="pv-seg" id="pvDev"><button data-dev="pc">ПК</button><button data-dev="tab">Планшет</button><button data-dev="phone">Телефон</button></span><span id="pvSize"></span>
         <button class="btn" id="pvClose">Вернуться к правке <span style="opacity:.6;font-weight:400">Esc</span></button></div>
-      <iframe id="pvFrame" sandbox="allow-scripts" title="Предпросмотр"></iframe>
+      <div class="pv-stage" id="pvStage"><iframe id="pvFrame" sandbox="allow-scripts" title="Предпросмотр"></iframe></div>
     </div>
   </div>
 
@@ -415,6 +521,7 @@
       <button class="stab" data-tab="blocks">Блоки</button>
       <button class="stab on" data-tab="hist">История</button>
       <button class="stab" data-tab="diff">Сравнение<span class="cnt" id="diffCnt" hidden></span></button>
+      <button class="stab" data-tab="notes">Заметки<span class="cnt" id="noteCnt" hidden></span></button>
       <button class="stab" data-tab="check">Проверка<span class="cnt" id="chkCnt" hidden></span></button>
       <button class="stab" data-tab="code" id="tabCode" hidden>Код</button>
       <button class="hide" id="sideHide" title="Скрыть панель">
@@ -423,6 +530,7 @@
     <div class="pane" id="paneBlocks" hidden><div id="blBody"></div></div>
     <div class="pane" id="paneHist"><ul class="hist" id="hist"><li style="cursor:default"><span class="hint">Пока пусто. Здесь появится каждая правка — кликните по любой, чтобы вернуться к ней.</span></li></ul></div>
     <div class="pane" id="paneDiff" hidden><div id="diffBody"><p class="hint">Откройте файл — здесь будет видно всё, что изменилось относительно исходника.</p></div></div>
+    <div class="pane" id="paneNotes" hidden><div id="notesBody"></div></div>
     <div class="pane" id="paneCheck" hidden><div id="chkBody"><p class="hint">Откройте файл — здесь появятся незаполненные поля, битые ссылки, картинки без описания и другие проблемы.</p></div></div>
     <div class="pane" id="paneCode" hidden></div>
   </aside>
@@ -431,6 +539,7 @@
 <input type="file" id="fileIn" accept=".html,.htm,text/html" multiple hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
 <input type="file" id="favIn" accept="image/*" hidden>
+<input type="file" id="myIn" accept=".json,application/json" hidden>
 <div id="toast" role="status"></div>
 <div class="modal-bg" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" id="modalBody"></div></div>
 
@@ -460,6 +569,7 @@
   let fileHandle = null, overwriteOk = false, chkItems = [], drag = null;
   // вкладки: у каждой свой iframe, история, исходник и файл; глобальные переменные выше — состояние активной
   let frame = null, cur = null, tabSeq = 0, renaming = false, dragTabId = null;
+  let pair = null, splitRatio = 0.5, splitAfterOpen = null, syncScroll = false, rz = null;
   const tabs = [];
 
   /* имена: [именительный, родительный, винительный, род] */
@@ -513,6 +623,9 @@
   };
   const isBlockable = el => !!(el && doc && el !== doc.body && el !== doc.documentElement && el.parentElement && doc.body.contains(el));
   const W = () => frame && frame.contentWindow;
+  // левый верхний угол активного документа внутри области просмотра (в режиме «Рядом» он смещён)
+  const OX = () => frame ? parseFloat(frame.style.left) || 0 : 0;
+  const OY = () => frame ? parseFloat(frame.style.top) || 0 : 0;
 
   function stripMarks(root) {
     const all = [...root.querySelectorAll(MARK_SEL)];
@@ -579,16 +692,19 @@
     commitEdit(); closePop(); closeFind(); closePreview(); closeModal();
     if (hovered) { hovered.removeAttribute('data-hed-hover'); hovered = null; }
     if (drag) drag = null;
+    if (cur) cur.sel = selected;
     select(null);
   }
   function activate(t) {
     if (t && t === cur) return;   // без перерисовки: иначе ломаются двойной клик и перетаскивание
-    if (cur) { leaveCurrent(); stash(); cur.frame.classList.remove('active'); }
+    if (cur) { leaveCurrent(); stash(); }
+    // в режиме «Рядом» вкладка, выбранная сверху, встаёт на место активной панели
+    if (pair && t && !pair.includes(t)) { const i = pair.indexOf(cur); if (i >= 0) pair[i] = t; else pair = null; }
     cur = t || null;
     editing = null; selected = null; clickEl = null; pending = false; savedRange = null;
     if (!cur) { doc = null; frame = null; hist = []; hi = -1; savedAt = 0; fileHandle = null; origHtml = ''; fileName = 'document.html'; noDocState(); return; }
     ({ doc, fileName, fileHandle, overwriteOk, origHtml, hist, hi, savedAt } = cur);
-    frame = cur.frame; frame.classList.add('active');
+    frame = cur.frame;
     stage.classList.add('loaded'); $('#tabbar').hidden = false; $('#sideOpen').hidden = !sideHidden();
     renderHead(); ui(); applyZoom(); renderSide(); placeTb();
     scheduleSession();
@@ -615,6 +731,8 @@
         savedAt = o.restored && o.dirty ? -1 : 0;
         stash();
         $('#coach').hidden = !!store.get('coach', false);
+        if (splitAfterOpen && splitAfterOpen !== t && tabs.includes(splitAfterOpen)) { pair = [splitAfterOpen, t]; toast('Документы открыты рядом'); }
+        splitAfterOpen = null;
         select(null); renderHead(); ui(); applyZoom(); renderSide();
         scheduleSession();
         res(t);
@@ -649,6 +767,8 @@
     const wasCur = t === cur;
     if (wasCur) { leaveCurrent(); cur = null; }
     tabs.splice(i, 1); t.frame.remove();
+    if (pair && pair.includes(t)) pair = null;
+    if (splitAfterOpen === t) splitAfterOpen = null;
     if (!tabs.length) { clearTimeout(sessionTimer); store.del('session'); }   // закрыли всё сами — восстанавливать нечего
     if (wasCur) activate(tabs[i] || tabs[i - 1] || null); else renderTabs();
     scheduleSession();
@@ -785,6 +905,9 @@
       <button class="mi" data-m="noicon" ${ic ? '' : 'disabled'}>${I('<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>')}Убрать иконку</button>
       <div class="mdiv"></div>
       <button class="mi" data-m="save" ${d ? '' : 'disabled'}>${I('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>')}Сохранить</button>
+      ${panes().length === 2 && pair.includes(t)
+        ? `<button class="mi" data-m="unsplit">${I('<rect x="3" y="4" width="18" height="16" rx="2"/>')}Убрать разделение</button>`
+        : `<button class="mi" data-m="split" ${tabs.length > 1 ? '' : 'disabled'}>${I('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>')}Открыть рядом</button>`}
       <button class="mi" data-m="dup" ${d ? '' : 'disabled'}>${I('<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>')}Дублировать вкладку</button>
       <div class="mdiv"></div>
       <button class="mi" data-m="close">${I('<path d="M18 6 6 18M6 6l12 12"/>')}Закрыть</button>
@@ -799,6 +922,8 @@
         noicon: () => { activate(t); if (getIcon()) { setIcon(null); push('Иконка вкладки убрана'); } },
         save: () => { activate(t); save(); },
         dup: () => dupTab(t),
+        split: () => splitWith(t),
+        unsplit: () => unsplit(),
         close: () => closeTab(t),
         others: () => closeOthers(t),
         right: () => closeRight(t)
@@ -859,8 +984,17 @@
       .hk-acc summary{cursor:text}`;
     (doc.head || doc.documentElement).appendChild(st);
 
+    // документов на экране может быть два: клик в неактивный сначала делает его активным
+    const d = doc;
+    const tabOfDoc = () => tabs.find(x => x.doc === d || x.frame.contentDocument === d);
+    d.addEventListener('mousedown', () => { if (d !== doc) activate(tabOfDoc()); }, true);
+    d.addEventListener('dragover', e => { if (dragTabId != null) { e.preventDefault(); showSplitHint(); } }, true);
+    d.addEventListener('drop', e => { if (dragTabId != null) { e.preventDefault(); e.stopPropagation(); dropTabToSplit(); } }, true);
+    d.defaultView.addEventListener('scroll', () => syncFrom(d), { passive: true });
+
     doc.addEventListener('mouseover', e => {
       const t = e.target;
+      if (t.ownerDocument !== doc) return;
       if (hovered && hovered !== t) hovered.removeAttribute('data-hed-hover');
       if (t === doc.body || t === doc.documentElement || t === editing) { hovered = null; return; }
       hovered = t; t.setAttribute('data-hed-hover', '');
@@ -965,25 +1099,26 @@
   function placeTb() {
     requestAnimationFrame(() => {
       const anchor = (editing && editing.isConnected && editing) || (selected && selected.isConnected && selected);
-      placeHandle();
+      placeHandle(); placeResize(); placePins();
       if (drag || !doc || !anchor || !$('#preview').hidden) { ftb.hidden = true; closePop(); return; }
       $('#gFmt').hidden = !editing;
       $('#gImg').hidden = !(selected && selected.tagName === 'IMG');
       $('#gNav').hidden = !(selected && selected.id === 'hed-nav');
       renderKitBar();
-      const bb = $('#blockBtn'); bb.hidden = !selected;
+      const bb = $('#blockBtn'); bb.hidden = !selected; $('#noteBtn').hidden = !selected;
       if (selected) bb.firstChild.nodeValue = nm(selected)[0] + ' ';
       const listOk = editing && FLOW_OK.has(editing.tagName);
       ftb.querySelectorAll('[data-cmd*="List"]').forEach(b => b.disabled = !listOk);
       ftb.hidden = false;
       const r = anchor.getBoundingClientRect();
       const vw = view.clientWidth, vh = view.clientHeight, th = ftb.offsetHeight, tw = ftb.offsetWidth;
-      const top = r.top * scale, bottom = r.bottom * scale, left = r.left * scale;
-      if (bottom < 0 || top > vh) { ftb.hidden = true; closePop(); return; }
+      const ox = OX(), oy = OY(), pr = ox + frame.offsetWidth * scale;
+      const top = oy + r.top * scale, bottom = oy + r.bottom * scale, left = ox + r.left * scale;
+      if (bottom < oy || top > vh) { ftb.hidden = true; closePop(); return; }
       let y = top - th - 10;
-      if (y < 6) y = bottom + 10;
-      if (y > vh - th - 6) y = Math.max(6, Math.min(top + 6, vh - th - 6));
-      const x = Math.max(6, Math.min(left, vw - tw - 6));
+      if (y < oy + 6) y = bottom + 10;
+      if (y > vh - th - 6) y = Math.max(oy + 6, Math.min(top + 6, vh - th - 6));
+      const x = Math.max(ox + 6, Math.min(left, Math.min(vw, pr) - tw - 6));
       ftb.style.transform = `translate(${x}px,${y}px)`;
       if (editing) fmtState();
       if (popType) placePop();
@@ -1004,7 +1139,15 @@
     if (b.dataset.cmd) { closePop(); fmt(b.dataset.cmd); }
     else if (b.dataset.pop) { popType === b.dataset.pop ? closePop() : openPop(b.dataset.pop, b); }
     else if (b.dataset.act === 'img') { closePop(); $('#imgIn').value = ''; $('#imgIn').click(); }
+    else if (b.dataset.act === 'note') { popType === 'note' ? closePop() : openPop('note', b); }
     else if (b.dataset.act === 'navcfg') { closePop(); openNavModal(); }
+    else if (/^img[LCR]$/.test(b.dataset.act || '') && selected && selected.tagName === 'IMG') {
+      const im = selected, k = b.dataset.act[3];
+      im.style.display = 'block';
+      im.style.marginLeft = k === 'L' ? '0' : 'auto'; im.style.marginRight = k === 'R' ? '0' : 'auto';
+      if (!im.style.width) im.style.maxWidth = '100%';
+      push(`Картинка: ${k === 'L' ? 'слева' : k === 'C' ? 'по центру' : 'справа'}`); select(im);
+    }
     else if (b.dataset.act === 'preview') { closePop(); openPreview(); }
     else if (b.dataset.kit) { closePop(); kitAct(b.dataset.kit, b); }
   });
@@ -1099,6 +1242,10 @@
         <button class="mi" data-b="up" ${prev ? '' : 'disabled'}>${ICON.up}Переместить выше</button>
         <button class="mi" data-b="down" ${next ? '' : 'disabled'}>${ICON.down}Переместить ниже</button>
         <div class="mdiv"></div>
+        <div class="mdiv"></div>
+        <button class="mi" data-b="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Сохранить в мои блоки</button>
+        ${panes().length === 2 ? `<button class="mi" data-b="send">${ICON.copy}Копировать в соседний документ</button>` : ''}
+        <div class="mdiv"></div>
         <button class="mi danger" data-b="del">${ICON.del}Удалить ${acc}</button>`;
       pop.querySelectorAll('.lvl').forEach(b => {
         const target = lv[+b.dataset.l];
@@ -1160,6 +1307,29 @@
           closePop();
         };
       }
+    } else if (t === 'note') {
+      const el = selected; if (!el) { closePop(); return; }
+      pop.innerHTML = `<h4>Заметка к месту</h4><div class="hint" style="margin:0 6px 4px;font-size:12px">«${esc(short(el.innerText || el.textContent || 'картинка', 60))}»</div>
+        ${author() ? '' : '<div class="field" style="margin:8px 4px 0"><label>Ваше имя — увидят коллеги</label><input type="text" id="pNoteWho"></div>'}
+        <div style="margin:0 4px"><textarea id="pNote" rows="3" placeholder="Что поправить или уточнить… (Ctrl+Enter)"></textarea></div>
+        <div class="row" style="margin:6px 4px 2px"><button class="btn primary" id="pNoteOk" style="flex:1;justify-content:center">Добавить заметку</button></div>`;
+      const ok = () => { const v = $('#pNote').value; if (!v.trim()) return; const who = $('#pNoteWho') ? $('#pNoteWho').value : null; closePop(); addNote(el, v, who); toast('Заметка добавлена'); };
+      $('#pNoteOk').onclick = ok;
+      $('#pNote').onkeydown = e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); ok(); } if (e.key === 'Escape') closePop(); };
+      setTimeout(() => ($('#pNoteWho') || $('#pNote')).focus(), 0);
+    } else if (t === 'saveblock') {
+      const el = selected; if (!el) { closePop(); return; }
+      const def = short(nm(el)[0] + (el.innerText ? ': ' + el.innerText : ''), 40);
+      pop.innerHTML = `<h4>В мои блоки</h4><div class="field" style="margin:0 4px 8px"><label>Название блока</label><input type="text" id="pBlName" value="${attr(def)}"></div>
+        <div class="row" style="margin:0 4px 2px"><button class="btn primary" id="pBlOk" style="flex:1;justify-content:center">Сохранить</button></div>`;
+      const ok = () => {
+        const name = $('#pBlName').value.trim() || def;
+        const list = myBlocks(); list.unshift({ id: uid(), name: name.slice(0, 60), html: blockToHtml(el), t: Date.now() });
+        if (saveMyBlocks(list)) { closePop(); renderBlocks(); toast(`«${short(name, 30)}» — в моих блоках`, { action: 'Показать', fn: () => { setSide(true); setTab('blocks'); }, ms: 5000 }); }
+      };
+      $('#pBlOk').onclick = ok;
+      $('#pBlName').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); ok(); } if (e.key === 'Escape') closePop(); };
+      setTimeout(() => $('#pBlName').select(), 0);
     } else if (t === 'alt') {
       const img = selected;
       pop.innerHTML = `<div class="field" style="margin-top:4px"><label>Описание картинки (для незрячих и если картинка не загрузилась)</label>
@@ -1227,6 +1397,8 @@
     // у копий убираем id: дубли id ломают якоря навигации
     const noIds = c => { [c, ...c.querySelectorAll('[id]')].forEach(x => x.removeAttribute('id')); return c; };
     if (a === 'navcfg') { closePop(); openNavModal(); return; }
+    if (a === 'send') { closePop(); sendToPeer(el); return; }
+    if (a === 'save') { openPop('saveblock', $('#blockBtn')); return; }
     if (a === 'preview') { closePop(); openPreview(); return; }
     if (a === 'dup') {
       const c = noIds(stripMarks(el.cloneNode(true))); el.after(c); clickEl = c; select(c); push(`Копия ${gen}`); closePop();
@@ -1348,7 +1520,7 @@
     if (tab === 'diff' && t !== 'diff' && doc) doc.querySelectorAll('[data-hed-diff]').forEach(e => e.removeAttribute('data-hed-diff'));
     tab = t;
     document.querySelectorAll('.stab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-    $('#paneHist').hidden = t !== 'hist'; $('#paneBlocks').hidden = t !== 'blocks'; $('#paneDiff').hidden = t !== 'diff'; $('#paneCode').hidden = t !== 'code'; $('#paneCheck').hidden = t !== 'check';
+    $('#paneHist').hidden = t !== 'hist'; $('#paneBlocks').hidden = t !== 'blocks'; $('#paneDiff').hidden = t !== 'diff'; $('#paneCode').hidden = t !== 'code'; $('#paneCheck').hidden = t !== 'check'; $('#paneNotes').hidden = t !== 'notes';
     renderSide();
   }
   document.querySelectorAll('.stab').forEach(b => b.onclick = () => { commitEdit(); setTab(b.dataset.tab); });
@@ -1357,6 +1529,7 @@
     if (!doc) return;
     runDiff();                       // считаем всегда — для счётчика на вкладке
     renderChecks(runChecks());
+    renderNotes();
     if (tab === 'code') renderCode();
   }
   function renderHist() {
@@ -1654,7 +1827,7 @@ update();});`;
 
   /* ── окно настройки навигации ── */
   const modal = $('#modal'), modalBody = $('#modalBody');
-  function closeModal() { modal.hidden = true; modalBody.innerHTML = ''; }
+  function closeModal() { modal.hidden = true; modalBody.innerHTML = ''; modalBody.classList.remove('wide'); }
   const ILL = {
     top: '<svg class="ill" viewBox="0 0 92 62"><rect x="0" y="0" width="92" height="13" fill="#f3f3f3"/><rect x="6" y="5" width="14" height="3" rx="1.5" fill="#222"/><rect x="28" y="5" width="12" height="3" rx="1.5" fill="#bbb"/><rect x="44" y="5" width="14" height="3" rx="1.5" fill="#222"/><rect x="62" y="5" width="12" height="3" rx="1.5" fill="#bbb"/><rect x="43" y="11" width="16" height="2" rx="1" fill="ACC"/><rect x="10" y="22" width="56" height="4" rx="2" fill="#ddd"/><rect x="10" y="30" width="72" height="3" rx="1.5" fill="#eee"/><rect x="10" y="36" width="64" height="3" rx="1.5" fill="#eee"/><rect x="10" y="46" width="44" height="4" rx="2" fill="#ddd"/></svg>',
     dots: '<svg class="ill" viewBox="0 0 92 62"><rect x="8" y="10" width="56" height="4" rx="2" fill="#ddd"/><rect x="8" y="18" width="64" height="3" rx="1.5" fill="#eee"/><rect x="8" y="24" width="58" height="3" rx="1.5" fill="#eee"/><rect x="8" y="34" width="44" height="4" rx="2" fill="#ddd"/><rect x="8" y="42" width="62" height="3" rx="1.5" fill="#eee"/><circle cx="83" cy="16" r="2.4" fill="#bbb"/><rect x="80.6" y="22" width="4.8" height="12" rx="2.4" fill="ACC"/><circle cx="83" cy="40" r="2.4" fill="#bbb"/><circle cx="83" cy="48" r="2.4" fill="#bbb"/><rect x="50" y="20" width="26" height="8" rx="3" fill="#222"/></svg>',
@@ -1750,9 +1923,10 @@ update();});`;
       && el.parentElement.children.length > 1 && !drag && $('#preview').hidden;
     if (!ok) { dragH.hidden = true; return; }
     const r = el.getBoundingClientRect(), vh = view.clientHeight;
-    if (r.bottom * scale < 0 || r.top * scale > vh) { dragH.hidden = true; return; }
-    let x = r.left * scale - 30; if (x < 2) x = Math.max(2, r.left * scale + 4);
-    const y = Math.max(2, Math.min(r.top * scale + 2, vh - 32));
+    const ox = OX(), oy = OY();
+    if (r.bottom * scale < 0 || oy + r.top * scale > vh) { dragH.hidden = true; return; }
+    let x = ox + r.left * scale - 30; if (x < ox + 2) x = ox + Math.max(2, r.left * scale + 4);
+    const y = Math.max(oy + 2, Math.min(oy + r.top * scale + 2, vh - 32));
     dragH.style.transform = `translate(${x}px,${y}px)`; dragH.hidden = false;
   }
   const isRow = parent => {
@@ -1777,7 +1951,8 @@ update();});`;
     const vr = view.getBoundingClientRect();
     // автопрокрутка у краёв
     if (e.clientY - vr.top < 50) W().scrollBy(0, -14); else if (vr.bottom - e.clientY < 50) W().scrollBy(0, 14);
-    const ix = (e.clientX - vr.left) / scale, iy = (e.clientY - vr.top) / scale;
+    const ox = OX(), oy = OY();
+    const ix = (e.clientX - vr.left - ox) / scale, iy = (e.clientY - vr.top - oy) / scale;
     let s = doc.elementFromPoint(ix, iy);
     while (s && s.parentElement !== drag.parent) s = s.parentElement;
     if (!s) {   // мимо соседей — берём ближайшего по вертикали
@@ -1791,8 +1966,8 @@ update();});`;
     drag.target = s;
     drag.after = drag.row ? ix > r.left + r.width / 2 : iy > r.top + r.height / 2;
     dropLine.hidden = false;
-    if (drag.row) Object.assign(dropLine.style, { left: ((drag.after ? r.right : r.left) * scale - 2) + 'px', top: (r.top * scale) + 'px', width: '4px', height: (r.height * scale) + 'px' });
-    else Object.assign(dropLine.style, { left: (r.left * scale) + 'px', top: ((drag.after ? r.bottom : r.top) * scale - 2) + 'px', width: (r.width * scale) + 'px', height: '4px' });
+    if (drag.row) Object.assign(dropLine.style, { left: (ox + (drag.after ? r.right : r.left) * scale - 2) + 'px', top: (oy + r.top * scale) + 'px', width: '4px', height: (r.height * scale) + 'px' });
+    else Object.assign(dropLine.style, { left: (ox + r.left * scale) + 'px', top: (oy + (drag.after ? r.bottom : r.top) * scale - 2) + 'px', width: (r.width * scale) + 'px', height: '4px' });
   });
   const endDrag = commit => {
     if (!drag) return;
@@ -1935,6 +2110,7 @@ update();});`;
       if (prev && l > prev + 1) add('warn', 'Структура', `После H${prev} сразу H${l}: «${short(h.textContent, 30)}»`, h);
       prev = l;
     });
+    for (const n of getNotes()) if (!n.done) add('warn', 'Заметки', `${n.author}: «${short(n.text, 50)}»`, noteEl(n), { label: 'Открыть', fn: () => { noteFocus = n.id; setTab('notes'); } });
     if (navOutdated()) add('warn', 'Навигация', 'Меню не совпадает с заголовками документа', navRoot(),
       { label: 'Обновить', fn: () => { syncNav(); push('Навигация обновлена под заголовки'); } });
     return items;
@@ -2271,15 +2447,24 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
   function renderBlocks() {
     const box = $('#blBody'); const groups = [];
     BLOCKS.forEach(b => { let g = groups.find(x => x.n === b.g); if (!g) groups.push(g = { n: b.g, l: [] }); g.l.push(b); });
-    box.innerHTML = `<p class="hint">Кликните — блок встанет после выделенного места. Или перетащите его в нужное место документа.</p>` +
+    const my = myDefs();
+    const myHtml = `<div class="grp-head"><div class="chk-group">Мои блоки${my.length ? ' · ' + my.length : ''}</div>
+        <button class="lnk" id="myExp" ${my.length ? '' : 'hidden'} title="Сохранить библиотеку файлом — передать коллегам">Выгрузить</button><button class="lnk" id="myImp" title="Добавить блоки из файла библиотеки">Загрузить</button></div>
+      ${my.length ? `<div class="bl-grid">${my.map(b => `<button class="bl my" data-bl="${attr(b.id)}" title="${attr(b.name)}"><span class="ic">${I('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>')}</span><b>${esc(short(b.name, 34))}</b>${b.live ? '<span class="badge" style="right:30px">интерактив</span>' : ''}<span class="del" data-mydel="${attr(b.id)}" title="Удалить из библиотеки">×</span></button>`).join('')}</div>`
+        : '<p class="hint" style="font-size:12px">Сохраните любой блок через его меню → «Сохранить в мои блоки».</p>'}`;
+    box.innerHTML = `<p class="hint">Кликните — блок встанет после выделенного места. Или перетащите его в нужное место документа.</p>` + myHtml +
       groups.map(g => `<div class="chk-group">${g.n}</div><div class="bl-grid">${g.l.map(b =>
         `<button class="bl" data-bl="${b.id}" title="${b.live ? 'Интерактивный: оживает в предпросмотре и у читателя' : ''}"><span class="ic">${I(b.ic)}</span><b>${b.name}</b>${b.live ? '<span class="badge">интерактив</span>' : ''}</button>`).join('')}</div>`).join('');
+    $('#myImp').onclick = () => { $('#myIn').value = ''; $('#myIn').click(); };
+    $('#myExp').onclick = exportMyBlocks;
   }
   let bdrag = null;
   function placeAt(cx, cy) {
     const vr = view.getBoundingClientRect();
     if (cx < vr.left || cx > vr.right || cy < vr.top || cy > vr.bottom || !doc) return null;
-    const ix = (cx - vr.left) / scale, iy = (cy - vr.top) / scale;
+    const ox = OX(), oy = OY();
+    if (cx < vr.left + ox || cx > vr.left + ox + frame.offsetWidth * scale || cy < vr.top + oy) return null;   // только в активный документ
+    const ix = (cx - vr.left - ox) / scale, iy = (cy - vr.top - oy) / scale;
     const el = doc.elementFromPoint(ix, iy);
     const ref = flowRef(el);
     if (!ref) return { host: true };
@@ -2288,8 +2473,15 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
   }
   $('#blBody').addEventListener('pointerdown', e => {
     const t = e.target.closest('.bl'); if (!t || e.button !== 0) return;
+    const del = e.target.closest('[data-mydel]');
+    if (del) {
+      e.preventDefault();
+      const id = del.dataset.mydel.slice(3), b = myBlocks().find(x => x.id === id);
+      if (b && confirm(`Удалить «${b.name}» из моих блоков?`)) { saveMyBlocks(myBlocks().filter(x => x.id !== id)); renderBlocks(); }
+      return;
+    }
     e.preventDefault(); t.setPointerCapture(e.pointerId);
-    bdrag = { def: BLOCKS.find(b => b.id === t.dataset.bl), x: e.clientX, y: e.clientY, moved: false, place: null, ghost: null };
+    bdrag = { def: findDef(t.dataset.bl), x: e.clientX, y: e.clientY, moved: false, place: null, ghost: null };
   });
   $('#blBody').addEventListener('pointermove', e => {
     if (!bdrag) return;
@@ -2305,7 +2497,7 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
     const p = bdrag.place = placeAt(e.clientX, e.clientY);
     if (p && p.ref) {
       dropLine.hidden = false;
-      Object.assign(dropLine.style, { left: (p.r.left * scale) + 'px', top: ((p.after ? p.r.bottom : p.r.top) * scale - 2) + 'px', width: (p.r.width * scale) + 'px', height: '4px' });
+      Object.assign(dropLine.style, { left: (OX() + p.r.left * scale) + 'px', top: (OY() + (p.after ? p.r.bottom : p.r.top) * scale - 2) + 'px', width: (p.r.width * scale) + 'px', height: '4px' });
     } else dropLine.hidden = true;
   });
   const endBdrag = ok => {
@@ -2524,24 +2716,423 @@ ${kitHtml(A)}
   $('#fQ').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); stepFind(e.shiftKey ? -1 : 1); } if (e.key === 'Escape') closeFind(); };
   $('#fR').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); replaceOne(); } if (e.key === 'Escape') closeFind(); };
 
+  /* ═════════════════ ДВА ДОКУМЕНТА РЯДОМ ═════════════════ */
+  function splitWith(t) {
+    if (tabs.length < 2) { splitAfterOpen = cur; toast('Выберите второй файл — он откроется рядом'); pick(); return; }
+    const other = t && t !== cur ? t : (tabs[tabs.indexOf(cur) + 1] || tabs[tabs.indexOf(cur) - 1]);
+    pair = [cur, other];
+    const keep = cur; applyZoom(); renderTabs();
+    if (other.doc) { activate(other); activate(keep); }   // прогреть раскладку обоих
+    applyZoom();
+  }
+  function unsplit() { pair = null; applyZoom(); placeTb(); }
+  $('#bSplit').onclick = () => panes().length === 2 ? unsplit() : splitWith();
+  $('#bSync').onclick = () => { syncScroll = !syncScroll; $('#bSync').classList.toggle('on', syncScroll); if (syncScroll && doc) syncFrom(doc); toast(syncScroll ? 'Прокрутка вместе: включена' : 'Прокрутка вместе: выключена'); };
+  function renderPaneHeads() {
+    pair.forEach((t, i) => {
+      const ph = $('#ph' + i), on = t === cur;
+      ph.classList.toggle('on', on);
+      ph.innerHTML = `${tabDirty(t) ? '<span class="pd" title="Есть несохранённые изменения"></span>' : ''}<span class="pn" title="${attr(t.fileName)}">${esc(tabTitle(t) || t.fileName)}</span>
+        <button data-ph="swap" title="Поменять местами">⇄</button><button data-ph="close" title="Убрать из разделения">×</button>`;
+      ph.onmousedown = e => { if (e.target.closest('button')) return; activate(t); };
+      ph.onclick = e => {
+        const b = e.target.closest('[data-ph]'); if (!b) return;
+        if (b.dataset.ph === 'swap') { pair.reverse(); applyZoom(); placeTb(); }
+        else { const other = pair[1 - i]; pair = null; activate(other); applyZoom(); }
+      };
+    });
+  }
+  // перетаскивание разделителя
+  { const dv = $('#splitDiv');
+    dv.addEventListener('pointerdown', e => { e.preventDefault(); dv.setPointerCapture(e.pointerId); dv.classList.add('drag'); ftb.hidden = true; $('#dragH').hidden = true; $('#rz').hidden = true; });
+    dv.addEventListener('pointermove', e => {
+      if (!dv.classList.contains('drag')) return;
+      const vr = view.getBoundingClientRect();
+      splitRatio = Math.max(0.2, Math.min(0.8, (e.clientX - vr.left) / vr.width)); applyZoom();
+    });
+    const up = () => { if (!dv.classList.contains('drag')) return; dv.classList.remove('drag'); placeTb(); };
+    dv.addEventListener('pointerup', up); dv.addEventListener('pointercancel', up);
+    dv.addEventListener('dblclick', () => { splitRatio = 0.5; applyZoom(); });
+  }
+  // вкладку можно бросить на документ — откроется рядом
+  let hintTimer = null;
+  function showSplitHint() { $('#splitHint').hidden = false; clearTimeout(hintTimer); hintTimer = setTimeout(() => $('#splitHint').hidden = true, 200); }
+  function dropTabToSplit() {
+    const t = tabs.find(x => x.id === dragTabId); dragTabId = null; $('#splitHint').hidden = true;
+    if (!t) return;
+    if (t === cur) { if (tabs.length > 1) splitWith(); return; }
+    pair = [cur, t]; applyZoom(); renderTabs(); toast('Документы открыты рядом');
+  }
+  view.addEventListener('dragover', e => { if (dragTabId != null) { e.preventDefault(); showSplitHint(); } });
+  view.addEventListener('drop', e => { if (dragTabId != null) { e.preventDefault(); e.stopPropagation(); dropTabToSplit(); } });
+  // синхронная прокрутка — по доле прокрученного
+  let syncing = false;
+  function syncFrom(d) {
+    if (!syncScroll || syncing || panes().length !== 2) return;
+    const src = pair.find(t => t.frame.contentDocument === d), dst = pair.find(t => t !== src);
+    if (!src || !dst) return;
+    const a = d.scrollingElement, b = dst.frame.contentDocument && dst.frame.contentDocument.scrollingElement; if (!a || !b) return;
+    const k = a.scrollTop / Math.max(1, a.scrollHeight - a.clientHeight);
+    syncing = true; b.scrollTop = k * (b.scrollHeight - b.clientHeight);
+    requestAnimationFrame(() => { syncing = false; });
+  }
+  // копия блока в соседний документ: встаёт после выделенного там места или в конец
+  function sendToPeer(el) {
+    if (panes().length !== 2) return;
+    const peer = pair.find(t => t !== cur); if (!peer || !peer.doc) return;
+    const html = noIds(stripMarks(el.cloneNode(true))).outerHTML, name = nm(el)[0].toLowerCase(), from = cur;
+    commitEdit(); activate(peer);
+    const c = parseOne(html);
+    const ref = flowRef(peer.sel && peer.sel.isConnected ? peer.sel : null);
+    if (ref) ref.after(c);
+    else { const host = defaultHost(), k = kitEl(); host === doc.body && k ? doc.body.insertBefore(c, k) : host.appendChild(c); }
+    if (c.matches('.hk') || c.querySelector('.hk')) ensureKit();
+    clickEl = c; select(c); push(`Скопировано из «${short(tabTitle(from), 24)}»: ${name}`);
+    c.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(placeTb, 380);
+    toast(`Скопировано: ${name}`, { action: 'Отменить', fn: undo, ms: 6000 });
+  }
+
+  /* ═════════════════ ИЗМЕНЕНИЕ РАЗМЕРА МЫШЬЮ ═════════════════
+     Ширина — в процентах от родителя (так блок остаётся резиновым на телефоне), высота — min-height в px.
+     У картинок меняется только ширина, высота подстраивается сама. Двойной клик по ручке — сброс. */
+  const rzBox = $('#rz');
+  function resizable(el) {
+    if (!el || !doc || !el.isConnected || el === doc.body || el.id === NAV_ID || el.id === 'hed-kit') return false;
+    if (el.tagName === 'IMG') return true;
+    if (/^(TR|TD|TH|THEAD|TBODY|TFOOT|LI|SUMMARY|DETAILS|HTML|BR|HR)$/.test(el.tagName)) return false;
+    const d = W().getComputedStyle(el).display;
+    return /^(block|flex|grid|table|flow-root)$/.test(d);
+  }
+  function placeResize() {
+    const el = selected;
+    if (rz || !resizable(el) || drag || !$('#preview').hidden || editing === el) { if (!rz) rzBox.hidden = true; if (rz) posRz(rz.el); return; }
+    posRz(el);
+  }
+  function posRz(el) {
+    const r = el.getBoundingClientRect(), ox = OX(), oy = OY();
+    if (r.bottom * scale < 0 || oy + r.top * scale > view.clientHeight) { rzBox.hidden = true; return; }
+    Object.assign(rzBox.style, { left: (ox + r.left * scale) + 'px', top: (oy + r.top * scale) + 'px', width: (r.width * scale) + 'px', height: (r.height * scale) + 'px' });
+    rzBox.classList.toggle('img', el.tagName === 'IMG');
+    rzBox.hidden = false;
+  }
+  const SNAP = [25, 33.33, 50, 66.67, 75, 100];
+  rzBox.addEventListener('pointerdown', e => {
+    const h = e.target.dataset && e.target.dataset.rz; if (!h || !selected) return;
+    e.preventDefault(); e.stopPropagation(); e.target.setPointerCapture(e.pointerId);
+    commitEdit(); closePop();
+    const el = selected, r = el.getBoundingClientRect(), par = el.parentElement, cs = W().getComputedStyle(par);
+    const pw = Math.max(20, par.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+    // у элементов сетки/флекса проценты считаются от ячейки, а не от родителя — там ширина в px
+    const px = /flex|grid/.test(cs.display) && el.tagName !== 'IMG';
+    rz = { h, el, px, x0: e.clientX, y0: e.clientY, w0: r.width, h0: r.height, pw, before: el.getAttribute('style') || '', label: '' };
+    rzBox.classList.add('on'); ftb.hidden = true; $('#dragH').hidden = true; view.classList.add('resizing');
+    view.style.cursor = getComputedStyle(e.target).cursor;
+  });
+  rzBox.addEventListener('pointermove', e => {
+    if (!rz) return;
+    const { h, el } = rz, img = el.tagName === 'IMG', parts = [];
+    if (h.includes('e')) {
+      const w = Math.max(24, Math.min(rz.pw, rz.w0 + (e.clientX - rz.x0) / scale));
+      if (rz.px) { el.style.width = Math.round(w) + 'px'; el.style.maxWidth = '100%'; parts.push(`ширина ${Math.round(w)} px`); }
+      else {
+      let pct = w / rz.pw * 100;
+      const near = SNAP.find(s => Math.abs(s - pct) < 1.6); if (near && !e.altKey) pct = near;
+      pct = Math.round(pct * 10) / 10;
+      el.style.width = pct >= 100 ? '100%' : pct + '%';
+      if (img) { el.style.height = 'auto'; el.style.maxWidth = '100%'; }
+      parts.push(`ширина ${Math.round(pct)}% · ${Math.round(rz.pw * pct / 100)} px`);
+      }
+    }
+    if (h.includes('s') && !img) {
+      const hh = Math.max(16, Math.round(rz.h0 + (e.clientY - rz.y0) / scale));
+      el.style.minHeight = hh + 'px'; parts.push(`высота ${hh} px`);
+    }
+    rz.label = parts.join(' · '); $('#rzL').textContent = rz.label + (h.includes('e') && !rz.px ? ' · Alt — без привязки' : '');
+    posRz(el);
+  });
+  const rzEnd = () => {
+    if (!rz) return;
+    const { el, before, label } = rz; rz = null;
+    rzBox.classList.remove('on'); view.classList.remove('resizing'); view.style.cursor = '';
+    if ((el.getAttribute('style') || '') !== before) push(`Размер: ${nm(el)[0].toLowerCase()} — ${label}`);
+    select(el);
+  };
+  rzBox.addEventListener('pointerup', rzEnd);
+  rzBox.addEventListener('pointercancel', rzEnd);
+  rzBox.addEventListener('dblclick', e => {
+    const h = e.target.dataset && e.target.dataset.rz, el = selected; if (!h || !el) return;
+    const before = el.getAttribute('style') || '';
+    if (h.includes('e')) { el.style.removeProperty('width'); el.style.removeProperty('max-width'); if (el.tagName === 'IMG') el.style.removeProperty('height'); }
+    if (h.includes('s')) el.style.removeProperty('min-height');
+    if (!el.getAttribute('style')) el.removeAttribute('style');
+    if ((el.getAttribute('style') || '') !== before) push(`Размер сброшен: ${nm(el)[0].toLowerCase()}`);
+    select(el);
+  });
+
+  /* ═════════════════ МОИ БЛОКИ ═════════════════
+     Любой блок можно сохранить в личную библиотеку (хранится в браузере) и вставлять в другие документы.
+     Библиотеку можно выгрузить файлом и передать коллегам. */
+  const myBlocks = () => store.get('myblocks', []);
+  const LIVE_RE = /hk-(tabs|acc|carousel|modal|kpis|chart|quiz|check)\b/;
+  const myDefs = () => myBlocks().map(b => ({ id: 'my:' + b.id, g: 'Мои блоки', name: b.name, my: true, live: LIVE_RE.test(b.html), html: () => b.html }));
+  const findDef = id => BLOCKS.find(b => b.id === id) || myDefs().find(b => b.id === id);
+  function saveMyBlocks(list) {
+    try { localStorage.setItem(KEY + 'myblocks', JSON.stringify(list)); return true; }
+    catch (_) { toast('Не хватает места в браузере — удалите старые блоки или уменьшите картинки'); return false; }
+  }
+  function blockToHtml(el) {
+    const c = noIds(stripMarks(el.cloneNode(true)));
+    [c, ...c.querySelectorAll('[data-note-anchor]')].forEach(x => x.removeAttribute('data-note-anchor'));
+    return c.outerHTML;
+  }
+  function exportMyBlocks() {
+    const list = myBlocks(); if (!list.length) { toast('Библиотека пуста'); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'html-editor', type: 'blocks', v: 1, blocks: list }, null, 1)], { type: 'application/json' }));
+    a.download = 'мои-блоки.json'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast(`Выгружено блоков: ${list.length}`);
+  }
+  $('#myIn').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const d = JSON.parse(await f.text()), inc = (d && d.blocks) || [];
+      if (!Array.isArray(inc) || !inc.every(b => b && typeof b.html === 'string' && typeof b.name === 'string')) throw 0;
+      const list = myBlocks(), have = new Set(list.map(b => b.html));
+      const add = inc.filter(b => !have.has(b.html)).map(b => ({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: String(b.name).slice(0, 60), html: b.html, t: Date.now() }));
+      if (saveMyBlocks(list.concat(add))) { renderBlocks(); toast(add.length ? `Добавлено блоков: ${add.length}` : 'Все эти блоки уже есть'); }
+    } catch (_) { toast('Это не файл библиотеки блоков'); }
+  };
+
+  /* ═════════════════ ЗАМЕТКИ ДЛЯ РЕВЬЮ ═════════════════
+     Заметка привязана к месту в документе (атрибут data-note-anchor) и хранится в самом файле
+     в невидимом <script type="application/json" id="hed-notes"> — так она доходит до коллеги.
+     Читатель её не видит; «Файл → Скачать чистовик» убирает заметки совсем. */
+  const NOTES_ID = 'hed-notes';
+  let notesPins = store.get('pins', true), noteFocus = null;
+  const author = () => store.get('author', '');
+  function getNotes(d = doc) {
+    const s = d && d.getElementById(NOTES_ID); if (!s) return [];
+    try { const a = JSON.parse(s.textContent); return Array.isArray(a) ? a : []; } catch (_) { return []; }
+  }
+  function setNotes(arr, label) {
+    let s = doc.getElementById(NOTES_ID);
+    // якоря, на которые больше нет заметок, убираем
+    const used = new Set(arr.map(n => n.a));
+    doc.querySelectorAll('[data-note-anchor]').forEach(e => { if (!used.has(e.dataset.noteAnchor)) e.removeAttribute('data-note-anchor'); });
+    if (!arr.length) { if (s) s.remove(); }
+    else {
+      if (!s) { s = doc.createElement('script'); s.type = 'application/json'; s.id = NOTES_ID; const k = kitEl(); k ? doc.body.insertBefore(s, k) : doc.body.appendChild(s); }
+      s.textContent = JSON.stringify(arr).replace(/</g, '\\u003c');
+    }
+    push(label);
+  }
+  const noteEl = n => doc && n.a ? doc.querySelector(`[data-note-anchor="${CSS.escape(n.a)}"]`) : null;
+  const fmtT = t => { const d = new Date(t), now = new Date(); return d.toDateString() === now.toDateString() ? d.toTimeString().slice(0, 5) : d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ', ' + d.toTimeString().slice(0, 5); };
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  function addNote(el, text, name) {
+    if (!el || !text.trim()) return;
+    if (name) store.set('author', name.trim());
+    if (!el.dataset.noteAnchor) el.dataset.noteAnchor = 'n' + uid();
+    const n = { id: uid(), a: el.dataset.noteAnchor, text: text.trim(), author: author() || 'Без имени', t: Date.now(), done: false, quote: short(el.innerText || el.textContent || (el.tagName === 'IMG' ? 'картинка' : ''), 70), replies: [] };
+    setNotes(getNotes().concat(n), `Заметка: «${short(n.text, 26)}»`);
+    noteFocus = n.id; setSide(true); setTab('notes');
+  }
+  function renderNotes() {
+    const box = $('#notesBody'), cnt = $('#noteCnt');
+    const all = doc ? getNotes() : [], open = all.filter(n => !n.done);
+    cnt.hidden = !open.length; cnt.textContent = open.length;
+    if (tab !== 'notes') return;
+    if (!doc) { box.innerHTML = '<p class="hint">Откройте документ, чтобы оставлять заметки.</p>'; return; }
+    const card = n => {
+      const el = noteEl(n);
+      return `<li class="note${n.done ? ' done' : ''}${n.id === noteFocus ? ' focus' : ''}" data-n="${n.id}">
+        <div class="nq${el ? '' : ' gone'}" title="${el ? 'Показать в документе' : ''}">${el ? esc(n.quote || '—') : 'Место в документе удалено'}</div>
+        <div class="nm"><b>${esc(n.author)}</b> · ${fmtT(n.t)}</div><div class="nt">${esc(n.text)}</div>
+        ${(n.replies || []).map(r => `<div class="nr"><div class="nm"><b>${esc(r.author)}</b> · ${fmtT(r.t)}</div><div class="nt">${esc(r.text)}</div></div>`).join('')}
+        <div class="na"><button data-na="reply">Ответить</button><button data-na="done">${n.done ? 'Вернуть' : '✓ Решено'}</button><button data-na="del" class="dl">Удалить</button></div>
+        <div class="nrep" hidden><textarea rows="2" placeholder="Ответ… (Ctrl+Enter)"></textarea><div class="row"><button class="btn primary" data-na="send" style="padding:5px 12px">Ответить</button></div></div></li>`;
+    };
+    const done = all.filter(n => n.done);
+    box.innerHTML = `<div class="nhead"><span class="hint">Вы: <b style="color:var(--ink)">${esc(author() || 'имя не указано')}</b> <button class="lnk" data-na="me">изменить</button></span>
+        <label class="hint" style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="pinsOn" ${notesPins ? 'checked' : ''}>метки на странице</label></div>
+      <button class="btn" id="noteAdd" style="width:100%;justify-content:center;margin:10px 0 4px" ${selected ? '' : 'disabled'}>💬 Заметка к выделенному месту</button>
+      ${all.length ? '' : '<p class="hint" style="margin-top:8px">Выделите место в документе и нажмите 💬 на панели над ним. Заметки сохраняются в файле, читатель их не видит; «Файл → Скачать чистовик» убирает их совсем.</p>'}
+      ${open.length ? `<div class="chk-group">Открытые · ${open.length}</div><ul class="notes">${open.map(card).join('')}</ul>` : ''}
+      ${done.length ? `<details class="ndone"><summary class="chk-group">Решённые · ${done.length}</summary><ul class="notes">${done.map(card).join('')}</ul></details>` : ''}`;
+    $('#pinsOn').onchange = e => { notesPins = e.target.checked; store.set('pins', notesPins); placePins(); };
+    $('#noteAdd').onclick = () => { if (selected) openPop('note', ftb.querySelector('[data-act=note]')); };
+    box.querySelector('[data-na=me]').onclick = () => { const v = prompt('Ваше имя для заметок', author()); if (v != null) { store.set('author', v.trim()); renderNotes(); } };
+    box.querySelectorAll('.note').forEach(li => {
+      const id = li.dataset.n, n = all.find(x => x.id === id);
+      li.querySelector('.nq').onclick = () => { const el = noteEl(n); if (!el) return; commitEdit(); noteFocus = id; clickEl = el; el.scrollIntoView({ block: 'center', behavior: 'smooth' }); select(el); setTimeout(placeTb, 350); renderNotes(); };
+      const rep = li.querySelector('.nrep'), ta = rep.querySelector('textarea');
+      const send = () => {
+        if (!ta.value.trim()) return;
+        if (!author()) { const v = prompt('Ваше имя для заметок', ''); if (v) store.set('author', v.trim()); }
+        const list = getNotes(), x = list.find(y => y.id === id); if (!x) return;
+        (x.replies = x.replies || []).push({ author: author() || 'Без имени', text: ta.value.trim(), t: Date.now() });
+        noteFocus = id; setNotes(list, 'Ответ на заметку');
+      };
+      ta.onkeydown = e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); send(); } };
+      li.querySelectorAll('[data-na]').forEach(b => b.onclick = () => {
+        const a = b.dataset.na, list = getNotes(), x = list.find(y => y.id === id);
+        if (a === 'reply') { rep.hidden = !rep.hidden; if (!rep.hidden) ta.focus(); }
+        else if (a === 'send') send();
+        else if (a === 'done' && x) { x.done = !x.done; setNotes(list, x.done ? 'Заметка решена' : 'Заметка снова открыта'); }
+        else if (a === 'del' && x && confirm('Удалить заметку вместе с ответами?')) setNotes(list.filter(y => y.id !== id), 'Заметка удалена');
+      });
+    });
+    const f = box.querySelector('.note.focus'); if (f) f.scrollIntoView({ block: 'nearest' });
+  }
+  // метки-пузырьки у мест с открытыми заметками
+  function placePins() {
+    const box = $('#pins');
+    if (!doc || !notesPins || !$('#preview').hidden) { box.innerHTML = ''; return; }
+    const groups = new Map();
+    for (const n of getNotes()) { if (n.done) continue; const el = noteEl(n); if (!el) continue; if (!groups.has(el)) groups.set(el, []); groups.get(el).push(n); }
+    const ox = OX(), oy = OY(), vh = view.clientHeight, pr = ox + (frame ? frame.offsetWidth * scale : 0);
+    let h = '';
+    for (const [el, ns] of groups) {
+      const r = el.getBoundingClientRect(), x = Math.min(pr - 26, ox + r.right * scale - 8), y = oy + r.top * scale - 10;
+      if (y < oy - 10 || y > vh) continue;
+      h += `<button class="pin" style="left:${x}px;top:${Math.max(oy, y)}px" data-pin="${ns[0].id}" title="${attr(ns.map(n => n.author + ': ' + n.text).join('\n'))}">${ns.length}</button>`;
+    }
+    box.innerHTML = h;
+  }
+  $('#pins').addEventListener('click', e => {
+    const b = e.target.closest('[data-pin]'); if (!b) return;
+    const n = getNotes().find(x => x.id === b.dataset.pin), el = n && noteEl(n);
+    noteFocus = b.dataset.pin; setSide(true); setTab('notes');
+    if (el) { commitEdit(); clickEl = el; select(el); }
+  });
+  // чистовик: без заметок и якорей
+  function serializeClean() {
+    const d = new DOMParser().parseFromString(serialize(), 'text/html');
+    d.querySelectorAll('#' + NOTES_ID).forEach(s => s.remove());
+    d.querySelectorAll('[data-note-anchor]').forEach(e => e.removeAttribute('data-note-anchor'));
+    return serialize(d);
+  }
+  function saveClean() {
+    if (!doc) return; prepareSave();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([serializeClean()], { type: 'text/html;charset=utf-8' }));
+    a.download = fileName.replace(/(\.html?)?$/i, ' (чистовик)$1'); document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast('Скачан чистовик без заметок');
+  }
+
+  /* ═════════════════ ПРЕДПРОСМОТР НА РАЗНЫХ ЭКРАНАХ ═════════════════ */
+  const DEVICES = { pc: null, tab: [820, 1180], phone: [390, 844] };
+  let pvDev = store.get('pvdev', 'pc');
+  function setDevice(d) {
+    pvDev = DEVICES[d] !== undefined ? d : 'pc'; store.set('pvdev', pvDev);
+    const sz = DEVICES[pvDev], st = $('#pvStage'), f = $('#pvFrame');
+    st.classList.toggle('dev', !!sz);
+    f.style.width = sz ? sz[0] + 'px' : ''; f.style.height = sz ? `min(${sz[1]}px, 100%)` : '';
+    document.querySelectorAll('#pvDev [data-dev]').forEach(b => b.classList.toggle('on', b.dataset.dev === pvDev));
+    $('#pvSize').textContent = sz ? `${sz[0]} × ${sz[1]}` : '';
+  }
+  document.querySelectorAll('#pvDev [data-dev]').forEach(b => b.onclick = () => setDevice(b.dataset.dev));
+  setDevice(pvDev);
+
+  /* ═════════════════ СПРАВКА ═════════════════ */
+  const K = s => s.split('+').map(x => `<kbd>${x}</kbd>`).join('+');
+  const GUIDE = [
+    ['start', 'Быстрый старт', `<p>«Правка HTML» — редактор готовых HTML-страниц и конструктор новых. Разметку видеть не нужно: правите прямо на странице, как в Google Docs.</p>
+      <ol class="steps"><li><b>Откройте файл</b> — перетащите <code>.html</code> в окно, нажмите ${K('Ctrl+O')} или «+» над документом. Новая страница — «+ → Новый документ», там есть заготовки.</li>
+      <li><b>Кликните по тексту</b> и печатайте. ${K('Enter')} — готово, ${K('Shift+Enter')} — перенос строки.</li>
+      <li><b>Добавьте блоки</b> из вкладки «Блоки» справа: кликом или перетаскиванием в нужное место.</li>
+      <li><b>Сохраните</b> — ${K('Ctrl+S')}. Исходник не пропадёт: в Chrome и Edge можно писать прямо в файл, иначе скачается копия.</li></ol>
+      <p class="tip">Ошиблись — ${K('Ctrl+Z')}. Каждая правка видна во вкладке «История», к любой можно вернуться.</p>`],
+    ['text', 'Текст и оформление', `<p>Клик по тексту включает правку — блок обводится синей рамкой, над ним появляется панель.</p>
+      <ul><li><b>Ж К Ч З</b>, списки, выравнивание, ссылка и «очистить формат». Работают и ${K('Ctrl+B')} ${K('Ctrl+I')} ${K('Ctrl+U')}.</li>
+      <li><b>Цвет текста и фона</b> — только из палитры документа, чтобы не сломать фирменный стиль.</li>
+      <li><b>Вставка</b> — всегда чистым текстом. Скриншот из буфера (${K('Ctrl+V')}) станет картинкой, строки из Excel заполнят таблицу.</li>
+      <li><b>Орфография</b> подчёркивается красным, правый клик предлагает варианты.</li>
+      <li><b>Найти и заменить</b> — ${K('Ctrl+F')} / ${K('Ctrl+H')}. Поиск <code>{{</code> покажет незаполненные поля шаблона.</li></ul>`],
+    ['blocks', 'Блоки и конструктор', `<p>Вкладка <b>«Блоки»</b> справа: обложка, карточки, колонки, таймлайн, таблица, картинки, видео, кнопки и интерактив — вкладки, аккордеон, карусель, всплывающее окно, счётчики, график, тест, чек-лист.</p>
+      <ul><li><b>Клик</b> по блоку вставляет его после выделенного места, <b>перетаскивание</b> — туда, где синяя линия.</li>
+      <li>Над выделенным блоком — его кнопки: «+ Вкладку / Слайд / Карточку», «✓ Верный ответ» в тесте, «Столбцы / Кольцо» у графика, тип выноски, ссылка на видео.</li>
+      <li><b>Меню блока</b> («Строка ▾», «Карточка ▾»…) — выбрать уровень (ячейка → строка → таблица → раздел), сделать копию, новый ниже, переместить, удалить.</li>
+      <li>Интерактив в редакторе разложен для правки (вкладки друг под другом, график таблицей). Живой вид — в «Предпросмотре».</li></ul>
+      <h4>Мои блоки</h4><p>Меню блока → <b>«Сохранить в мои блоки»</b>. Он появится сверху во вкладке «Блоки» и вставляется в любой документ. Кнопки «Выгрузить» и «Загрузить» передают библиотеку коллегам одним файлом.</p>`],
+    ['size', 'Размер и порядок', `<ul><li><b>Размер</b> — у выделенной картинки или блока есть ручки: справа ширина, снизу высота, в углу обе. Ширина прилипает к 25 / 33 / 50 / 66 / 75 / 100 % (${K('Alt')} — без привязки). Двойной клик по ручке — сброс.</li>
+      <li>У картинки на панели — выравнивание: слева, по центру, справа.</li>
+      <li><b>Порядок</b> — тяните за ручку ⋮⋮ слева от блока, или «Переместить выше / ниже» в меню блока. Строка таблицы остаётся в своей таблице, пункт — в своём списке.</li></ul>`],
+    ['tabs', 'Вкладки и «Рядом»', `<ul><li>Каждый файл открывается в своей вкладке со своей историей. Двойной клик по названию — переименовать (это <code>&lt;title&gt;</code> страницы), клик по иконке активной вкладки — сменить иконку.</li>
+      <li>Точка вместо крестика — есть несохранённые правки. Правый клик по вкладке — дублировать, закрыть другие, открыть рядом.</li>
+      <li><b>Два документа рядом</b>: кнопка «Рядом» или перетащите вкладку на документ. Оба редактируются — клик делает документ активным. «⇅ Вместе» прокручивает их синхронно, разделитель тянется.</li>
+      <li>Меню блока → <b>«Копировать в соседний документ»</b> переносит блок со всем оформлением.</li>
+      <li>Если закрыть редактор, при следующем запуске он предложит вернуть все вкладки.</li></ul>`],
+    ['preview', 'Навигация и предпросмотр', `<ul><li><b>«Навигация»</b> собирает меню из заголовков: липкое меню сверху, точки сбоку, кнопка «Оглавление», прогресс и «Наверх». Сохраняется в файл и само подстраивается под заголовки.</li>
+      <li><b>«Предпросмотр»</b> показывает страницу глазами читателя: с анимациями и работающим интерактивом. Вверху переключатель <b>ПК / Планшет / Телефон</b> — проверить, как страница ведёт себя на узком экране. ${K('Esc')} — назад к правке.</li></ul>`],
+    ['notes', 'Заметки для ревью', `<p>Выделите место и нажмите <b>💬</b> на панели над ним — или кнопку во вкладке «Заметки». На странице у места появится жёлтая метка с числом заметок.</p>
+      <ul><li>На заметку можно ответить, отметить «Решено» или удалить. Решённые уходят вниз списка.</li>
+      <li>Заметки хранятся <b>в самом файле</b> и невидимы для читателя — отправьте файл коллеге, он увидит их в своём редакторе.</li>
+      <li>Перед отправкой наружу: <b>«Файл → Скачать чистовик»</b> — копия без заметок. Открытые заметки также видны во вкладке «Проверка».</li>
+      <li>Имя автора задаётся один раз и запоминается в браузере.</li></ul>`],
+    ['check', 'Проверка, сравнение, история', `<ul><li><b>«Проверка»</b> — незаполненные <code>{{поля}}</code>, битые картинки и ссылки, картинки без описания, пустые блоки, открытые заметки. Клик по пункту переносит к месту, у многих есть «Исправить».</li>
+      <li><b>«Сравнение»</b> — всё, что изменилось относительно исходного файла: жёлтым изменённое, зелёным добавленное, список «было → стало».</li>
+      <li><b>«История»</b> — каждая правка; клик по пункту возвращает к ней. «Файл → Вернуть исходник» тоже отменяется.</li></ul>`],
+    ['save', 'Сохранение и PDF', `<ul><li>${K('Ctrl+S')} — сохранить. Если файл открыт через «Открыть» или перетаскиванием в Chrome/Edge, редактор (с подтверждением) пишет прямо в него. Иначе скачивается исправленная копия.</li>
+      <li>«Файл → Скачать копию» и «Скачать чистовик» (без заметок).</li>
+      <li>${K('Ctrl+P')} или «Файл → Сохранить как PDF» — печать без рамок и панелей редактора; навигация и кнопки при печати скрываются.</li>
+      <li>Несохранённые правки переживают закрытие вкладки браузера — редактор предложит их вернуть.</li></ul>`],
+    ['keys', 'Горячие клавиши', `<table class="keys">${[['Ctrl+O', 'Открыть файл'], ['Ctrl+S', 'Сохранить'], ['Ctrl+Z / Ctrl+Y', 'Отменить / повторить'], ['Ctrl+F / Ctrl+H', 'Найти / заменить'], ['Ctrl+P', 'PDF и печать'], ['Ctrl+B / I / U', 'Жирный / курсив / подчёркнутый'], ['Enter / Shift+Enter', 'Закончить правку / перенос строки'], ['Esc', 'Снять выделение, закрыть окно или предпросмотр'], ['F1', 'Эта справка']].map(([k, v]) => `<tr><td>${k.split(' / ').map(K).join(' / ')}</td><td>${v}</td></tr>`).join('')}</table>`],
+    ['dev', 'Для разработчика', `<p>Переключатель «Для разработчика» в шапке добавляет вкладку <b>«Код»</b>: стили выделенного элемента, его классы и HTML, CSS документа. Всё это попадает в историю и отменяется.</p>
+      <p>Документ в редакторе открыт в изолированном окне без скриптов; в предпросмотре выполняются только скрипты навигации и блоков редактора.</p>`]
+  ];
+  let guideAt = 'start';
+  function openGuide(topic) {
+    closePop(); hideMenus(); closeFileMenu();
+    if (topic) guideAt = topic;
+    modalBody.classList.add('wide');
+    const render = () => {
+      const g = GUIDE.find(x => x[0] === guideAt) || GUIDE[0];
+      modalBody.innerHTML = `<div class="guide"><nav>${GUIDE.map(([id, t]) => `<button data-g="${id}" class="${id === g[0] ? 'on' : ''}">${t}</button>`).join('')}</nav>
+        <article><h3>${g[1]}</h3>${g[2]}<div class="modal-foot"><button class="btn primary" id="gClose">Понятно</button></div></article></div>`;
+      modalBody.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { guideAt = b.dataset.g; render(); });
+      $('#gClose').onclick = closeModal;
+    };
+    render(); modal.hidden = false;
+  }
+  $('#bHelp').onclick = () => openGuide();
+
   /* ───────── масштаб ───────── */
   { const z = store.get('zoom', null); if (z) { zoom = z.zoom || 1; zoomFit = !!z.fit; } }
-  function fitScale() {
-    const vw = view.clientWidth;
-    frame.style.transform = ''; frame.style.width = vw + 'px';
+  function fitScale(f = frame, vw = view.clientWidth) {
+    const d = f.contentDocument; if (!d || !d.body) return 1;
+    f.style.transform = ''; f.style.width = vw + 'px';
     let l = Infinity, r = 0;
-    for (const c of doc.body.children) { const b = c.getBoundingClientRect(); if (b.width) { l = Math.min(l, b.left); r = Math.max(r, b.right); } }
+    for (const c of d.body.children) { const b = c.getBoundingClientRect(); if (b.width) { l = Math.min(l, b.left); r = Math.max(r, b.right); } }
     const content = r > l ? (r - l) + 48 : vw;
     return Math.max(0.25, Math.min(2, vw / content));
   }
+  const PH_H = 30, GUT = 8;
+  const panes = () => (pair && pair.includes(cur) && pair.every(t => tabs.includes(t))) ? pair : (cur ? [cur] : []);
+  // раскладка: один документ на всю ширину или два рядом, у каждого свой масштаб «по ширине»
   function applyZoom() {
     if (!doc || !frame) return;
-    const s = zoomFit ? fitScale() : zoom;
-    scale = s;
-    frame.style.transform = s === 1 ? '' : `scale(${s})`;
-    frame.style.width = (view.clientWidth / s) + 'px';
-    frame.style.height = (view.clientHeight / s) + 'px';
-    $('#zVal').textContent = Math.round(s * 100) + '%';
+    const ps = panes(), two = ps.length === 2, W0 = view.clientWidth, H0 = view.clientHeight;
+    const wL = two ? Math.round((W0 - GUT) * splitRatio) : W0, wR = W0 - GUT - wL;
+    const top = two ? PH_H : 0;
+    for (const t of tabs) { t.frame.classList.toggle('show', ps.includes(t)); t.frame.classList.toggle('active', t === cur); }
+    ps.forEach((t, i) => {
+      const f = t.frame, x = i ? wL + GUT : 0, w = two ? (i ? wR : wL) : W0;
+      const s = zoomFit ? fitScale(f, w) : zoom;
+      f.style.left = x + 'px'; f.style.top = top + 'px';
+      f.style.transform = s === 1 ? '' : `scale(${s})`;
+      f.style.width = (w / s) + 'px'; f.style.height = ((H0 - top) / s) + 'px';
+      if (t === cur) scale = s;
+      const ph = $('#ph' + i);
+      Object.assign(ph.style, { left: x + 'px', width: w + 'px' });
+    });
+    $('#ph0').hidden = $('#ph1').hidden = $('#splitDiv').hidden = !two; $('#bSync').hidden = !two;
+    if (two) { $('#splitDiv').style.left = wL + 'px'; renderPaneHeads(); }
+    $('#bSplit').classList.toggle('on', two);
+    $('#bSync').classList.toggle('on', syncScroll);
+    $('#zVal').textContent = Math.round(scale * 100) + '%';
     $('#zFit').classList.toggle('on', zoomFit);
     store.set('zoom', { zoom, fit: zoomFit });
     placeTb();
@@ -2691,7 +3282,7 @@ ${kitHtml(A)}
   fileMenu.onclick = e => {
     const b = e.target.closest('[data-f]'); if (!b || b.disabled) return;
     closeFileMenu();
-    ({ open: pick, new: openNewModal, save, copy: saveCopy, pdf: printDoc, reset: resetToOriginal, close: closeFile })[b.dataset.f]();
+    ({ open: pick, new: openNewModal, save, copy: saveCopy, clean: saveClean, pdf: printDoc, reset: resetToOriginal, close: closeFile })[b.dataset.f]();
   };
   document.addEventListener('mousedown', e => {
     if (!fileMenu.hidden && !fileMenu.contains(e.target) && !$('#bFile').contains(e.target)) closeFileMenu();
@@ -2718,6 +3309,7 @@ ${kitHtml(A)}
     return false;
   }
   document.addEventListener('keydown', e => {
+    if (e.key === 'F1') { e.preventDefault(); openGuide(); return; }
     if (!$('#modal').hidden) { if (e.key === 'Escape') closeModal(); return; }
     if (!$('#preview').hidden) { if (e.key === 'Escape') closePreview(); return; }
     if (e.target.matches && e.target.matches('input,textarea,select')) {
@@ -2743,7 +3335,7 @@ ${kitHtml(A)}
     }
     $('#fileIn').value = ''; $('#fileIn').click();
   }
-  $('#bOpen2').onclick = pick; $('#bNew2').onclick = openNewModal; renderBlocks();
+  $('#bOpen2').onclick = pick; $('#bNew2').onclick = openNewModal; $('#bHelp2').onclick = () => openGuide(); renderBlocks();
   $('#fileIn').onchange = e => readFiles([...e.target.files]);
   $('#bSave').onclick = save;
   $('#coachOk').onclick = () => { $('#coach').hidden = true; store.set('coach', true); };

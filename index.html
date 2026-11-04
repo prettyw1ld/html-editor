@@ -294,6 +294,9 @@
   .tpl-ic{width:52px;height:52px;flex:none;border-radius:12px;background:var(--surface-3);display:grid;place-items:center}
   .tpl-ic svg{width:24px;height:24px}
 
+  .mcount{font-size:13px;font-weight:700;padding:0 8px 0 6px;white-space:nowrap}
+  .tb.danger{color:var(--danger)}
+  .tb kbd{font:600 10px system-ui,sans-serif;border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px;opacity:.7}
   /* ── мои блоки ── */
   .bl .del{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:6px;display:none;place-items:center;color:var(--muted);font-size:14px;line-height:1}
   .bl:hover .del{display:grid}
@@ -492,6 +495,7 @@
           <button class="tb" data-act="imgR" title="Картинка справа"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="12" y="6" width="9" height="12" rx="1.5"/><path d="M3 8h6M3 12h6M3 16h4"/></svg></button>
           <span class="vsep"></span>
         </div>
+        <div class="grp" id="gMulti" hidden></div>
         <div class="grp" id="gKit" hidden></div>
         <div class="grp" id="gNav">
           <button class="tb txt" data-act="navcfg" title="Настроить навигацию"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Настроить</button>
@@ -569,6 +573,7 @@
   let fileHandle = null, overwriteOk = false, chkItems = [], drag = null;
   // вкладки: у каждой свой iframe, история, исходник и файл; глобальные переменные выше — состояние активной
   let frame = null, cur = null, tabSeq = 0, renaming = false, dragTabId = null;
+  let multi = [], handlePos = null;
   let pair = null, splitRatio = 0.5, splitAfterOpen = null, syncScroll = false, rz = null;
   const tabs = [];
 
@@ -692,7 +697,7 @@
     commitEdit(); closePop(); closeFind(); closePreview(); closeModal();
     if (hovered) { hovered.removeAttribute('data-hed-hover'); hovered = null; }
     if (drag) drag = null;
-    if (cur) cur.sel = selected;
+    if (cur) cur.sel = selected || (clickEl && clickEl.isConnected && cur.doc && cur.doc.contains(clickEl) ? clickEl : null);
     select(null);
   }
   function activate(t) {
@@ -1006,6 +1011,10 @@
       closePop(); closeFileMenu();
       const t = e.target;
       if (t === doc.documentElement || t === doc.body) { commitEdit(); select(null); return; }
+      if ((e.ctrlKey || e.metaKey || e.shiftKey) && !(editing && editing.contains(t))) {
+        e.preventDefault(); commitEdit();
+        const tg = t.closest('#hed-nav') || multiTarget(t); clickEl = tg; toggleMulti(tg); return;
+      }
       const nav = t.closest('#hed-nav');                // навигация — единый блок, текст в ней не правится
       if (nav) { e.preventDefault(); commitEdit(); clickEl = nav; select(nav); return; }
       if (editing && editing.contains(t)) return;       // клик внутри редактируемого текста — остаёмся
@@ -1026,10 +1035,12 @@
       if (shortcuts(e)) return;
       if (e.key === 'Escape') {
         if (popType) { closePop(); return; }
-        if (editing) { e.preventDefault(); commitEdit(); select(null); return; }
+        // Esc в тексте — закончить правку, но оставить блок выделенным (дальше Del удалит его)
+        if (editing) { e.preventDefault(); const keep = selected; commitEdit(); select(keep); return; }
         if (find.open) { closeFind(); return; }
         select(null); return;
       }
+      if (!editing && (e.key === 'Delete' || e.key === 'Backspace') && (selected || multi.length)) { e.preventDefault(); deleteSelection(); return; }
       if (!editing) return;
       if (e.key === ' ' && editing.closest('summary')) { e.preventDefault(); doc.execCommand('insertText', false, ' '); return; }
       if (e.key === 'Enter') {
@@ -1088,6 +1099,7 @@
 
   /* ───────── выделение ───────── */
   function select(el) {
+    if (multi.length) { multi.forEach(m => { if (m !== el) m.removeAttribute('data-hed-sel'); }); multi = []; }
     if (selected && selected !== el) selected.removeAttribute('data-hed-sel');
     selected = isBlockable(el) ? el : null;
     if (selected) selected.setAttribute('data-hed-sel', '');
@@ -1095,16 +1107,57 @@
     if (tab === 'code') renderCode();
   }
 
+  // Ctrl/Shift+клик: добавить блок к выделению или убрать из него
+  function toggleMulti(el) {
+    if (!isBlockable(el)) return;
+    if (!multi.length && selected && selected !== el) multi = [selected];
+    if (multi.includes(el)) multi = multi.filter(x => x !== el);
+    else multi = multi.filter(x => !x.contains(el) && !el.contains(x)).concat(el);
+    doc.querySelectorAll('[data-hed-sel]').forEach(x => { if (!multi.includes(x)) x.removeAttribute('data-hed-sel'); });
+    multi.forEach(x => x.setAttribute('data-hed-sel', ''));
+    if (multi.length <= 1) { const one = multi[0] || null; multi = []; selected = null; select(one); return; }
+    selected = multi[multi.length - 1];
+    placeTb();
+  }
+  // при Ctrl/Shift+клике выделяем целый элемент: карточку, этап, строку, пункт — а не абзац внутри
+  const ITEM_SEL = '.hk-card,.hk-col,.hk-step,.hk-kpi,.hk-tab,.hk-slide,.hk-btn,details,li,tr,img';
+  function multiTarget(t) {
+    const it = t.closest(ITEM_SEL); if (it && isBlockable(it)) return it;
+    return flowRef(t) || defaultTarget(t);
+  }
+  const docOrder = list => list.slice().sort((a, b) => a.compareDocumentPosition(b) & 4 ? -1 : 1);
+  const plural = (n, a, b, c) => n % 10 === 1 && n % 100 !== 11 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
+  function deleteSelection() {
+    commitEdit();
+    if (multi.length > 1) {
+      const list = multi.filter(x => x.isConnected), n = list.length;
+      const inner = list.reduce((a, x) => a + x.querySelectorAll('*').length, 0);
+      if (inner > 60 && !confirm(`Удалить ${n} ${plural(n, 'блок', 'блока', 'блоков')}?\n\nВнутри ${inner} элементов. Это можно будет отменить.`)) return;
+      closePop(); list.forEach(x => x.remove()); multi = []; selected = null; select(null);
+      push(`Удалено: ${n} ${plural(n, 'блок', 'блока', 'блоков')}`);
+      toast(`Удалено: ${n} ${plural(n, 'блок', 'блока', 'блоков')}`, { action: 'Отменить', fn: undo, ms: 6000 });
+      return;
+    }
+    if (selected && selected.isConnected) deleteBlock(selected);
+  }
+
   /* ───────── плавающая панель ───────── */
   function placeTb() {
     requestAnimationFrame(() => {
-      const anchor = (editing && editing.isConnected && editing) || (selected && selected.isConnected && selected);
+      const many = multi.length > 1;
+      const anchor = many ? multi.reduce((a, x) => x.getBoundingClientRect().top < a.getBoundingClientRect().top ? x : a) : ((editing && editing.isConnected && editing) || (selected && selected.isConnected && selected));
       placeHandle(); placeResize(); placePins();
       if (drag || !doc || !anchor || !$('#preview').hidden) { ftb.hidden = true; closePop(); return; }
       $('#gFmt').hidden = !editing;
       $('#gImg').hidden = !(selected && selected.tagName === 'IMG');
       $('#gNav').hidden = !(selected && selected.id === 'hed-nav');
       renderKitBar();
+      $('#gMulti').hidden = !many;
+      if (many) {
+        ['#gFmt', '#gImg', '#gNav', '#gKit', '#noteBtn', '#blockBtn'].forEach(q => { $(q).hidden = true; });
+        const n = multi.length;
+        $('#gMulti').innerHTML = `<span class="mcount">Выбрано: ${n} ${plural(n, 'блок', 'блока', 'блоков')}</span>${panes().length === 2 ? '<button class="tb txt" data-act="msend" title="Скопировать во второй документ">Копия в соседний</button>' : ''}<button class="tb txt danger" data-act="mdel" title="Удалить выделенные (Del)">Удалить<kbd>Del</kbd></button><button class="tb" data-act="mclear" title="Снять выделение (Esc)">✕</button>`;
+      }
       const bb = $('#blockBtn'); bb.hidden = !selected; $('#noteBtn').hidden = !selected;
       if (selected) bb.firstChild.nodeValue = nm(selected)[0] + ' ';
       const listOk = editing && FLOW_OK.has(editing.tagName);
@@ -1118,7 +1171,12 @@
       let y = top - th - 10;
       if (y < oy + 6) y = bottom + 10;
       if (y > vh - th - 6) y = Math.max(oy + 6, Math.min(top + 6, vh - th - 6));
-      const x = Math.max(ox + 6, Math.min(left, Math.min(vw, pr) - tw - 6));
+      let x = Math.max(ox + 6, Math.min(left, Math.min(vw, pr) - tw - 6));
+      // панель не должна закрывать ручку ⋮⋮ (бывает, когда блок у верхнего края и панель опускается внутрь)
+      if (!dragH.hidden && handlePos && x < handlePos.x + 26 && x + tw > handlePos.x && y < handlePos.y + 32 && y + th > handlePos.y) {
+        const nx = handlePos.x + 30;
+        if (nx + tw <= vw - 6) x = nx; else y = handlePos.y + 36;
+      }
       ftb.style.transform = `translate(${x}px,${y}px)`;
       if (editing) fmtState();
       if (popType) placePop();
@@ -1139,6 +1197,9 @@
     if (b.dataset.cmd) { closePop(); fmt(b.dataset.cmd); }
     else if (b.dataset.pop) { popType === b.dataset.pop ? closePop() : openPop(b.dataset.pop, b); }
     else if (b.dataset.act === 'img') { closePop(); $('#imgIn').value = ''; $('#imgIn').click(); }
+    else if (b.dataset.act === 'mdel') { closePop(); deleteSelection(); }
+    else if (b.dataset.act === 'msend') { closePop(); sendToPeer(docOrder(multi)); }
+    else if (b.dataset.act === 'mclear') { closePop(); select(null); }
     else if (b.dataset.act === 'note') { popType === 'note' ? closePop() : openPop('note', b); }
     else if (b.dataset.act === 'navcfg') { closePop(); openNavModal(); }
     else if (/^img[LCR]$/.test(b.dataset.act || '') && selected && selected.tagName === 'IMG') {
@@ -1316,7 +1377,7 @@
       const ok = () => { const v = $('#pNote').value; if (!v.trim()) return; const who = $('#pNoteWho') ? $('#pNoteWho').value : null; closePop(); addNote(el, v, who); toast('Заметка добавлена'); };
       $('#pNoteOk').onclick = ok;
       $('#pNote').onkeydown = e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); ok(); } if (e.key === 'Escape') closePop(); };
-      setTimeout(() => ($('#pNoteWho') || $('#pNote')).focus(), 0);
+      setTimeout(() => { const i = $('#pNoteWho') || $('#pNote'); if (i) i.focus(); }, 0);
     } else if (t === 'saveblock') {
       const el = selected; if (!el) { closePop(); return; }
       const def = short(nm(el)[0] + (el.innerText ? ': ' + el.innerText : ''), 40);
@@ -1329,7 +1390,7 @@
       };
       $('#pBlOk').onclick = ok;
       $('#pBlName').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); ok(); } if (e.key === 'Escape') closePop(); };
-      setTimeout(() => $('#pBlName').select(), 0);
+      setTimeout(() => { const i = $('#pBlName'); if (i) i.select(); }, 0);
     } else if (t === 'alt') {
       const img = selected;
       pop.innerHTML = `<div class="field" style="margin-top:4px"><label>Описание картинки (для незрячих и если картинка не загрузилась)</label>
@@ -1920,14 +1981,14 @@ update();});`;
     if (drag) return;                       // во время перетаскивания ручку двигает сам drag
     const el = selected;
     const ok = doc && el && el.isConnected && el.id !== NAV_ID && el.parentElement && el.parentElement !== doc.documentElement
-      && el.parentElement.children.length > 1 && !drag && $('#preview').hidden;
-    if (!ok) { dragH.hidden = true; return; }
+      && (el.parentElement.children.length > 1 || okParent(el.parentElement) || panes().length === 2) && !drag && multi.length < 2 && $('#preview').hidden;
+    if (!ok) { dragH.hidden = true; handlePos = null; return; }
     const r = el.getBoundingClientRect(), vh = view.clientHeight;
     const ox = OX(), oy = OY();
     if (r.bottom * scale < 0 || oy + r.top * scale > vh) { dragH.hidden = true; return; }
     let x = ox + r.left * scale - 30; if (x < ox + 2) x = ox + Math.max(2, r.left * scale + 4);
     const y = Math.max(oy + 2, Math.min(oy + r.top * scale + 2, vh - 32));
-    dragH.style.transform = `translate(${x}px,${y}px)`; dragH.hidden = false;
+    dragH.style.transform = `translate(${x}px,${y}px)`; dragH.hidden = false; handlePos = { x, y };
   }
   const isRow = parent => {
     const kids = [...parent.children].filter(k => k.getBoundingClientRect().height);
@@ -1949,18 +2010,30 @@ update();});`;
   dragH.addEventListener('pointermove', e => {
     if (!drag) return;
     const vr = view.getBoundingClientRect();
-    // автопрокрутка у краёв
-    if (e.clientY - vr.top < 50) W().scrollBy(0, -14); else if (vr.bottom - e.clientY < 50) W().scrollBy(0, 14);
+    autoScroll(e.clientX, e.clientY);
+    dragH.style.transform = `translate(${e.clientX - vr.left - 11}px,${e.clientY - vr.top - 15}px)`;
+    drag.cross = null; drag.free = null;
+    const pn = paneAt(e.clientX, e.clientY);
+    if (!pn) { drag.target = null; dropLine.hidden = true; return; }
+    // во второй документ — копия
+    if (pn.t !== cur) {
+      const pl = placeAt(e.clientX, e.clientY);
+      drag.target = null; drag.cross = pl; showDropAt(pl); return;
+    }
     const ox = OX(), oy = OY();
-    const ix = (e.clientX - vr.left - ox) / scale, iy = (e.clientY - vr.top - oy) / scale;
+    const ix = pn.ix, iy = pn.iy;
     let s = doc.elementFromPoint(ix, iy);
     while (s && s.parentElement !== drag.parent) s = s.parentElement;
+    // не над соседями, а блок «потоковый» — можно перенести в любой раздел
+    if (!s && okParent(drag.parent)) {
+      const pl = placeAt(e.clientX, e.clientY);
+      if (pl && pl.ref && pl.ref !== drag.el && !drag.el.contains(pl.ref) && !pl.ref.contains(drag.el)) { drag.target = null; drag.free = pl; showDropAt(pl); return; }
+    }
     if (!s) {   // мимо соседей — берём ближайшего по вертикали
       let best = null, bd = Infinity;
       for (const k of drag.parent.children) { const r = k.getBoundingClientRect(); if (!r.height) continue; const d = iy < r.top ? r.top - iy : iy > r.bottom ? iy - r.bottom : 0; if (d < bd) { bd = d; best = k; } }
       s = bd < 120 ? best : null;
     }
-    dragH.style.transform = `translate(${e.clientX - vr.left - 11}px,${e.clientY - vr.top - 15}px)`;
     if (!s || s === drag.el) { drag.target = null; dropLine.hidden = true; return; }
     const r = s.getBoundingClientRect();
     drag.target = s;
@@ -1971,9 +2044,15 @@ update();});`;
   });
   const endDrag = commit => {
     if (!drag) return;
-    const { el, target, after } = drag;
+    const { el, target, after, cross, free } = drag;
     el.removeAttribute('data-hed-drag'); el.style.removeProperty('opacity'); if (!el.getAttribute('style')) el.removeAttribute('style');
     drag = null; dropLine.hidden = true; view.classList.remove('dragging');
+    if (commit && cross) { copyInto([el], cross); return; }
+    if (commit && free && free.ref.isConnected) {
+      free.after ? free.ref.after(el) : free.ref.before(el);
+      push(`${nm(el)[0]}: ${gend(el, 'перемещена', 'перемещён', 'перемещено')} в другое место`);
+      select(el); scrollIntoViewIfNeeded(el); return;
+    }
     if (commit && target && (after ? target.nextElementSibling !== el : target.previousElementSibling !== el)) {
       after ? target.after(el) : target.before(el);
       push(`${nm(el)[0]}: ${gend(el, 'перемещена', 'перемещён', 'перемещено')}`);
@@ -2408,28 +2487,30 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
   /* ── куда вставлять ── */
   const FLOW = /^(BODY|MAIN|SECTION|ARTICLE|DIV|ASIDE|HEADER|FOOTER|BLOCKQUOTE)$/;
   const CONTENT_OK = '.hk-col,.hk-card,.hk-tab-b,.hk-acc-b,.hk-pop-box';
-  function okParent(p) {
-    if (p === doc.body) return true;
+  function okParent(p, d = doc) {
+    if (!p || !d) return false;
+    if (p === d.body) return true;
     if (!FLOW.test(p.tagName) || p.id === NAV_ID || p.id === KIT_ID) return false;
     if (p.closest('table,ul,ol,dl,p,h1,h2,h3,h4,h5,h6,a,summary,figure,#' + NAV_ID)) return false;
     const kr = p.closest('[data-hk]'); if (!kr) return true;
     const ca = p.closest(CONTENT_OK); return !!(ca && kr.contains(ca));
   }
-  function flowRef(el) {
-    if (!el || !doc || !el.isConnected || el === doc.body || el === doc.documentElement) return null;
+  function flowRef(el, d = doc) {
+    if (!el || !d || !el.isConnected || el === d.body || el === d.documentElement) return null;
     if (el.closest('#' + NAV_ID) || el.closest('#' + KIT_ID)) return null;
     let e = el;
-    while (e && e.parentElement && !okParent(e.parentElement)) e = e.parentElement;
-    return e && e !== doc.documentElement && e !== doc.body ? e : null;
+    while (e && e.parentElement && !okParent(e.parentElement, d)) e = e.parentElement;
+    return e && e !== d.documentElement && e !== d.body ? e : null;
   }
-  function defaultHost() {
-    const main = doc.querySelector('main'); if (main) return main;
-    const kids = [...doc.body.children].filter(x => x.id !== KIT_ID && x.id !== NAV_ID && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(x.tagName));
+  function defaultHost(d = doc) {
+    const main = d.querySelector('main'); if (main) return main;
+    const kids = [...d.body.children].filter(x => x.id !== KIT_ID && x.id !== NAV_ID && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(x.tagName));
     const last = kids[kids.length - 1];
-    return last && /^(DIV|SECTION|ARTICLE)$/.test(last.tagName) && last.children.length && !last.closest('[data-hk]') ? last : doc.body;
+    return last && /^(DIV|SECTION|ARTICLE)$/.test(last.tagName) && last.children.length && !last.closest('[data-hk]') ? last : d.body;
   }
   function insertBlock(def, place) {
     if (!doc) { toast('Сначала откройте или создайте документ'); return; }
+    if (place && place.tab && place.tab !== cur) activate(place.tab);   // бросили во второй документ
     commitEdit(); closePop();
     const el = parseOne(def.html());
     let ref = place && place.ref, after = place ? place.after : true;
@@ -2459,17 +2540,35 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
     $('#myExp').onclick = exportMyBlocks;
   }
   let bdrag = null;
-  function placeAt(cx, cy) {
+  // какой из видимых документов под курсором и где в нём точка
+  function paneAt(cx, cy) {
     const vr = view.getBoundingClientRect();
-    if (cx < vr.left || cx > vr.right || cy < vr.top || cy > vr.bottom || !doc) return null;
-    const ox = OX(), oy = OY();
-    if (cx < vr.left + ox || cx > vr.left + ox + frame.offsetWidth * scale || cy < vr.top + oy) return null;   // только в активный документ
-    const ix = (cx - vr.left - ox) / scale, iy = (cy - vr.top - oy) / scale;
-    const el = doc.elementFromPoint(ix, iy);
-    const ref = flowRef(el);
-    if (!ref) return { host: true };
+    for (const t of panes()) {
+      const f = t.frame, d = f.contentDocument; if (!d || !d.body || !f.classList.contains('show')) continue;
+      const ox = parseFloat(f.style.left) || 0, oy = parseFloat(f.style.top) || 0, s = t.scale || 1;
+      const x = cx - vr.left - ox, y = cy - vr.top - oy;
+      if (x >= 0 && y >= 0 && x <= f.offsetWidth * s && y <= f.offsetHeight * s) return { t, d, ix: x / s, iy: y / s, ox, oy, s };
+    }
+    return null;
+  }
+  // место вставки под курсором — в любом из двух документов
+  function placeAt(cx, cy) {
+    const p = paneAt(cx, cy); if (!p) return null;
+    const ref = flowRef(p.d.elementFromPoint(p.ix, p.iy), p.d);
+    if (!ref) return { tab: p.t, pane: p, host: true };
     const r = ref.getBoundingClientRect();
-    return { ref, after: iy > r.top + r.height / 2, r };
+    return { tab: p.t, pane: p, ref, after: p.iy > r.top + r.height / 2, r };
+  }
+  function showDropAt(pl) {
+    if (!pl || !pl.ref) { dropLine.hidden = true; return; }
+    const { ox, oy, s } = pl.pane, r = pl.r;
+    dropLine.hidden = false;
+    Object.assign(dropLine.style, { left: (ox + r.left * s) + 'px', top: (oy + (pl.after ? r.bottom : r.top) * s - 2) + 'px', width: (r.width * s) + 'px', height: '4px' });
+  }
+  function autoScroll(cx, cy) {
+    const p = paneAt(cx, cy), vr = view.getBoundingClientRect(); if (!p) return;
+    const w = p.d.defaultView;
+    if (cy - vr.top - p.oy < 50) w.scrollBy(0, -16); else if (vr.bottom - cy < 50) w.scrollBy(0, 16);
   }
   $('#blBody').addEventListener('pointerdown', e => {
     const t = e.target.closest('.bl'); if (!t || e.button !== 0) return;
@@ -2492,13 +2591,8 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
       view.classList.add('dragging');
     }
     bdrag.ghost.style.left = e.clientX + 'px'; bdrag.ghost.style.top = e.clientY + 'px';
-    const vr = view.getBoundingClientRect();
-    if (doc && e.clientX > vr.left && e.clientX < vr.right) { if (e.clientY - vr.top < 50) W().scrollBy(0, -16); else if (vr.bottom - e.clientY < 50) W().scrollBy(0, 16); }
-    const p = bdrag.place = placeAt(e.clientX, e.clientY);
-    if (p && p.ref) {
-      dropLine.hidden = false;
-      Object.assign(dropLine.style, { left: (OX() + p.r.left * scale) + 'px', top: (OY() + (p.after ? p.r.bottom : p.r.top) * scale - 2) + 'px', width: (p.r.width * scale) + 'px', height: '4px' });
-    } else dropLine.hidden = true;
+    autoScroll(e.clientX, e.clientY);
+    showDropAt(bdrag.place = placeAt(e.clientX, e.clientY));
   });
   const endBdrag = ok => {
     if (!bdrag) return;
@@ -2506,7 +2600,7 @@ var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnec
     if (d.ghost) d.ghost.remove(); dropLine.hidden = true; view.classList.remove('dragging');
     if (!ok) return;
     if (!d.moved) insertBlock(d.def);
-    else if (d.place) insertBlock(d.def, d.place.ref ? d.place : null);
+    else if (d.place) insertBlock(d.def, d.place);
   };
   $('#blBody').addEventListener('pointerup', () => endBdrag(true));
   $('#blBody').addEventListener('pointercancel', () => endBdrag(false));
@@ -2647,6 +2741,7 @@ ${kitHtml(A)}
   function closeFind() {
     if (!find.open) return;
     find.open = false; find.list = []; find.cur = -1;
+    if ($('#findbar').contains(document.activeElement)) document.activeElement.blur();   // иначе горячие клавиши «застревают» в скрытом поле
     $('#findbar').hidden = true;
     const w = hlApi(); if (w) w.CSS.highlights.clear();
     ui(); if (doc) applyZoom();
@@ -2777,20 +2872,25 @@ ${kitHtml(A)}
     requestAnimationFrame(() => { syncing = false; });
   }
   // копия блока в соседний документ: встаёт после выделенного там места или в конец
-  function sendToPeer(el) {
-    if (panes().length !== 2) return;
-    const peer = pair.find(t => t !== cur); if (!peer || !peer.doc) return;
-    const html = noIds(stripMarks(el.cloneNode(true))).outerHTML, name = nm(el)[0].toLowerCase(), from = cur;
+  // копия блоков в другой документ: в точку place (перетаскивание) или после последнего места, где там кликали
+  function copyInto(els, place) {
+    els = docOrder(els.filter(x => x && x.isConnected)); if (!els.length) return;
+    const peer = place ? place.tab : pair && pair.find(t => t !== cur); if (!peer || !peer.frame.contentDocument) return;
+    const htmls = els.map(blockToHtml), from = cur;
+    const name = els.length > 1 ? `${els.length} ${plural(els.length, 'блок', 'блока', 'блоков')}` : nm(els[0])[0].toLowerCase();
     commitEdit(); activate(peer);
-    const c = parseOne(html);
-    const ref = flowRef(peer.sel && peer.sel.isConnected ? peer.sel : null);
-    if (ref) ref.after(c);
-    else { const host = defaultHost(), k = kitEl(); host === doc.body && k ? doc.body.insertBefore(c, k) : host.appendChild(c); }
-    if (c.matches('.hk') || c.querySelector('.hk')) ensureKit();
-    clickEl = c; select(c); push(`Скопировано из «${short(tabTitle(from), 24)}»: ${name}`);
-    c.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(placeTb, 380);
-    toast(`Скопировано: ${name}`, { action: 'Отменить', fn: undo, ms: 6000 });
+    let ref = place ? place.ref : null, before = place && place.ref && !place.after;
+    if (!place) ref = flowRef(peer.sel && peer.sel.isConnected ? peer.sel : null);
+    const where = ref ? 'there' : 'end';
+    const added = htmls.map(parseOne);
+    if (ref) { if (before) added.forEach(c => ref.before(c)); else added.reduce((prev, c) => (prev.after(c), c), ref); }
+    else { const host = defaultHost(), k = kitEl(); added.forEach(c => host === doc.body && k ? doc.body.insertBefore(c, k) : host.appendChild(c)); }
+    if (added.some(c => c.matches('.hk,[class*="hk-"]') || c.querySelector('.hk,[class*="hk-"]'))) ensureKit();
+    clickEl = added[0]; select(added[0]); push(`Скопировано из «${short(tabTitle(from), 24)}»: ${name}`);
+    added[0].scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(placeTb, 380);
+    toast(where === 'end' ? `Скопировано в конец документа: ${name}. Чтобы вставить в нужный раздел — кликните там перед копированием или перетащите за ⋮⋮` : `Скопировано: ${name}`, { action: 'Отменить', fn: undo, ms: where === 'end' ? 8000 : 6000 });
   }
+  function sendToPeer(x) { if (panes().length !== 2) return; copyInto(Array.isArray(x) ? x : [x], null); }
 
   /* ═════════════════ ИЗМЕНЕНИЕ РАЗМЕРА МЫШЬЮ ═════════════════
      Ширина — в процентах от родителя (так блок остаётся резиновым на телефоне), высота — min-height в px.
@@ -2805,7 +2905,7 @@ ${kitHtml(A)}
   }
   function placeResize() {
     const el = selected;
-    if (rz || !resizable(el) || drag || !$('#preview').hidden || editing === el) { if (!rz) rzBox.hidden = true; if (rz) posRz(rz.el); return; }
+    if (rz || !resizable(el) || drag || multi.length > 1 || !$('#preview').hidden || editing === el) { if (!rz) rzBox.hidden = true; if (rz) posRz(rz.el); return; }
     posRz(el);
   }
   function posRz(el) {
@@ -2881,7 +2981,13 @@ ${kitHtml(A)}
     catch (_) { toast('Не хватает места в браузере — удалите старые блоки или уменьшите картинки'); return false; }
   }
   function blockToHtml(el) {
-    const c = noIds(stripMarks(el.cloneNode(true)));
+    let c = noIds(stripMarks(el.cloneNode(true)));
+    const root = !el.matches('[data-hk]') && el.closest('[data-hk]');
+    if (root && root !== el) {   // карточка, этап, вкладка… — переносим в пустой копии своего блока
+      let host = el.parentElement, wrap = c;
+      while (host && host !== root) { const sh = stripMarks(host.cloneNode(false)); sh.removeAttribute("id"); sh.appendChild(wrap); wrap = sh; host = host.parentElement; }
+      const shell = noIds(stripMarks(root.cloneNode(false))); shell.appendChild(wrap); c = shell;
+    }
     [c, ...c.querySelectorAll('[data-note-anchor]')].forEach(x => x.removeAttribute('data-note-anchor'));
     return c.outerHTML;
   }
@@ -3059,11 +3165,15 @@ ${kitHtml(A)}
       <h4>Мои блоки</h4><p>Меню блока → <b>«Сохранить в мои блоки»</b>. Он появится сверху во вкладке «Блоки» и вставляется в любой документ. Кнопки «Выгрузить» и «Загрузить» передают библиотеку коллегам одним файлом.</p>`],
     ['size', 'Размер и порядок', `<ul><li><b>Размер</b> — у выделенной картинки или блока есть ручки: справа ширина, снизу высота, в углу обе. Ширина прилипает к 25 / 33 / 50 / 66 / 75 / 100 % (${K('Alt')} — без привязки). Двойной клик по ручке — сброс.</li>
       <li>У картинки на панели — выравнивание: слева, по центру, справа.</li>
-      <li><b>Порядок</b> — тяните за ручку ⋮⋮ слева от блока, или «Переместить выше / ниже» в меню блока. Строка таблицы остаётся в своей таблице, пункт — в своём списке.</li></ul>`],
+      <li><b>Порядок</b> — тяните за ручку ⋮⋮ слева от блока: синяя линия покажет, куда он встанет, можно и в другой раздел. Строка таблицы остаётся в своей таблице, пункт — в своём списке. Ещё — «Переместить выше / ниже» в меню блока.</li></ul>
+      <h4>Выделение и удаление</h4>
+      <ul><li>${K('Esc')} в тексте заканчивает правку, но блок остаётся выделенным (жёлтая рамка). Ещё раз ${K('Esc')} — снять выделение.</li>
+      <li>${K('Del')} или ${K('Backspace')} удаляет выделенный блок. Удаление отменяется ${K('Ctrl+Z')} или кнопкой «Отменить» во всплывающем сообщении.</li>
+      <li><b>Несколько блоков:</b> ${K('Ctrl')}+клик или ${K('Shift')}+клик добавляет блок к выделению (повторный — убирает). Над ними — «Удалить» и, если открыт второй документ, «Копия в соседний».</li></ul>`],
     ['tabs', 'Вкладки и «Рядом»', `<ul><li>Каждый файл открывается в своей вкладке со своей историей. Двойной клик по названию — переименовать (это <code>&lt;title&gt;</code> страницы), клик по иконке активной вкладки — сменить иконку.</li>
       <li>Точка вместо крестика — есть несохранённые правки. Правый клик по вкладке — дублировать, закрыть другие, открыть рядом.</li>
       <li><b>Два документа рядом</b>: кнопка «Рядом» или перетащите вкладку на документ. Оба редактируются — клик делает документ активным. «⇅ Вместе» прокручивает их синхронно, разделитель тянется.</li>
-      <li>Меню блока → <b>«Копировать в соседний документ»</b> переносит блок со всем оформлением.</li>
+      <li><b>Перенос блока</b>: перетащите его за ⋮⋮ прямо в нужный раздел второго документа — туда встанет копия. Или меню блока → «Копировать в соседний документ»: копия встанет после места, где вы последний раз кликали во втором документе. Плитки из «Блоков» тоже можно бросать в любой из двух документов.</li>
       <li>Если закрыть редактор, при следующем запуске он предложит вернуть все вкладки.</li></ul>`],
     ['preview', 'Навигация и предпросмотр', `<ul><li><b>«Навигация»</b> собирает меню из заголовков: липкое меню сверху, точки сбоку, кнопка «Оглавление», прогресс и «Наверх». Сохраняется в файл и само подстраивается под заголовки.</li>
       <li><b>«Предпросмотр»</b> показывает страницу глазами читателя: с анимациями и работающим интерактивом. Вверху переключатель <b>ПК / Планшет / Телефон</b> — проверить, как страница ведёт себя на узком экране. ${K('Esc')} — назад к правке.</li></ul>`],
@@ -3079,7 +3189,7 @@ ${kitHtml(A)}
       <li>«Файл → Скачать копию» и «Скачать чистовик» (без заметок).</li>
       <li>${K('Ctrl+P')} или «Файл → Сохранить как PDF» — печать без рамок и панелей редактора; навигация и кнопки при печати скрываются.</li>
       <li>Несохранённые правки переживают закрытие вкладки браузера — редактор предложит их вернуть.</li></ul>`],
-    ['keys', 'Горячие клавиши', `<table class="keys">${[['Ctrl+O', 'Открыть файл'], ['Ctrl+S', 'Сохранить'], ['Ctrl+Z / Ctrl+Y', 'Отменить / повторить'], ['Ctrl+F / Ctrl+H', 'Найти / заменить'], ['Ctrl+P', 'PDF и печать'], ['Ctrl+B / I / U', 'Жирный / курсив / подчёркнутый'], ['Enter / Shift+Enter', 'Закончить правку / перенос строки'], ['Esc', 'Снять выделение, закрыть окно или предпросмотр'], ['F1', 'Эта справка']].map(([k, v]) => `<tr><td>${k.split(' / ').map(K).join(' / ')}</td><td>${v}</td></tr>`).join('')}</table>`],
+    ['keys', 'Горячие клавиши', `<table class="keys">${[['Ctrl+O', 'Открыть файл'], ['Ctrl+S', 'Сохранить'], ['Ctrl+Z / Ctrl+Y', 'Отменить / повторить'], ['Ctrl+F / Ctrl+H', 'Найти / заменить'], ['Ctrl+P', 'PDF и печать'], ['Ctrl+B / I / U', 'Жирный / курсив / подчёркнутый'], ['Enter / Shift+Enter', 'Закончить правку / перенос строки'], ['Del / Backspace', 'Удалить выделенный блок (или несколько)'], ['Ctrl+клик / Shift+клик', 'Выделить несколько блоков'], ['Esc', 'Выйти из текста → снять выделение, закрыть окно или предпросмотр'], ['F1', 'Эта справка']].map(([k, v]) => `<tr><td>${k.split(' / ').map(K).join(' / ')}</td><td>${v}</td></tr>`).join('')}</table>`],
     ['dev', 'Для разработчика', `<p>Переключатель «Для разработчика» в шапке добавляет вкладку <b>«Код»</b>: стили выделенного элемента, его классы и HTML, CSS документа. Всё это попадает в историю и отменяется.</p>
       <p>Документ в редакторе открыт в изолированном окне без скриптов; в предпросмотре выполняются только скрипты навигации и блоков редактора.</p>`]
   ];
@@ -3124,7 +3234,7 @@ ${kitHtml(A)}
       f.style.left = x + 'px'; f.style.top = top + 'px';
       f.style.transform = s === 1 ? '' : `scale(${s})`;
       f.style.width = (w / s) + 'px'; f.style.height = ((H0 - top) / s) + 'px';
-      if (t === cur) scale = s;
+      t.scale = s; if (t === cur) scale = s;
       const ph = $('#ph' + i);
       Object.assign(ph.style, { left: x + 'px', width: w + 'px' });
     });
@@ -3317,10 +3427,12 @@ ${kitHtml(A)}
       if (mod && (k === 's' || c === 'KeyS')) { e.preventDefault(); e.target.blur(); save(); }
       else if (mod && (k === 'o' || c === 'KeyO')) { e.preventDefault(); pick(); }
       else if (mod && (k === 'f' || c === 'KeyF') && !e.target.closest('#findbar')) { e.preventDefault(); openFind(false); }
+      else if (mod && (k === 'h' || c === 'KeyH')) { e.preventDefault(); openFind(true); }
       else if (mod && (k === 'p' || c === 'KeyP')) { e.preventDefault(); e.target.blur(); printDoc(); }
       return;
     }
-    if (e.key === 'Escape') { if (!tabMenu.hidden || !addMenu.hidden) hideMenus(); else if (popType) closePop(); else if (!fileMenu.hidden) closeFileMenu(); else if (find.open) closeFind(); return; }
+    if (e.key === 'Escape') { if (!tabMenu.hidden || !addMenu.hidden) hideMenus(); else if (popType) closePop(); else if (!fileMenu.hidden) closeFileMenu(); else if (find.open) closeFind(); else if (doc && (selected || multi.length)) select(null); return; }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && doc && !editing && (selected || multi.length) && !(e.target.closest && e.target.closest('[contenteditable]'))) { e.preventDefault(); deleteSelection(); return; }
     shortcuts(e);
   });
 
